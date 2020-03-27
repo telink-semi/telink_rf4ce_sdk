@@ -12,6 +12,7 @@
 #include "../../../net/rf4ce/rf4ce_includes.h"
 #include "../../../proj/tl_common.h"
 #include "../../../proj/drivers/drv_flash.h"
+#include "../../../proj/drivers/drv_pm.h"
 #if (__PROJECT_ZRC_2_RC__)
 	#include "../../zrc_rc_app/rc_info.h"
 #elif (__PROJECT_ZRC_2_DONGLE__)

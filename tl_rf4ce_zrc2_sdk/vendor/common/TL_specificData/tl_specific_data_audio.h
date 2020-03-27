@@ -55,7 +55,7 @@ typedef struct{
 }tl_audioRecInfo_t;
 
 typedef struct{
-	u8 sampleRate;
+	u16 sampleRate;
 	u8 resoutionBits;
 	u8 channelNum;
 	u8 codecType;
@@ -79,6 +79,7 @@ void tl_audio_start(u8 profile, u8 pairingRef);
 
 void tl_audio_stop(u8 profile, u8 pairingRef);
 
+int audio_startfailed(void *arg);
 //u8 tl_audioDataSend(u8 profile, u8 *data, u8 len);
 
 //u8 tl_audioDataSendCnfHandler(u8 handler, u8 *cnf);

@@ -45,7 +45,7 @@ void ir_init(u8 channel){
 #if MCU_CORE_826x
 	pwm_Init(0);   //set PWM divider
 	pwm_INVInvert(IR_CHAANEL);
-#elif MCU_CORE_8258
+#elif MCU_CORE_8258 || MCU_CORE_8278
 	pwm_set_clk(CLOCK_SYS_CLOCK_HZ, CLOCK_SYS_CLOCK_HZ);
 	pwm_set_mode(IR_CHAANEL, PWM_NORMAL_MODE);
 	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
@@ -59,7 +59,7 @@ void ir_set(int hz, int low_duty){
 	u16 max_tick = CLOCK_SYS_CLOCK_HZ/hz;
 	u16 cmp_tick = max_tick / low_duty;
 	pwm_Open(IR_CHAANEL, NORMAL, 0, cmp_tick, max_tick, 0x2fff);
-#elif MCU_CORE_8258
+#elif MCU_CORE_8258 || MCU_CORE_8278
 	u16 max_tick = CLOCK_SYS_CLOCK_HZ/hz;
 	u16 cmp_tick = max_tick / low_duty;
 	drv_pwm_cfg(IR_CHAANEL,cmp_tick,max_tick);
@@ -69,7 +69,7 @@ void ir_set(int hz, int low_duty){
 void MARK(u32 t_us){
 #if MCU_CORE_826x
 	EN_PWM(IR_CHAANEL);
-#elif MCU_CORE_8258
+#elif MCU_CORE_8258 || MCU_CORE_8278
 	pwm_start(IR_CHAANEL);
 #endif
 }
@@ -77,7 +77,7 @@ void MARK(u32 t_us){
 void SPACE(u32 t_us){
 #if MCU_CORE_826x
 	DIS_PWM(IR_CHAANEL);
-#elif MCU_CORE_8258
+#elif MCU_CORE_8258 || MCU_CORE_8278
 	pwm_stop(IR_CHAANEL);
 #endif
 }

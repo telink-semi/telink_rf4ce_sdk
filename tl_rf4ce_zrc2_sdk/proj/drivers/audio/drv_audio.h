@@ -46,20 +46,53 @@ typedef enum{
 * */
 #define	BUFFER_PACKET_SIZE		((ADPCM_PACKET_LEN >> 2) * TL_MIC_PACKET_BUFFER_NUM)
 
-#define	AMIC_PIN_CFG(inPin0, inPin1, biasPin)  do \
+#define	AMIC_PIN_CFG_ON(inPin0, inPin1, biasPin)  do \
 		{										\
+			if(inPin0)							\
+			{									\
 			gpio_set_func(inPin0, AS_GPIO);		\
 			gpio_set_output_en (inPin0, 0);		\
 			gpio_set_input_en (inPin0, 0);		\
+			}									\
+			if(inPin1)							\
+			{									\
 			gpio_set_func(inPin1, AS_GPIO);		\
 			gpio_set_output_en (inPin1, 0);		\
 			gpio_set_input_en (inPin1, 0);		\
+			}									\
+			if(biasPin)							\
+			{									\
 			gpio_set_func(biasPin, AS_GPIO);    \
 			gpio_set_output_en (biasPin, 1);	\
 			gpio_set_input_en (biasPin, 0);		\
+			gpio_set_data_strength (biasPin, 1);\
 			gpio_write (biasPin, 1);			\
+			}									\
 		}while(0);
 
+#define	AMIC_PIN_CFG_OFF(inPin0, inPin1, biasPin)  do \
+		{										\
+			if(inPin0)							\
+			{									\
+			gpio_set_func(inPin0, AS_GPIO);		\
+			gpio_set_output_en (inPin0, 0);		\
+			gpio_set_input_en (inPin0, 0);		\
+			}									\
+			if(inPin1)							\
+			{									\
+			gpio_set_func(inPin1, AS_GPIO);		\
+			gpio_set_output_en (inPin1, 0);		\
+			gpio_set_input_en (inPin1, 0);		\
+			}									\
+			if(biasPin)							\
+			{									\
+			gpio_set_func(biasPin, AS_GPIO);    \
+			gpio_set_output_en (biasPin, 1);	\
+			gpio_set_input_en (biasPin, 0);		\
+			gpio_set_data_strength (biasPin, 1);\
+			gpio_write (biasPin, 0);			\
+			}									\
+		}while(0);
 
 typedef u8 (*audio_rec_ntf)(u8 *data, u8 len);
 

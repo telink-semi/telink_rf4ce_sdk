@@ -126,8 +126,8 @@ static void audio_recInit_826x(u32 sampleRate, audio_rec_ntf audioUserhandler){
     audio_amic_input_set(PGA_CH);
 #endif  //AMIC/DMIC
 }
-#elif MCU_CORE_8258
-static void proc_mic_encoder_8258 (void)
+#elif MCU_CORE_8258 || MCU_CORE_8278
+static void proc_mic_encoder_82x8 (void)
 {
 	static u16	buffer_mic_rptr;
 	u16 mic_wptr = reg_audio_wptr;
@@ -148,12 +148,26 @@ static void proc_mic_encoder_8258 (void)
 
 }
 
-static void audio_recInit_8258(u32 sampleRate, audio_rec_ntf audioUserhandler)
+static void audio_recInit_82x8(u32 sampleRate, audio_rec_ntf audioUserhandler)
 {
 	g_audioRecNtf = audioUserhandler;
-
+#if MCU_CORE_8258
 	audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
 	audio_amic_init(sampleRate);
+#elif MCU_CORE_8278
+	if(sampleRate==16000)
+	{
+		/* set fifo0 as input */
+		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
+		audio_amic_init(AUDIO_16K);
+	}
+	else if(sampleRate==32000)
+	{
+		/* set fifo0 as input */
+		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
+		audio_amic_init(AUDIO_32K);
+	}
+#endif
 }
 
 
@@ -205,10 +219,9 @@ void audio_recInit(u32 sampleRate, audio_rec_ntf audioUserhandler)
 {
 #if MCU_CORE_826x
 	audio_recInit_826x(sampleRate,audioUserhandler);
-#elif MCU_CORE_8258
-	audio_recInit_8258(sampleRate,audioUserhandler);
+#elif MCU_CORE_8258 || MCU_CORE_8278
+	audio_recInit_82x8(sampleRate,audioUserhandler);
 #endif
-
 }
 
 
@@ -216,14 +229,17 @@ void audio_recTaskStart(void){
 	if(audio_status != AUDIO_OPENED){
 		audio_status = AUDIO_OPENED;
 
+		APP_AMIC_PIN_CFG_ON;
 		audio_recInit(AUDIO_SAMPLE_RATE_16K, g_audioRecNtf);
 
 #if MCU_CORE_826x
 		BIT_SET(reg_dfifo_ana_in,4); //enable difofo
 #elif MCU_CORE_8258
-		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
+		BIT_SET(reg_dfifo_mode,1); //FLD_AUD_DFIFO0_IN   enable difofo
+#elif MCU_CORE_8278
+		BIT_SET(reg_dfifo_mode,1); //FLD_AUD_DFIFO0_IN   enable difofo
+		set_pga_input_vol();
 #endif
-
 		audio_delay_times = 50;
 	}
 }
@@ -231,12 +247,14 @@ void audio_recTaskStart(void){
 void audio_recTaskStop(void){
     audio_status = AUDIO_IDLE;
 
+    APP_AMIC_PIN_CFG_OFF;
 #if MCU_CORE_826x
 	BIT_CLR(reg_dfifo_ana_in,4); //enable difofo
 #elif MCU_CORE_8258
 	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
+#elif  MCU_CORE_8278
+	audio_codec_and_pga_disable();
 #endif
-
 	drv_adc_battery_detect_init();
 }
 
@@ -245,8 +263,8 @@ void audio_recTaskRun(void){
 
 #if MCU_CORE_826x
     proc_mic_encoder_826x();
-#elif MCU_CORE_8258
-    proc_mic_encoder_8258();
+#elif MCU_CORE_8258 || MCU_CORE_8278
+    proc_mic_encoder_82x8();
 #endif
 
     proc_sending84();

@@ -115,7 +115,6 @@ u8 app_validLevelForPm(u8 reset){
 			app_wakeupLevel[i] = gpio_read(app_wakeupPins[i]) ? 0 : 1;
 		}
 	}
-
 	return 0;
 }
 
@@ -402,15 +401,15 @@ void user_init(void){
 
     /* audio module Initialization */
 #if (MODULE_AUDIO_ENABLE)
-	APP_AMIC_PIN_CFG;
+	APP_AMIC_PIN_CFG_OFF;
 	tl_audioRecInit(PROFILE_ZRC2, &g_audioRecInfo, zrc_appAudioCb);
 #endif
 
+	drv_adc_init();
     /* Initialize stack */
     stack_init();
 
 	/* init ADC for battery detection */
-	drv_adc_init();
 	drv_adc_battery_detect_init();
 
     /* start battery detection */
@@ -543,7 +542,6 @@ int app_saveInfoPm(void){
 #if (MODULE_PM_ENABLE)
 	pmFlag_t pmInfo;
 	pmInfo.byte = analog_read(reg_mac_channel);
-
 	zrc_appVars.battStaUpload |= (zrc_appVars.battSta != pmInfo.bf.battSta) ? 1 : 0;
     /* save current paired target's channel */
     pairTable_t *pEntry = getPairingEntryByIndex(zrc_appInfo.pairingRef);

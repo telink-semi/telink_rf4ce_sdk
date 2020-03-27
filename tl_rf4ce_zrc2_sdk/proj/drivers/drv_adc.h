@@ -46,7 +46,7 @@ void drv_adc_battery_detect_init(void);
 unsigned short drv_get_adc_data(void);
 
 
-#if defined (MCU_CORE_8258)
+#if defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
 
 typedef enum{
 	Drv_ADC_BASE_MODE,
@@ -73,7 +73,6 @@ void drv_adc_set_calValue(unsigned short value);
 * @return
 */
 void drv_adc_enable(bool enable);
-
 #else
 
 typedef enum{

@@ -22,7 +22,7 @@
 #include "../tl_common.h"
 #include "./drv_adc.h"
 
-#if defined (MCU_CORE_8258)
+#if defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
 void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
 {
 	if(mode == Drv_ADC_BASE_MODE){
@@ -35,7 +35,11 @@ void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
 
 void drv_adc_enable(bool enable)
 {
+#if defined (MCU_CORE_8258)
 	adc_power_on(enable);
+#elif defined (MCU_CORE_8278)
+	adc_power_on_sar_adc(enable);
+#endif
 }
 
 #else
@@ -145,8 +149,10 @@ unsigned char drv_adc_init()
 {
 #if	defined (MCU_CORE_826x)
 	//set the ADC clock details (4MHz) and start the ADC clock.
-	return ADC_Init();
-#elif  defined(MCU_CORE_8258)
+	ADC_Init();
+	AUDIO2ADC();
+	return 1;
+#elif  defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	adc_init();
 	return 1;
 #endif
@@ -161,17 +167,26 @@ unsigned char drv_adc_init()
 unsigned short drv_get_adc_data(void)
 {
 #if defined (MCU_CORE_826x)
-	return ADC_SampleValueGet();
+//	u16 vol = 3300*(ADC_SampleValueGet() - 128)/(16384 - 256);
+	u32 vol = 3*(1428*(ADC_SampleValueGet() - 128)/(16384 - 256));
+//		      3*(1428*(sum - 128)/(16384 - 256));
+	return vol;
 #elif defined (MCU_CORE_8258)
 	return (unsigned short)adc_set_sample_and_get_result();
+#elif defined (MCU_CORE_8278)
+	return (unsigned short)adc_sample_and_get_result();
 #endif
 }
 
 void drv_adc_battery_detect_init(void){
 #if	defined (MCU_CORE_826x)
-	ADC_BatteryCheckInit(Battery_Chn_VCC);
+	ADC_BatteryCheckInit(Battery_Chn_VCC);//drv_ADC_ParamSetting(Drv_ADC_MISC_CHN,Drv_SINGLE_ENDED_MODE,B4,B4,S_3,RV_AVDD,RES14);
+	WaitUs(20);
 #elif  defined(MCU_CORE_8258)
 	drv_adc_mode_pin_set(Drv_ADC_VBAT_MODE, GPIO_PB4);
+	drv_adc_enable(1);
+#elif  defined(MCU_CORE_8278)
+	adc_vbat_init(GPIO_PB4);
 	drv_adc_enable(1);
 #endif
 }

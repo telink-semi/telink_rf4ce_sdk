@@ -101,7 +101,14 @@ void ota_mcuReboot(void)
 	flash_write((newAddr + 8),1,&flashInfo);//enable boot-up flag
 	flashInfo = 0;
 	flash_write((baseAddr + 8),1,&flashInfo);//disable boot-up flag
+#if (MCU_CORE_8278)//just for 8278 A0
+	app_saveInfoPm();
+	platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, PLATFORM_WAKEUP_TIMER, 100);
+	app_validLevelForPm(1);
+#else
+	app_saveInfoPm();
 	mcu_reset();
+#endif
 }
 
 
@@ -473,7 +480,6 @@ int ota_stopRspCb(void *pd)
 	{
 		ota_state = OTA_STA_FAILED;
 //		ev_unon_timer(&autoPollingCb);
-		otaCb(ota_state);
 		ev_on_timer(ota_callBackRestore, 0, 500*1000);
 		ret = -1;
 	}
@@ -491,6 +497,12 @@ void ota_stopRspHandler(u8 *pd)
 //		ota_state = OTA_STA_SUCCESS;
 		ev_unon_timer(&autoPollingCb);
 		ev_on_timer(ota_callBackRestore, 0, 1*500*1000);
+	}
+	else
+	{
+		ota_state = OTA_STA_FAILED;
+//		ev_unon_timer(&autoPollingCb);
+		ev_on_timer(ota_callBackRestore, 0, 500*1000);
 	}
 }
 

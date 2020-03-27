@@ -29,12 +29,14 @@
 SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_PLL;
 #elif MCU_CORE_8258
 SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
+#elif MCU_CORE_8278
+SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
 #endif
 
 extern void user_init();
 
 static void platform_init(void){
-#if MCU_CORE_8258
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	extern void bss_section_clear(void);
 	extern void data_section_load();
 	bss_section_clear();

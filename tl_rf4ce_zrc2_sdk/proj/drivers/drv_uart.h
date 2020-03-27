@@ -23,22 +23,16 @@
 
 #include "../common/types.h"
 #include "../common/compiler.h"
-
+#define MASTER_CLK_FREQ				tickPerUs
 typedef void (*uart_irq_callback)(void);
 
-typedef unsigned char  (*uart_data_send)(unsigned char  *data);
+typedef unsigned char (* uart_data_send)(unsigned char *data);
 
 typedef struct{
 	uart_irq_callback recvCb;
 	uart_data_send send;
 	volatile u8 status;
 }drv_uart_t;
-
-
-typedef enum{
-	UART_BAUDRATE_9600,
-	UART_BAUDRATE_115200,
-}uart_baud_rate_e;
 
 enum {
 	UART_STA_IDLE,
@@ -62,7 +56,7 @@ enum {
 *
 *	@return	none
 */
-void drv_uart_init(uart_baud_rate_e baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart_recvCb);
+void drv_uart_init(u32 baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart_recvCb);
 
 
 /*
@@ -90,4 +84,4 @@ void uart_tx_irq_handler(void);
 u8 uart_tx_done(void);
 
 
-u8 uart_tx_start(u8  *data, u32 len);
+u8 uart_tx_start(u8 *data, u32 len);

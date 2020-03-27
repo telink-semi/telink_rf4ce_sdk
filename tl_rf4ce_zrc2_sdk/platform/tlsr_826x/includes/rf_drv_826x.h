@@ -418,5 +418,9 @@ extern unsigned char RF_StopEd(void);
 #define RF_RxFinishClearFlag()		 reg_rf_irq_status |= FLD_RF_IRQ_RX
 #define RF_TxFinish()				 (reg_rf_irq_status & FLD_RF_IRQ_TX)
 
+static inline void rf_setIdleMode( void ){
+    write_reg8 (0x800f02, 0x45);  //trx disable
+}
+
 
 #endif

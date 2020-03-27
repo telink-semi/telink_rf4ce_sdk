@@ -22,34 +22,34 @@
 #include "../tl_common.h"
 #include "./drv_uart.h"
 
+
 drv_uart_t myUartDriver = {
 		.status = UART_STA_IDLE,
 		.recvCb = NULL,
 #if	defined(MCU_CORE_826x)
 		.send = uart_pktSend,
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 		.send = uart_dma_send,
 #endif
 };
 
+static u8 *uartDrvTxBuf = NULL;
 
-void drv_uart_init(uart_baud_rate_e baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart_recvCb){
+void drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart_recvCb){
 #if	defined (MCU_CORE_826x)
-	if(baudrate == UART_BAUDRATE_115200){
-		CLK32M_UART115200;
-	}else if(baudrate == UART_BAUDRATE_9600){
-		CLK32M_UART9600;
-	}
+	uart_Init(baudrate, 1, 1, NOCONTROL);
+
 	uart_RecBuffInit(rxBuf, rxBufLen);	/* configure receive buffer */
-#elif defined(MCU_CORE_8258)
+
+#else
 	uart_recbuff_init( (unsigned short *)rxBuf, rxBufLen);
 	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
-	if(baudrate == UART_BAUDRATE_115200){
-		uart_init(12, 15, PARITY_NONE, STOP_BIT_ONE);
-	}else if(baudrate == UART_BAUDRATE_9600){
-		uart_init(249, 9, PARITY_NONE, STOP_BIT_ONE);
-	}
+#if	defined(MCU_CORE_8278)
+	uart_init_baudrate(baudrate, (MASTER_CLK_FREQ*1000*1000), PARITY_NONE, STOP_BIT_ONE);//CLOCK_SYS_CLOCK_HZ
+#else
+	uart_init(baudrate, PARITY_NONE, STOP_BIT_ONE);
+#endif
 
 	// dma mode
 	uart_dma_enable(1, 1); 	//uart data in hardware buffer moved by dma, so we need enable them first
@@ -61,7 +61,6 @@ void drv_uart_init(uart_baud_rate_e baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_
 	myUartDriver.recvCb = uart_recvCb;
 }
 
-
 void uart_rx_irq_handler(void){
 	//TODO: Rx done
 	if(myUartDriver.recvCb){
@@ -69,7 +68,6 @@ void uart_rx_irq_handler(void){
 	}
 }
 
-static u8 *uartDrvTxBuf = NULL;
 void uart_tx_irq_handler(void){
 	//TODO: Tx done
 	if(uartDrvTxBuf){
@@ -79,15 +77,21 @@ void uart_tx_irq_handler(void){
 	myUartDriver.status = UART_STA_TX_DONE;
 }
 
+u8 uart_is_idel(void){
+	return ((myUartDriver.status == UART_STA_IDLE) ? TRUE : FALSE);
+}
 
 u8 uart_tx_done(void){
 	return ((myUartDriver.status == UART_STA_TX_DONE) ? TRUE : FALSE);
 }
 
-
 u8 uart_tx_start(u8 *data, u32 len){
+	if(!uart_is_idel()){
+		while(!uart_tx_done());
+	}
+
 	if(!uartDrvTxBuf){
-		uartDrvTxBuf = ev_buf_allocate(len+4);
+		uartDrvTxBuf = (u8 *)ev_buf_allocate(LARGE_BUFFER);
 		if(uartDrvTxBuf){
 			myUartDriver.status = UART_STA_TX_DOING;
 			uartDrvTxBuf[0] = (unsigned char)(len);
@@ -96,7 +100,6 @@ u8 uart_tx_start(u8 *data, u32 len){
 			uartDrvTxBuf[3] = (unsigned char)(len>>24);
 			memcpy(uartDrvTxBuf+4, data, len);
 			if(myUartDriver.send){
-				//return myUartDriver.send(uartDrvTxBuf);
 				while(!myUartDriver.send(uartDrvTxBuf));
 				return 1;
 			}
@@ -105,3 +108,12 @@ u8 uart_tx_start(u8 *data, u32 len){
 	return 0;
 }
 
+void uart_exceptionProcess(void){
+#if	defined (MCU_CORE_826x)
+	uart_ErrorCLR();
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	if(uart_is_parity_error()){
+		uart_clear_parity_error();
+	}
+#endif
+}

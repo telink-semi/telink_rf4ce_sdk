@@ -24,10 +24,6 @@ extern void uart_rx_irq_handler(void);
 extern void uart_tx_irq_handler(void);
 #endif
 
-#if (ZIPIR_ENABLE)
-#include "../../vendor/common/zipIR/ZipIRBlaster.h"
-extern  u8 zrcIrState;
-#endif
 
 _attribute_ram_code_ void  usb_endpoints_irq_handler (void) {
 	/////////////////////////////////////

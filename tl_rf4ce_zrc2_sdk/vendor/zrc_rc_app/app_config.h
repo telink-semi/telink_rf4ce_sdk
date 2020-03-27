@@ -117,7 +117,7 @@ extern "C" {
 
 #if MCU_CORE_826x
 #define	TL_MIC_32K_FIR_16K				1 // 1 can have Drift problem
-#elif MCU_CORE_8258
+#elif MCU_CORE_8258 || MCU_CORE_8278
 #define	TL_MIC_32K_FIR_16K				0
 #endif
 

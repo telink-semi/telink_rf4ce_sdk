@@ -6,7 +6,7 @@
 #include "../../proj/drivers/audio/drv_audio.h"
 #endif
 #include "../../proj/os/sys.h"
-
+#include "../../proj/drivers/drv_pm.h"
 #if defined(MCU_CORE_826x)
 	#if(CLOCK_SYS_CLOCK_HZ == 32000000)
 		SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_PLL;
@@ -15,7 +15,7 @@
 	#else
 		#error please config system clock
 	#endif
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#if(CLOCK_SYS_CLOCK_HZ == 32000000)
 		SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
 	#elif(CLOCK_SYS_CLOCK_HZ == 24000000)
@@ -45,7 +45,7 @@ u32 tick_usb_enum=0;
 static u8 platform_init(void){
 	u8 ret = SYSTEM_RETENTION_NONE;
 
-#if MCU_CORE_8258
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	extern void bss_section_clear(void);
 	extern void data_section_load();
 		bss_section_clear(); 		//power on

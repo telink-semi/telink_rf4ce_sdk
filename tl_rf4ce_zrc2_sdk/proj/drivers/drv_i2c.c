@@ -36,7 +36,7 @@ void drv_i2c_master_init(unsigned char SlaveID, unsigned char DivClock)
 {
 #if	defined (MCU_CORE_826x)
 	I2C_MasterInit(SlaveID, DivClock);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_master_init(SlaveID, DivClock);
 #endif
 }
@@ -53,7 +53,7 @@ void drv_i2c_slave_init(unsigned char device_ID, I2C_SlaveMode mode, unsigned ch
 {
 #if	defined (MCU_CORE_826x)
 	I2C_SlaveInit(device_ID, mode, pMapBuf);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_slave_init(device_ID, mode, pMapBuf);
 #endif
 }
@@ -70,7 +70,7 @@ void drv_i2c_write_byte(unsigned int Addr, unsigned int AddrLen, unsigned char D
 {
 #if	defined (MCU_CORE_826x)
 	I2C_WriteByte(Addr, AddrLen, Data);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_write_byte(Addr, AddrLen, Data);
 #endif
 }
@@ -89,7 +89,7 @@ void drv_i2c_write_series(unsigned int Addr, unsigned int AddrLen, unsigned char
 {
 #if	defined (MCU_CORE_826x)
 	I2C_Write(Addr, AddrLen, dataBuf, dataLen);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_write_series(Addr, AddrLen, dataBuf, dataLen);
 #endif
 }
@@ -108,7 +108,7 @@ unsigned char drv_i2c_read_byte(unsigned int Addr, unsigned int AddrLen)
 {
 #if	defined (MCU_CORE_826x)
 	return I2C_ReadByte(Addr, AddrLen);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return i2c_read_byte(Addr, AddrLen);
 #endif
 }
@@ -127,7 +127,7 @@ void drv_i2c_read_series(unsigned int Addr, unsigned int AddrLen, unsigned char 
 {
 #if	defined (MCU_CORE_826x)
 	I2C_Read(Addr, AddrLen, dataBuf, dataLen);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_read_series(Addr, AddrLen, dataBuf, dataLen);
 #endif
 }
@@ -148,7 +148,7 @@ void drv_i2c_gpio_set(I2C_GPIO_GroupTypeDef i2c_pin_group)
 {
 #if	defined (MCU_CORE_826x)
 	I2C_PinSelect(i2c_pin_group);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_gpio_set(i2c_pin_group);
 #endif
 }

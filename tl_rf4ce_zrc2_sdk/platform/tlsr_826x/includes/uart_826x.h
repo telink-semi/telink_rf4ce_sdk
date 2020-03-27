@@ -38,10 +38,7 @@ enum UARTIRQSOURCE{
 	RF_TX_DMA3=4,
 };
 
-#define CLK32M_UART9600			uart_Init(237,13,1,1,NOCONTROL)
-#define	CLK32M_UART115200		uart_Init(19,13,1,1,NOCONTROL)
-#define	CLK16M_UART115200		uart_Init(9,13,1,1,NOCONTROL)
-#define	CLK16M_UART9600			uart_Init(103,15,1,1,NOCONTROL)
+
 
 //UART_TX/UART_RX gpio pin config
 #define	   UART_GPIO_CFG_PA6_PA7()  do{\
@@ -84,26 +81,14 @@ unsigned char uart_ErrorCLR(void);
 *
 *	@brief	uart initiate, set uart clock divider, bitwidth and the uart work mode
 *
-*	@param	uartCLKdiv - uart clock divider
-*			bwpc - bitwidth, should be set to larger than 2
+*	@param	baud_rate - the selected baudrate for UART interface
 *			en_rx_irq - '1' enable rx irq; '0' disable.
 *			en_tx_irq - enable tx irq; '0' disable.
 *			hdwC - enum variable of hardware control functions
 *
 *	@return	'1' set success; '0' set error probably bwpc smaller than 3.
-*
-*		BaudRate = sclk/((uartCLKdiv+1)*(bwpc+1))  
-*		SYCLK = 16Mhz
-		115200		9			13
-		9600		103			15
-*
-*		SYCLK = 32Mhz
-*		115200		19			13
-		9600		237			13	
 */
-extern unsigned char uart_Init(unsigned short uartCLKdiv, unsigned char bwpc,unsigned char en_rx_irq,unsigned char en_tx_irq,enum HARDWARECONTROL hdwC);
-
-
+extern unsigned char uart_Init(unsigned int baud_rate,unsigned char en_rx_irq,unsigned char en_tx_irq,enum HARDWARECONTROL hdwC);
 
 /********************************************************************************
 *	@brief	uart send data function, this  function tell the DMA to get data from the RAM and start 

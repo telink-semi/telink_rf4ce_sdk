@@ -61,6 +61,7 @@ extern unsigned long CLOCK_SYS_CLOCK_1US;
 extern unsigned long CLOCK_SYS_CLOCK_1MS;
 extern unsigned long tickPerUs;
 
+#define MASTER_CLK_FREQ		tickPerUs
 
 // we use clock insteady of timer, to differentiate OS timers utility
 static inline void clock_enable_clock(int tmr, int en){

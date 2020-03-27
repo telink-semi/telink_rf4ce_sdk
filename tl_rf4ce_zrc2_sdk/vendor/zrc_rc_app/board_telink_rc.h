@@ -284,9 +284,9 @@ extern "C" {
  * AMIC pin nconfiguration
  *
  * */
-	#define APP_AMIC_PIN_CFG			AMIC_PIN_CFG(GPIO_PC4, GPIO_PC5, GPIO_PC6)
+#define APP_AMIC_PIN_CFG_ON		AMIC_PIN_CFG_ON(GPIO_PC4, GPIO_PC5, GPIO_PC6)
 
-
+#define APP_AMIC_PIN_CFG_OFF		AMIC_PIN_CFG_OFF(GPIO_PC4, GPIO_PC5, GPIO_PC6)
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

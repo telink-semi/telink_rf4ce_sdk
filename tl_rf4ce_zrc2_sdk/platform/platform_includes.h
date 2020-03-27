@@ -21,5 +21,9 @@
 #elif MCU_CORE_8258
 #include "./tlsr_8258/driver_8258.h"
 
+#elif MCU_CORE_8278
+#include "./tlsr_8278/driver_8278.h"
+
+
 #endif
 

@@ -42,7 +42,7 @@ extern unsigned long CLOCK_SYS_CLOCK_1US;
 extern unsigned long CLOCK_SYS_CLOCK_1MS;
 extern unsigned long tickPerUs;
 
-
+#define MASTER_CLK_FREQ		tickPerUs
 
 //#define SET_SYS_TICK_IRQ(tick)   	(reg_system_tick_irq = (tick) - pm_systick_offset)
 

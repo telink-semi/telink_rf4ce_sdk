@@ -241,9 +241,9 @@ extern "C" {
 
 #define	KB_MAP_NORMAL	{\
 						{VK_NONE_KEY,VK_TV,			VK_NONE_KEY,	VK_NONE_KEY,	VK_HOMEKEY,},	 \
-						{VK_RECORED,	VK_NONE_KEY,	VK_TV_POWER,	VK_VOLUME_UP,	VK_VOLUME_DOWN,},	 \
-						{VK_NUM_2,	VK_RIGHTKEY,	VK_VOLUME_DOWN,	VK_NUM_3,		VK_NUM_1,},	 \
-						{VK_NUM_5,	VK_OKKEY,		VK_VOLUME_UP,	VK_NUM_6,		VK_NUM_4,},	 \
+						{VK_RECORED,	VK_NONE_KEY,	VK_NONE_KEY,	VK_CH_UP,		VK_CH_DOWN,},	 \
+						{VK_NUM_2,	VK_RIGHTKEY,	VK_VOLUME_UP,	VK_NUM_3,		VK_NUM_1,},	 \
+						{VK_NUM_5,	VK_OKKEY,		VK_VOLUME_DOWN,	VK_NUM_6,		VK_NUM_4,},	 \
 						{VK_NUM_8,	VK_DOWNKEY,		VK_UPKEY,		VK_NUM_9,		VK_NUM_7,},	 \
 						{VK_NUM_0,	VK_BACK,		VK_LEFTKEY,		VK_MUTE,		VK_MENU,},	 }
 
@@ -267,7 +267,7 @@ extern "C" {
 
 
 
-#define PORT_DEBUG   			1
+#define PORT_DEBUG   			0
 #if PORT_DEBUG
 #define	PB0_FUNC				AS_GPIO
 #define PB0_INPUT_ENABLE		0
@@ -284,8 +284,8 @@ extern "C" {
  * AMIC pin nconfiguration
  *
  * */
-	#define APP_AMIC_PIN_CFG	AMIC_PIN_CFG(GPIO_PC0,GPIO_PC1,GPIO_PC4);
-
+#define APP_AMIC_PIN_CFG_OFF	AMIC_PIN_CFG_OFF(GPIO_PC0,GPIO_PC1,GPIO_PC4);
+#define APP_AMIC_PIN_CFG_ON		AMIC_PIN_CFG_ON(GPIO_PC0,GPIO_PC1,GPIO_PC4);
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

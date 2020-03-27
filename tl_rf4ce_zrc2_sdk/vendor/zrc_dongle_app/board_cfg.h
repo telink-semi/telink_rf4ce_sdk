@@ -28,11 +28,13 @@ extern "C" {
 
 #define 	BOARD_DONGLE_826x				1
 #define 	BOARD_DONGLE_8258				2
-
+#define 	BOARD_DONGLE_8278				3
 #if (MCU_CORE_826x)
 	#define		BOARD						BOARD_DONGLE_826x
 #elif (MCU_CORE_8258)
 	#define		BOARD						BOARD_DONGLE_8258
+#elif (MCU_CORE_8278)
+	#define		BOARD						BOARD_DONGLE_8278
 #endif
 
 
@@ -40,6 +42,8 @@ extern "C" {
 
 #elif(BOARD == BOARD_DONGLE_8258)
 	#include "board_dongle_8258.h"
+#elif(BOARD == BOARD_DONGLE_8278)
+	#include "board_dongle_8278.h"
 #endif
 
 

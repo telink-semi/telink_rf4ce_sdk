@@ -175,13 +175,17 @@ void audio_decInit(void){
 	reg_usb_ep6_buf_addr = 0x80;
 	reg_usb_ep7_buf_addr = 0xe0;
 	reg_usb_ep_max_size = (256 >> 3);
-#elif MCU_CORE_8258
+#elif MCU_CORE_8258 || MCU_CORE_8278
 	reg_usb_mask = BITS(6, 7);			//audio in/out interrupt enable
 	reg_irq_mask |= FLD_IRQ_EP_DATA_EN;
 	reg_usb_ep6_buf_addr = 0x80;
 	reg_usb_ep7_buf_addr  = 0xa0;//amic 0xa0 dmic 0xc0
 	reg_usb_ep_max_size = 256>>2;	//amic 24 dmic 256>>2
-	rng_init();
+	#if MCU_CORE_8258
+		rng_init();
+	#elif MCU_CORE_8278
+		random_generator_init();
+	#endif
 #endif
 }
 

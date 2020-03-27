@@ -124,7 +124,7 @@ u8 T_drop;
  */
  _CODE_MAC_ void rf_reset(void)
 {
-#if 0
+//#if 0
 	rf_txPower = 0;
 	rf_lastRssi = 0;
 #ifndef WIN32
@@ -133,13 +133,13 @@ u8 T_drop;
 #endif
     /* Add real RF HW initialize function */
     rf_setTxPower(PHY_TX_POWER_MAX);
-    rf_setChannel(DFLT_LOGIC_CHANNEL);
-    rf_setTrxState(RF_STATE_TX);
+//    rf_setChannel(DFLT_LOGIC_CHANNEL);
+    rf_setTrxState(RF_STATE_OFF);
 
     if (rf_specificFuns.resetFunc) {
         rf_specificFuns.resetFunc();
     }
-#endif
+//#endif
 }
 
 
@@ -261,7 +261,7 @@ u8 T_drop;
         if (*pValue) {
             rf_setTrxState(RF_STATE_RX);
         } else {
-            rf_setTrxState(RF_STATE_TX);
+            rf_setTrxState(RF_STATE_OFF);
         }
         break;
 
@@ -485,7 +485,8 @@ _CODE_MAC_ u8 rf_performCCA(void)
 		rfMode = RF_STATE_TX;
 	} else {
 		/* Close RF */
-		ZB_RADIO_TRX_SWITCH(RF_MODE_TX,LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+//		ZB_RADIO_TRX_SWITCH(RF_MODE_TX,LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+		rf_setIdleMode();
 		rfMode = RF_MODE_TX;
 	}
 //	if(rf_getChannel()!=0x14)

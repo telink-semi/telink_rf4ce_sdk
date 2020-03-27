@@ -333,4 +333,11 @@ extern void rf_tx_500k_simulate_100k(unsigned char *preamble, unsigned char prea
                                      unsigned char *tx_buf, unsigned short crc_init);
 extern signed char rf_ed_detecct_154(void);
 extern unsigned char rf_stop_ed_154(void);
+
+
+static inline void rf_setIdleMode( void ){
+    write_reg8 (0x800f02, 0x45);  //trx disable
+}
+
+
 #endif

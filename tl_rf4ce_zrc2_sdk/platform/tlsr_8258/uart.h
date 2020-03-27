@@ -103,23 +103,12 @@ static inline void uart_reset(void)
 
 /**
  * @brief      This function initializes the UART module.
- * @param[in]  g_uart_div  -  uart clock divider
- * @param[in]  g_bwpc      -  bitwidth, should be set to larger than 2
+ * @param[in]  BaudRate    - the selected baudrate for UART interface
  * @param[in]  Parity      - selected parity type for UART interface
  * @param[in]  StopBit     - selected length of stop bit for UART interface
  * @return     none
  */
-/*
- * sys_clk      baud rate   g_uart_div         g_bwpc
-  16Mhz          9600          118   			 13
-             	 19200         118     			 6
-            	 115200         9       		 13
-
-  24Mhz          9600          249       		 9
-             	 19200		   124               9
-             	 115200         12    			 15
-*/
-extern void uart_init(unsigned short g_uart_div, unsigned char g_bwpc, UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
+extern void uart_init(unsigned int BaudRate, UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
 /**
  * @brief     enable uart DMA mode
  * @param[in] none
@@ -133,7 +122,7 @@ extern void uart_dma_enable(unsigned char rx_dma_en, unsigned char tx_dma_en);
  * @param[in] tx_irq_en - 1:enable tx irq. 0:disable tx irq
  * @return    none
  */
-extern void uart_irq_enable(unsigned char rx_irq_en,unsigned char tx_irq_en);
+extern void uart_irq_enable(unsigned char rx_irq_en, unsigned char tx_irq_en);
 /**
  * @brief     uart send data function with not DMA method.
  *            variable uart_TxIndex,it must cycle the four registers 0x90 0x91 0x92 0x93 for the design of SOC.
@@ -170,7 +159,7 @@ extern unsigned char uart_ndmairq_get(void);
  * @return    1: send success ;
  *            0: DMA busy
  */
-extern unsigned char uart_dma_send(unsigned char* Addr);
+extern volatile unsigned char uart_dma_send(unsigned short* Addr);
 /**
  * @brief     uart send data function, this  function tell the DMA to get data from the RAM and start
  *            the DMA transmission

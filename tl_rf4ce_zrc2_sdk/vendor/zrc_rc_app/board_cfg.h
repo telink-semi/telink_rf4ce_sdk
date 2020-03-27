@@ -28,27 +28,28 @@ extern "C" {
 #endif
 
 #define 	BOARD_TELINK_RC					1
-#define 	BOARD_TELINK_CHARTER			2
-#define		BOARD_C59T80A5_V1P1_8267		3
-#define 	BOARD_TELINK_RC_8258			4
-
+#define		BOARD_C59T80A5_V1P1_8267		2
+#define 	BOARD_TELINK_RC_8258			3
+#define 	BOARD_TELINK_RC_8278			4
 
 
 #if (MCU_CORE_8258==1)
 #define		BOARD							BOARD_TELINK_RC_8258
+#elif (MCU_CORE_8278==1)
+#define		BOARD							BOARD_TELINK_RC_8278
 #elif (MCU_CORE_826x==1)
-#define		BOARD							BOARD_TELINK_RC
+#define		BOARD							BOARD_TELINK_RC_8269
 #endif
 
 
-#if(BOARD == BOARD_TELINK_RC)
+#if(BOARD == BOARD_TELINK_RC_8269)
 	#include "board_telink_rc.h"
-#elif(BOARD == BOARD_TELINK_CHARTER)
-	#include "board_telink_charter.h"
 #elif(BOARD == BOARD_C59T80A5_V1P1_8267)
 	#include "board_C59T80A5_v1P1_8267.h"
 #elif(BOARD == BOARD_TELINK_RC_8258)
 	#include "board_telink_rc_8258.h"
+#elif(BOARD == BOARD_TELINK_RC_8278)
+	#include "board_telink_rc_8278.h"
 #endif
 
 #define MSO_APP_MAX_ERR_CNT              10

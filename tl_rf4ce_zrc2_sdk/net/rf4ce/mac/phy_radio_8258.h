@@ -115,6 +115,21 @@
 #define ZB_TIMER_INIT()					hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
 
 static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
+		u8 lqi;
+
+		s8 rssi = inRssi - 110;
+
+		s16 minEd = -106;
+		s16 maxEd = -58;  //maxGain
+
+		if(mode == RF_GAIN_MODE_AUTO){
+			maxEd = -6;   //Agc
+		}
+
+		lqi = 255*(rssi - minEd)/(maxEd - minEd); //LQI = 255* (rssi - MIN_ED_m106)/(MAX_ED_m6 - MIN_ED_m110)
+		return lqi;
+
+#if 0
 	u8 lqi=0;
 	s8 rssi = inRssi - 110;
 
@@ -143,6 +158,7 @@ static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
 		}
 	}
 	 return lqi;
+#endif
 }
 
 #endif  /* __RF_H__ */

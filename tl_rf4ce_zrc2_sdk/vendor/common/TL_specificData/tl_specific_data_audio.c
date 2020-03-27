@@ -118,8 +118,20 @@ void tl_audioRecInit(u8 profileId, tl_audioRecInfo_t *info, tl_audioUserCb_t use
 	audio_recInit(g_pAudioRecInfo->sampleRate, tl_audioDataSend);
 }
 
+
+ev_time_event_t *audioStartFailedCb;
 void tl_audio_start(u8 profile, u8 pairingRef){
 	tl_audioStartReqSend(profile,  pairingRef);
+	if(audioStartFailedCb)
+		ev_unon_timer(&audioStartFailedCb);
+	audioStartFailedCb = ev_on_timer(audio_startfailed, 0, 300*1000);
+}
+
+int audio_startfailed(void *arg)
+{
+    u8 value = 0;
+    mac_mlmeSetReq(MAC_RX_ON_WHEN_IDLE, &value);
+	return -1;
 }
 
 void tl_audio_stop(u8 profile, u8 pairingRef){
@@ -234,6 +246,8 @@ void tl_appAudioCmdHandler(u8 *pd, u8 len){
 		tl_audioDataNotify(pd, len);
 	}else if(pHdr->cmdId == TL_CMD_AUDIO_START_RSP){
 #if (__PROJECT_ZRC_2_RC__)
+		if(audioStartFailedCb)
+			ev_unon_timer(&audioStartFailedCb);
 		u8 *pld = ((tl_appFrameFmt_t *)pd)->payload;
 		tl_audioStartRsp_t *rsp = (tl_audioStartRsp_t *)pld;
 		if(rsp->status == SUCCESS){

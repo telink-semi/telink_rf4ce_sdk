@@ -12,6 +12,8 @@
 #define CHIP_ID  0x8258
 #elif (MCU_CORE_826x)
 #define CHIP_ID  0x8269
+#elif (MCU_CORE_8278)
+#define CHIP_ID  0x8278
 #else
 #define CHIP_ID  0x0000
 #endif

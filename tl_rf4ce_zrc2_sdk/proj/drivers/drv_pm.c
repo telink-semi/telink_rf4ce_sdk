@@ -70,6 +70,10 @@ platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_
 	if(src & PLATFORM_WAKEUP_TIMER){
 		srcType |= PM_WAKEUP_TIMER;
 	}
+
+#if defined(MCU_CORE_8278)
+	blc_pm_select_internal_32k_crystal();
+#endif
 	int wakeupSrc = cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
 	if(wakeupSrc & BIT(1)){
 		ws = PLATFORM_WAKEUP_TIMER;

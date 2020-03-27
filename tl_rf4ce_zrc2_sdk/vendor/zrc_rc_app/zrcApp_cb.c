@@ -283,11 +283,19 @@ void zrc_bondCnfCb(u8 pairingRef, u8 status)
         zrc_setAppState(ZRC_READY_STATE);
         nv_userLoadFromFlash(ZRC_APP_NV_ITEM, sizeof(zrc_appInfo_t), (u8*)&zrc_appInfo);
         zrc_ledOff(1);
+        zrc_stopLed(1);
+		if ( zrc_appVars.flags.bf.ledIdleState == 0 ) {
+			zrc_appVars.flags.bf.allowedDeep = 1;
+		}
         return;
     }else {
 		zrc_appInfo.pairingRef = RF4CE_INVALID_PAIR_REF;
 		zrc_appInfo.state = ZRC_UNCONNECT_STATE;
 		zrc_setAppState(ZRC_UNCONNECT_STATE);
+		zrc_stopLed(1);
+		if ( zrc_appVars.flags.bf.ledIdleState == 0 ) {
+			zrc_appVars.flags.bf.allowedDeep = 1;
+		}
 	}
 
 	/* voltage lower than 2.2V, not save flash */
@@ -303,6 +311,7 @@ void zrc_bondCnfCb(u8 pairingRef, u8 status)
 	pmInfo.byte = analog_read(reg_mac_channel);
 	analog_write(reg_mac_channel, pmInfo.byte);
 	zrc_ledOff(1);
+
 }
 
 
@@ -693,7 +702,12 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt){
 		 *
 		 * */
 		//if((key1 == VK_HOMEKEY && key2 == VK_MENU) || (key1 == VK_MENU && key2 == VK_HOMEKEY)){
-    	if(keyCode == VK_HOMEKEY){
+#if (MCU_CORE_8278)
+    	if(keyCode == VK_OKKEY)
+#else
+    	if(keyCode == VK_HOMEKEY)
+#endif
+    	{
 			/* enter Programming mode, stop repeat timer if need it */
 			zrc_restoreAppState();
 			zrc_stopSendRepeateDataTimer();
