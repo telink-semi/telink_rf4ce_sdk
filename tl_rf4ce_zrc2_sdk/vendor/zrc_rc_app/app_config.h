@@ -100,7 +100,7 @@ extern "C" {
 
 ///////////////////  MIC  /////////////////////////////////
 #define MIC_RESOLUTION_BIT		16
-#define MIC_SAMPLE_RATE			16000
+#define MIC_SAMPLE_RATE			8000
 #define MIC_CHANNLE_COUNT		1
 #define	MIC_ENOCDER_ENABLE		0
 
@@ -118,7 +118,11 @@ extern "C" {
 #if MCU_CORE_826x
 #define	TL_MIC_32K_FIR_16K				1 // 1 can have Drift problem
 #elif MCU_CORE_8258 || MCU_CORE_8278
-#define	TL_MIC_32K_FIR_16K				0
+	#if MIC_SAMPLE_RATE==8000
+	#define	TL_MIC_32K_FIR_16K				1
+	#elif MIC_SAMPLE_RATE==16000
+	#define	TL_MIC_32K_FIR_16K				0
+	#endif
 #endif
 
 #if TL_MIC_32K_FIR_16K

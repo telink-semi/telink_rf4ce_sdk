@@ -80,11 +80,7 @@ void sys_enter_deepsleep_mode(void){
 	if(sysSta == 1){
 		extern u8 app_wakeupLevel[];
 		extern u32 app_wakeupPins[];
-#if MCU_CORE_8278
-		for(s32 i = 0; i < KB_ARRAY_ROW - 1; i++)
-#else
 		for(s32 i = 0; i < KB_ARRAY_ROW; i++)
-#endif
 		{
 			if((gpio_read(app_wakeupPins[i]) && app_wakeupLevel[i]) ||
 				(!gpio_read(app_wakeupPins[i]) && !app_wakeupLevel[i])){

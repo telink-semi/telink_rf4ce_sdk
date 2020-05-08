@@ -85,12 +85,26 @@ static void audio_recInit_826x(u32 sampleRate, audio_rec_ntf audioUserhandler){
      * sample rate configure
      * */
     if(sampleRate == AUDIO_SAMPLE_RATE_8K){
-#if (CLOCK_SYS_CLOCK_HZ == 16000000)
-		audio_amic_init( DIFF_MODE, 18,  11, R8, CLOCK_SYS_TYPE);//R2
+#if TL_MIC_32K_FIR_16K
+	#if (CLOCK_SYS_CLOCK_HZ == 16000000)
+		audio_amic_init( DIFF_MODE, 26,  9, R4, CLOCK_SYS_TYPE);//R4
 		audio_finetune_sample_rate(2);
-#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
-		audio_amic_init( DIFF_MODE, 18,  11, R8, CLOCK_SYS_TYPE);//R2
-		audio_finetune_sample_rate(2);
+	#elif (CLOCK_SYS_CLOCK_HZ == 24000000)
+		audio_amic_init( DIFF_MODE, 33, 15, R4, CLOCK_SYS_TYPE);
+		audio_finetune_sample_rate(3);
+	#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
+		audio_amic_init( DIFF_MODE, 45, 20, R4, CLOCK_SYS_TYPE);
+	#elif (CLOCK_SYS_CLOCK_HZ == 48000000)
+		audio_amic_init( DIFF_MODE, 65, 15, R6, CLOCK_SYS_TYPE);
+	#endif
+#else
+	#if (CLOCK_SYS_CLOCK_HZ == 16000000)
+			audio_amic_init( DIFF_MODE, 18,  11, R8, CLOCK_SYS_TYPE);//R2
+			audio_finetune_sample_rate(2);
+	#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
+			audio_amic_init( DIFF_MODE, 18,  11, R8, CLOCK_SYS_TYPE);//R2
+			audio_finetune_sample_rate(2);
+	#endif
 #endif
     }else if(sampleRate == AUDIO_SAMPLE_RATE_16K){
 #if TL_MIC_32K_FIR_16K
@@ -151,23 +165,22 @@ static void proc_mic_encoder_82x8 (void)
 static void audio_recInit_82x8(u32 sampleRate, audio_rec_ntf audioUserhandler)
 {
 	g_audioRecNtf = audioUserhandler;
-#if MCU_CORE_8258
-	audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
-	audio_amic_init(sampleRate);
-#elif MCU_CORE_8278
-	if(sampleRate==16000)
+	if(sampleRate==AUDIO_SAMPLE_RATE_8K)
+	{
+		/* set fifo0 as input */
+		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
+		audio_amic_init(AUDIO_8K);
+	}
+	else if(sampleRate==AUDIO_SAMPLE_RATE_16K)
 	{
 		/* set fifo0 as input */
 		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
 		audio_amic_init(AUDIO_16K);
 	}
-	else if(sampleRate==32000)
-	{
-		/* set fifo0 as input */
-		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
-		audio_amic_init(AUDIO_32K);
-	}
+#if MCU_CORE_8278
+	audio_codec_and_pga_disable();
 #endif
+
 }
 
 
@@ -230,14 +243,14 @@ void audio_recTaskStart(void){
 		audio_status = AUDIO_OPENED;
 
 		APP_AMIC_PIN_CFG_ON;
-		audio_recInit(AUDIO_SAMPLE_RATE_16K, g_audioRecNtf);
+		audio_recInit(MIC_SAMPLE_RATE, g_audioRecNtf);
 
 #if MCU_CORE_826x
 		BIT_SET(reg_dfifo_ana_in,4); //enable difofo
 #elif MCU_CORE_8258
-		BIT_SET(reg_dfifo_mode,1); //FLD_AUD_DFIFO0_IN   enable difofo
+		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 #elif MCU_CORE_8278
-		BIT_SET(reg_dfifo_mode,1); //FLD_AUD_DFIFO0_IN   enable difofo
+		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 		set_pga_input_vol();
 #endif
 		audio_delay_times = 50;
@@ -253,6 +266,7 @@ void audio_recTaskStop(void){
 #elif MCU_CORE_8258
 	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
 #elif  MCU_CORE_8278
+	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
 	audio_codec_and_pga_disable();
 #endif
 	drv_adc_battery_detect_init();

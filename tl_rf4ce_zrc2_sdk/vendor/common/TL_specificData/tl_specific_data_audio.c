@@ -34,7 +34,9 @@ static u8 g_tlAppAudioErr = 0;
 static tl_audioRecInfo_t *g_pAudioRecInfo = NULL;
 static tl_audioUserCb_t gAudioUserCb = NULL;
 static u8 g_audioProfileId = 0;
+static u8 g_audioTryTime = 0;
 
+#define AudioReqTryTime     		4
 
 #include "../../zrc_rc_app/zrcApp_led.h"
 #if (MODULE_AUDIO_ENABLE)
@@ -119,19 +121,33 @@ void tl_audioRecInit(u8 profileId, tl_audioRecInfo_t *info, tl_audioUserCb_t use
 }
 
 
-ev_time_event_t *audioStartFailedCb;
+ev_time_event_t *audioStartTryCb;
 void tl_audio_start(u8 profile, u8 pairingRef){
 	tl_audioStartReqSend(profile,  pairingRef);
-	if(audioStartFailedCb)
-		ev_unon_timer(&audioStartFailedCb);
-	audioStartFailedCb = ev_on_timer(audio_startfailed, 0, 300*1000);
+	g_audioTryTime=0;
+	if(audioStartTryCb)
+		ev_unon_timer(&audioStartTryCb);
+	audioStartTryCb = ev_on_timer(audio_startsendtry, pairingRef, 500*1000);
 }
 
-int audio_startfailed(void *arg)
+
+
+
+int audio_startsendtry(void *arg)
 {
-    u8 value = 0;
-    mac_mlmeSetReq(MAC_RX_ON_WHEN_IDLE, &value);
-	return -1;
+	u8 pairingRef = (u8)arg;
+	if(g_audioTryTime>=AudioReqTryTime)
+	{
+		u8 value = 0;
+		mac_mlmeSetReq(MAC_RX_ON_WHEN_IDLE, &value);
+		return -1;
+	}
+	else
+	{
+		g_audioTryTime++;
+		tl_audioStartReqSend(PROFILE_ZRC2,  pairingRef);
+		return 0;
+	}
 }
 
 void tl_audio_stop(u8 profile, u8 pairingRef){
@@ -234,20 +250,88 @@ s32 tl_audioStatusRespSend(void *arg){
 	return -1;
 }
 
+
+
+#if (__PROJECT_ZRC_2_DONGLE__)
+#define 	EnergyScanTimems				100
+volatile u8 audio_EDetectList[3];
+const u8 ed_channelList[3] = {15,20,25};
+volatile u8 audio_edCnt=0;
+volatile u8 audio_seq_no=0;
+ev_time_event_t *audio_edScanTimer;
+s32 tl_audioEnergyScan(void *arg)
+{
+	audio_EDetectList[audio_edCnt] =  rf_stopED();
+	audio_edCnt++;
+	if(audio_edCnt<3)
+	{
+		u8 value = ed_channelList[audio_edCnt];
+		mac_mlmeSetReq(MAC_LOGICAL_CHANNEL,  &value);
+		rf_startED();
+		return 0;
+	}
+	else
+	return -1;
+}
+#endif
+
+
+
 void tl_appAudioCmdHandler(u8 *pd, u8 len){
 	tl_appFrameHdr_t *pHdr = (tl_appFrameHdr_t *)pd;
-
-
 	if(pHdr->cmdId == TL_CMD_AUDIO_START_REQ){
-		ev_on_timer(tl_audioStatusRespSend, (void *)TL_CMD_AUDIO_START_RSP, 2*1000);
+#if (__PROJECT_ZRC_2_DONGLE__)
+		if(audio_edCnt==0)
+		{
+			u8 value = ed_channelList[audio_edCnt];
+			mac_mlmeSetReq(MAC_LOGICAL_CHANNEL,  &value);
+			rf_startED();
+			if(audio_edScanTimer)
+				ev_unon_timer(&audio_edScanTimer);
+			audio_edScanTimer = ev_on_timer(tl_audioEnergyScan, 0, EnergyScanTimems*1000);
+		}
+		else if(audio_edCnt==3)
+		{
+			if(audio_edScanTimer)
+				ev_unon_timer(&audio_edScanTimer);
+			audio_edCnt = 0x5a;
+			u8 k =0;
+			for(u8 i=0;i<3;i++)
+			{
+				if(audio_EDetectList[k]>audio_EDetectList[i])
+				{
+					k = i;
+				}
+			}
+			u8 value = ed_channelList[k];
+			nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
+			changePairEntryChannel(value);
+			zrc_backupPairEntry();
+		}
+		if(audio_edCnt == 0x5a)
+		{
+			tl_audioStartRspSend(PROFILE_ZRC2, 0);
+			audio_seq_no = pHdr->seqNo;
+		}
+#endif
+//				ev_on_timer(tl_audioStatusRespSend, (void *)TL_CMD_AUDIO_START_RSP, 20*1000);
 	}else if(pHdr->cmdId == TL_CMD_AUDIO_STOP_REQ){
+#if (__PROJECT_ZRC_2_DONGLE__)
 		ev_on_timer(tl_audioStatusRespSend, (void *)TL_CMD_AUDIO_STOP_RSP, 2*1000);
+		audio_edCnt = 0;
+#endif
 	}else if(pHdr->cmdId == TL_CMD_AUDIO_DATA_NOTIFY){
+#if (__PROJECT_ZRC_2_DONGLE__)
+		if(audio_seq_no != pHdr->seqNo)
+		{
 		tl_audioDataNotify(pd, len);
+		audio_seq_no = pHdr->seqNo;
+		}
+#endif
 	}else if(pHdr->cmdId == TL_CMD_AUDIO_START_RSP){
 #if (__PROJECT_ZRC_2_RC__)
-		if(audioStartFailedCb)
-			ev_unon_timer(&audioStartFailedCb);
+		if(audioStartTryCb)
+			ev_unon_timer(&audioStartTryCb);
 		u8 *pld = ((tl_appFrameFmt_t *)pd)->payload;
 		tl_audioStartRsp_t *rsp = (tl_audioStartRsp_t *)pld;
 		if(rsp->status == SUCCESS){

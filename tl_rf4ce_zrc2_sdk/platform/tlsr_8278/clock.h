@@ -67,9 +67,8 @@ extern unsigned char system_clk_type;
  */
 typedef enum{
 	LDO_MODE 		=0x40,	//LDO mode
+	DCDC_LDO_MODE	=0x41,	//DCDC_LDO mode
 	DCDC_MODE		=0x43,	//DCDC mode (16pin is not suported this mode.)
-	DCDC_LDO_MODE	=0x45,	//DCDC_LDO mode (synchronize mode,Use the asynchronize 
-								//mode with DCDC_LDO may cause the current abnormal(A0 version))
 }POWER_MODE_TypeDef;
 
 /**
@@ -84,17 +83,17 @@ typedef enum{
  * @brief system clock type.
  */
 typedef enum{
-	SYS_CLK_12M_Crystal,
-	SYS_CLK_16M_Crystal,
-	SYS_CLK_24M_Crystal,
-	SYS_CLK_32M_Crystal,
-	SYS_CLK_48M_Crystal,
-	SYS_CLK_RC_THRES,
+	SYS_CLK_12M_Crystal = 0x44,
+	SYS_CLK_16M_Crystal = 0x43,
+	SYS_CLK_24M_Crystal = 0x42,
+	SYS_CLK_32M_Crystal = 0x60,
+	SYS_CLK_48M_Crystal = 0x20,
 
-	SYS_CLK_24M_RC,
-	SYS_CLK_32M_RC,
-	SYS_CLK_48M_RC,
+	SYS_CLK_RC_THRES = 0x10,
 
+//	SYS_CLK_24M_RC 	 = 0x00,
+//	SYS_CLK_32M_RC 	 = 0x01,
+//	SYS_CLK_48M_RC 	 = 0x02,
 }SYS_CLK_TYPEDEF;
 
 /**

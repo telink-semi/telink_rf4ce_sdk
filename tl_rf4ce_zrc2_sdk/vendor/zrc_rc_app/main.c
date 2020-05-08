@@ -1,3 +1,24 @@
+/********************************************************************************************************
+ * @file     main.c
+ *
+ * @brief    the Main function for ZRC2 controller project
+ *
+ * @author
+ * @date     July. 1, 2019
+ *
+ * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *			 The information contained herein is confidential and proprietary property of Telink
+ * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
+ *           This heading MUST NOT be removed from this file.
+ *
+ * 			 Licensees are granted free, non-transferable use of the information in this
+ *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
+ *******************************************************************************************************/
 
 #include "../../proj/tl_common.h"
 #include "../../vendor/common/user_config.h"
@@ -50,11 +71,13 @@ static u8 platform_init(void){
 	extern void data_section_load();
 		bss_section_clear(); 		//power on
 		data_section_load();
-
 #endif
-
+#if defined(MCU_CORE_8278)
+	blc_pm_select_internal_32k_crystal();
+	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+#else
 	cpu_wakeup_init();
-
+#endif
 	clock_init(g_sysClk);
 
 	gpio_init();
@@ -76,7 +99,7 @@ int main (void) {
     tick_usb_enum = clock_time ();
     irq_enable();
 
-    while (1) {
+    while(1){
 #if (MODULE_AUDIO_DEBUG)
         audio_debug_usb_direct_out(tick_usb_enum);
         continue;

@@ -101,14 +101,8 @@ void ota_mcuReboot(void)
 	flash_write((newAddr + 8),1,&flashInfo);//enable boot-up flag
 	flashInfo = 0;
 	flash_write((baseAddr + 8),1,&flashInfo);//disable boot-up flag
-#if (MCU_CORE_8278)//just for 8278 A0
-	app_saveInfoPm();
-	platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, PLATFORM_WAKEUP_TIMER, 100);
-	app_validLevelForPm(1);
-#else
 	app_saveInfoPm();
 	mcu_reset();
-#endif
 }
 
 
@@ -676,7 +670,7 @@ void ota_stopReqHandler(u8 *pd)
 
 
 
-
+volatile u16 seq_number;
 
 void tl_appOtaCmdHandler(u8 *pd)
 {
@@ -685,10 +679,15 @@ void tl_appOtaCmdHandler(u8 *pd)
 
 	if(pHdr->cmdId == TL_CMD_OTA_START_REQ){//from RC
 		ota_startReqHandler(pld);
+		seq_number = 0x100;
 	}else if(pHdr->cmdId == TL_CMD_OTA_STOP_REQ){
 		ota_stopReqHandler(pld);
 	}else if(pHdr->cmdId == TL_CMD_OTA_DATA_REQ){
+		if(seq_number!=pHdr->seqNo)
+		{
+		seq_number = pHdr->seqNo;
 		ota_dataReqHandler(pld);
+		}
 	}
 
 	else if(pHdr->cmdId == TL_CMD_OTA_START_RSP){//from target

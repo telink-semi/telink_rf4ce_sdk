@@ -27,10 +27,9 @@
 extern "C" {
 #endif
 
-#define 	BOARD_TELINK_RC					1
-#define		BOARD_C59T80A5_V1P1_8267		2
-#define 	BOARD_TELINK_RC_8258			3
-#define 	BOARD_TELINK_RC_8278			4
+#define 	BOARD_TELINK_RC_8269			1
+#define 	BOARD_TELINK_RC_8258			2
+#define 	BOARD_TELINK_RC_8278			3
 
 
 #if (MCU_CORE_8258==1)
@@ -43,9 +42,7 @@ extern "C" {
 
 
 #if(BOARD == BOARD_TELINK_RC_8269)
-	#include "board_telink_rc.h"
-#elif(BOARD == BOARD_C59T80A5_V1P1_8267)
-	#include "board_C59T80A5_v1P1_8267.h"
+	#include "board_telink_rc_826x.h"
 #elif(BOARD == BOARD_TELINK_RC_8258)
 	#include "board_telink_rc_8258.h"
 #elif(BOARD == BOARD_TELINK_RC_8278)

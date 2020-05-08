@@ -34,7 +34,6 @@ SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
 #endif
 
 extern void user_init();
-
 static void platform_init(void){
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	extern void bss_section_clear(void);
@@ -42,7 +41,12 @@ static void platform_init(void){
 	bss_section_clear();
 	data_section_load();
 #endif
+#if defined(MCU_CORE_8278)
+	blc_pm_select_internal_32k_crystal();
+	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+#else
 	cpu_wakeup_init();
+#endif
 
 	clock_init(g_sysClk);
 

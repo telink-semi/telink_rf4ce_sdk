@@ -103,7 +103,7 @@ extern "C" {
 
 ///////////////////  MIC  /////////////////////////////////
 #define MIC_RESOLUTION_BIT		16
-#define MIC_SAMPLE_RATE			16000
+#define MIC_SAMPLE_RATE			8000
 #define MIC_CHANNLE_COUNT		1
 
 #define	MIC_ADPCM_FRAME_SIZE    (80+4)//128

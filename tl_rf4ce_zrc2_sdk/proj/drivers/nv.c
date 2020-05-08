@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file     nv.c
  *
- * @brief	 permanent information should stroed in the flash
+ * @brief	 nv flash interface function file
  *
  * @author
  * @date     Oct. 8, 2016
@@ -19,714 +19,560 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
 #include "drv_flash.h"
 #include "nv.h"
 #include "../os/ev_buffer.h"
-
-#if (MODULE_FLASH_ENABLE)
-
-
+#include "../../proj/common/tlPrintf.h"
 #if (FLASH_PROTECT)
 const u8 protect_flash_cmd = FLASH_PROTECT_CMD;
 #endif
 
+nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)idx);
+	return NV_SUCC;
+}
 
-#define ENABLE_CHECK_SUM        1
-typedef struct{
-	u32 freq;
-	u8 valid;
-	u8 keycode;
-	u16 cnt;
-}nv_irCtxHdr_t;
+nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, u16 *idxNo){
+	nv_sts_t ret = NV_SUCC;
+	u32 idxTotalNum = totalItemNum;
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect) + (idxTotalNum) * sizeof(nv_info_idx_t);
+	u16 opItemIdx = idxTotalNum;
+	u16 readIdxNum = 4;
+	nv_info_idx_t idxInfo[4];
+	u8 jump = 0;
+	u8 itemFlag = ITEM_FIELD_VALID;
+	u16 itemTotalSize = ITEM_TOTAL_LEN(len);
 
-typedef struct{
-	nv_irCtxHdr_t hdr;
-	u16 data[124];
-}nv_irCtx_t _attribute_aligned_(4);
-
-#define NV_IR_IDX_IDLE 			0xff
-#define NV_IR_IDX_VALID 		0x5a
-#define NV_IR_IDX_INVALID 		0x50
-#define NV_IR_IDXBLK_INVALID 	0x00
-
-#define NV_IR_ADDR_START		(384*1024)
-#define NV_IR_CTX_BLOCK_NUM		2
-#define NV_IR_CTX_BLOCK_SIZE	(32*1024)
-#define NV_IR_CTX_UNIT_SIZE		(256)
-#define NV_IR_CTX_NUM			(NV_IR_CTX_BLOCK_SIZE/NV_IR_CTX_UNIT_SIZE)
-
-nv_sts_t nv_ir_write(u8 keycode,  u32 freq, u16 *buf, u16 len){
-	nv_irCtx_t *pCtxBlk = (nv_irCtx_t *)NV_IR_ADDR_START;
-	nv_irCtx_t *pCtx = pCtxBlk;
-	u32 curBlk = 0;
-	u32 i = 0;
-	nv_irCtx_t *pCtxBlkTmp = pCtxBlk;
-
-	for(i = 0; i < NV_IR_CTX_BLOCK_NUM; i++){
-		if(pCtxBlkTmp->hdr.valid != NV_IR_IDX_IDLE){
-			pCtx = pCtxBlkTmp;
-			curBlk = i;
-			break;
-		}
-		pCtxBlkTmp += NV_IR_CTX_NUM;
+	if(itemId == ITEM_FIELD_IDLE){
+		itemFlag = ITEM_FIELD_IDLE;
+		itemTotalSize = 0xffff;
 	}
 
-	for(i = 0; i < NV_IR_CTX_NUM; i++){
-		if(pCtx->hdr.valid == NV_IR_IDX_IDLE){
-			break;
-		}
-		pCtx++;
-	}
-
-	u8 r = irq_disable();
-
-#if (FLASH_PROTECT)
-		if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
-		}
-#endif
-
-	if(i == NV_IR_CTX_NUM){
-		/* copy valid data to new block; and then erase old block */
-		u32 eraseAddr = (curBlk == 0) ? (NV_IR_ADDR_START + NV_IR_CTX_BLOCK_SIZE) : NV_IR_ADDR_START;
-		/* erase new block if it not clean */
-		for(u32 j = 0; j < NV_IR_CTX_BLOCK_SIZE/NV_SECTION_SIZE; j++){
-			flash_erase_sector(eraseAddr + j * NV_SECTION_SIZE);
-		}
-
-		nv_irCtx_t *pNewCtx = (nv_irCtx_t *)eraseAddr;
-		pCtx = pCtxBlk;
-		u32 readAddr = (u32)pCtx;
-		u32 validDataNum = 0;
-		u8 *readBuf = ev_buf_allocate(LARGE_BUFFER);
-		for(u32 j = 0; j < NV_IR_CTX_NUM; j++){
-			readAddr = (u32)pCtx;
-			if(pCtx->hdr.valid == NV_IR_IDX_VALID && pCtx->hdr.keycode != keycode ){
-				for(u32 k = 0; k < 2; k++){
-					flash_read(readAddr, 128, readBuf);
-					flash_write(eraseAddr, 128, readBuf);
-					eraseAddr += 128;
+	ret = NV_ITEM_NOT_FOUND;
+	s32 i = 0;
+	while(idxTotalNum > 0){
+		readIdxNum = (idxTotalNum > 4) ? 4 : idxTotalNum;
+		idxStartAddr -= readIdxNum * sizeof(nv_info_idx_t);
+		opItemIdx -= readIdxNum;
+		idxTotalNum -= readIdxNum;
+		flash_read(idxStartAddr, readIdxNum * sizeof(nv_info_idx_t), (u8*)idxInfo);
+		for(i = readIdxNum - 1; i >= 0; i--){
+			if(itemId != ITEM_FIELD_IDLE){
+				if(idxInfo[i].usedState == itemFlag && idxInfo[i].size == itemTotalSize && idxInfo[i].itemId == itemId){
+					jump = 1;
+					break;
 				}
-				pNewCtx++;
-				validDataNum++;
+			}else{
+				if(idxInfo[i].usedState != itemFlag || idxInfo[i].size != itemTotalSize || idxInfo[i].itemId != itemId){
+					jump = 1;
+					break;
+				}
 			}
-			pCtx++;
 		}
-		ev_buf_free(readBuf);
+		if(jump){
+			opItemIdx += i;
+			*idxNo = opItemIdx;
+			ret = NV_SUCC;
+			break;
+		}
+	}
+
+	return ret;
+}
 
 
-		/* if have empty space, fill data, or return error */
-		if(validDataNum >= NV_IR_CTX_NUM){
-#if (FLASH_PROTECT)
-			if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-				irq_restore(r);
-				return NV_ENABLE_PROTECT_ERROR;
+nv_sts_t nv_sector_read(u16 id, u8 sectTotalNum, nv_sect_info_t *sectInfo){
+	nv_sts_t ret = NV_SUCC;
+	nv_sect_info_t s;
+	u32 moduleStartAddr = MODULES_START_ADDR(id);
+	s32 i = 0;
+
+	for(i = 0; i < sectTotalNum; i++){
+		flash_read(moduleStartAddr, sizeof(nv_sect_info_t), (u8 *)&s);
+		if(s.usedFlag == NV_SECTOR_VALID && s.idName == id){
+			memcpy(sectInfo, &s, sizeof(nv_sect_info_t));
+			break;
+		}
+		moduleStartAddr += NV_SECTOR_SIZE(id);
+	}
+	if( i == sectTotalNum){
+		ret = NV_ITEM_NOT_FOUND;
+	}
+	return ret;
+}
+
+nv_sts_t nv_write_item(u16 id, u8 itemId, u8 opSect, u16 opItemIdx, u16 len, u8 *buf){
+	/* write index to flash */
+	nv_info_idx_t idxInfo;
+	memset((u8 *)&idxInfo, 0, sizeof(nv_info_idx_t));
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+	u32 offset = 0;
+
+	if(opItemIdx == 0){
+		offset = MODULE_CONTEXT_START(id, opSect, len);
+	}else{
+		flash_read(idxStartAddr + (opItemIdx - 1)*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8*)&idxInfo);
+		offset = ((idxInfo.offset + idxInfo.size + 3) & (~0x03));
+	}
+	idxInfo.usedState = ITEM_FIELD_OPERATION;
+	idxInfo.size = len + sizeof(itemHdr_t);
+	idxInfo.offset = offset;
+	idxInfo.itemId = itemId;
+
+	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idxInfo);
+
+	/* write context to flash */
+	if((u32)buf < 0x808000){
+		/* if need copy th data from flash, read it into ram, and then write it to flash */
+		u8 copyLen = 48;
+		u8 *pTemp = (u8 *)ev_buf_allocate(copyLen);
+		if(pTemp){
+			u8 wLen = 0;
+			u16 toalLen = idxInfo.size; //len;
+			u32 sAddr = (u32)buf;
+			u32 dAddr = idxInfo.offset;
+			while(toalLen > 0){
+				wLen = (toalLen > copyLen) ? copyLen : toalLen;
+				flash_read(sAddr, wLen, pTemp);
+				flash_write(dAddr, wLen, pTemp);
+				toalLen -= wLen;
+				sAddr += wLen;
+				dAddr += wLen;
 			}
-#endif
-			irq_restore(r);
-			return NV_NOT_ENOUGH_SAPCE;
+			ev_buf_free(pTemp);
 		}else{
-			nv_irCtxHdr_t hdr;
-			hdr.freq = freq;
-			hdr.valid = NV_IR_IDX_VALID;
-			hdr.keycode = keycode;
-			hdr.cnt = len;
-			u32 addr = (u32)pNewCtx;
-			flash_write(addr, sizeof(nv_irCtxHdr_t), (u8 *)&hdr);
-			flash_write(addr + sizeof(nv_irCtxHdr_t), len*sizeof(u16), (u8 *)buf);
-		}
-
-		/* erase old block */
-		u32 oldAddr = (u32)pCtxBlk;
-		for(u32 j = 0; j < NV_IR_CTX_BLOCK_SIZE/NV_SECTION_SIZE; j++){
-			flash_erase_sector(oldAddr + j * NV_SECTION_SIZE);
+			return NV_NOT_ENOUGH_SAPCE;
 		}
 	}else{
-		nv_irCtxHdr_t hdr;
-		hdr.freq = freq;
-		hdr.valid = NV_IR_IDX_VALID;
-		hdr.keycode = keycode;
-		hdr.cnt = len;
-		u32 addr = (u32)pCtx;
+		u32 checkSum = 0;
+		itemHdr_t hdr;
+		u32 payloadAddr = idxInfo.offset+sizeof(itemHdr_t);
 
-		/* invalid old data if the key code is same */
-		nv_irCtx_t *pCtxCcancel = pCtxBlk;
-		u8 valid  = NV_IR_IDX_INVALID;
-		for(u32 j = 0; j < NV_IR_CTX_NUM; j++){
-			if(pCtxCcancel->hdr.keycode == keycode){
-				flash_write((u32)&((pCtxCcancel->hdr.valid)), 1, &valid);
+		for(s32 i = 0; i < len; i++){
+			checkSum += buf[i];
+		}
+		flash_write(payloadAddr, len, buf);
+
+		/* check the checksum */
+		u8 vCheck[16];
+		u16 tLen = len;
+		u16 unitLen;
+		u32 checkSumRead = 0;
+		while(tLen > 0){
+			unitLen = (tLen > 16) ? 16 : tLen;
+			flash_read(payloadAddr, unitLen, vCheck);
+			for(s32 i = 0; i < unitLen; i++){
+				checkSumRead += vCheck[i];
 			}
-			pCtxCcancel++;
+			tLen -= unitLen;
+			payloadAddr += unitLen;
 		}
 
-		flash_write(addr, sizeof(nv_irCtxHdr_t), (u8 *)&hdr);
-		flash_write(addr+sizeof(nv_irCtxHdr_t), len*sizeof(u16), (u8 *)buf);
-	}
-
-#if (FLASH_PROTECT)
-		if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
+		if(checkSum == checkSumRead){
+			hdr.itemId = itemId;
+			hdr.size = len;
+			hdr.used = ITEM_FIELD_VALID;
+			hdr.checkSum = checkSum;
+			flash_write(idxInfo.offset, sizeof(itemHdr_t), (u8*)&hdr);
+		}else{
+			return NV_CHECK_SUM_ERROR;
 		}
-#endif
-
-	irq_restore(r);
-	return NV_SUCC;
-}
-
-nv_sts_t nv_ir_read(u8 keyCode, u32 *freq, u16 *buf, u16 *len){
-	nv_irCtx_t *pCtxBlk = (nv_irCtx_t *)NV_IR_ADDR_START;
-	nv_irCtx_t *pCtx = pCtxBlk;
-
-	for(u32 i = 0; i < NV_IR_CTX_BLOCK_NUM; i++){
-		if(pCtxBlk->hdr.valid != NV_IR_IDX_IDLE){
-			pCtx = pCtxBlk;
-			break;
-		}
-		pCtxBlk += NV_IR_CTX_NUM;
 	}
 
-	for(u32 j = 0; j < NV_IR_CTX_NUM; j++){
-		if(pCtx->hdr.keycode == keyCode && pCtx->hdr.valid == NV_IR_IDX_VALID){
-			*freq = pCtx->hdr.freq;
-			*len = pCtx->hdr.cnt;
-			flash_read((u32)(pCtx->data), pCtx->hdr.cnt*sizeof(u16), (u8 *)buf);
-			return NV_SUCC;
-		}
-		pCtx++;
-	}
-	return NV_ITEM_NOT_FOUND;
-}
-
-nv_sts_t nv_ir_reset(void){
-	u8 r = irq_disable();
-
-#if (FLASH_PROTECT)
-	if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-		irq_restore(r);
-		return NV_ENABLE_PROTECT_ERROR;
-	}
-#endif
-
-	/* erase nv ir block */
-	u32 eraseAddr = NV_IR_ADDR_START;
-	for(u32 j = 0; j < 2*NV_IR_CTX_BLOCK_SIZE/NV_SECTION_SIZE; j++){
-		flash_erase_sector(eraseAddr + j * NV_SECTION_SIZE);
-	}
-
-#if (FLASH_PROTECT)
-	if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-		irq_restore(r);
-		return NV_ENABLE_PROTECT_ERROR;
-	}
-#endif
-
-	irq_restore(r);
+	/* check the correct, if correct, change the state in the index */
+	u8 staOffset = OFFSETOF(nv_info_idx_t, usedState);
+	idxInfo.usedState = ITEM_FIELD_VALID;
+	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t)+staOffset, 1, (u8 *)&idxInfo.usedState);
 
 	return NV_SUCC;
 }
 
-void ds_flashWrite(u32 startAddr, u16 len, u8 *buf)
-{
-	u8 r = irq_disable();
-	u16 writeLen = (len > PAGE_AVALIABLE_SIZE(startAddr)) ? PAGE_AVALIABLE_SIZE(startAddr) : len;
-	wd_clear();
-	flash_write(startAddr, writeLen, buf);
 
-    if ( len > PAGE_AVALIABLE_SIZE(startAddr) ) {
-        u32 dstAddr = startAddr + writeLen;
-        u16 dataOffset = writeLen;
-        len -= writeLen;
-        while ( len > 0 ) {
-			writeLen = (len > FLASH_PAGE_SIZE) ? FLASH_PAGE_SIZE : len;
-			flash_write(dstAddr, writeLen, buf + dataOffset);
-            if ( len > FLASH_PAGE_SIZE ) {
-                len -= FLASH_PAGE_SIZE;
-                dataOffset += FLASH_PAGE_SIZE;
-                dstAddr += FLASH_PAGE_SIZE;
-            } else {
-                len = 0;
-            }
-			wd_clear();
-        }
-    }
-	irq_restore(r);
-}
-
-nv_sts_t  nv_init(u8 rst)
-{
-    if ( rst ) {
-		u8 r = irq_disable();
-        /* if reset is true, erase all flash for NV */
-    	u8 i;
-#if (FLASH_PROTECT)
-		if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
-		}
-#endif
-	    for ( i=0; i<DS_MAX_MODULS; i++ ) {
-#if(MODULE_WATCHDOG_ENABLE)
-			wd_clear();
-#endif
-			flash_erase_sector(MOUDLES_START_ADDR(i));
-#if(MODULE_WATCHDOG_ENABLE)
-			wd_clear();
-#endif
-			flash_erase_sector(MOUDLES_SECOND_HALF_ADDR(i));
-	    }
-#if (FLASH_PROTECT)
-		if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
-		}
-#endif
-		irq_restore(r);
-		return NV_SUCC;
-    }
-	else {
-		return NV_SUCC;
-	}
-}
-
-u8 nv_calculateCheckSum(u8 *buf, u16 len)
-{
-    u8 checkSum = *buf;
-    u16 i;
-    for ( i=1; i<len; i++ ) {
-        checkSum ^= buf[i];
-    }
-    return checkSum;
-}
-
-/* find the item address in nv */
-nv_sts_t nv_findItem(u8 modules, u8 id, item_info_t *itemInfo, u8 verify)
-{
-    u8 j;
-	u16 activeFalgs = 0;
-	//u16 verifySize = 0;
-    u8 buf[NV_HEADER_SIZE];
-    nv_header_t *nvHdrPtr;
-	u32 readAddr;
-	u32 startAddr = MOUDLES_START_ADDR(modules);
-	flash_read(startAddr, sizeof(u16), (u8*)&activeFalgs);
-	/* read first two byte of every page and check the first two bytes */
-	while( startAddr < MOUDLES_START_ADDR(modules + 1) && activeFalgs == 0 ) {
-		startAddr += FLASH_PAGE_SIZE;
-    	flash_read(startAddr, sizeof(u16), (u8*)&activeFalgs);
-		wd_clear();
-	}
-	if ( startAddr == MOUDLES_START_ADDR(modules + 1) ) {
+nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8 *buf){
+	nv_sts_t ret = NV_SUCC;
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+	nv_info_idx_t idx;
+	flash_read(idxStartAddr + opIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idx);
+	if(idx.usedState != ITEM_FIELD_VALID){
 		return NV_ITEM_NOT_FOUND;
 	}
-	itemInfo->startAddr = startAddr;
-	if ( activeFalgs != NV_ACTIVE_PAGE_FLAGS ) {
-		itemInfo->hdrInfo.id = INVALID_NV_VALUE;
-		itemInfo->usedSize = 0;
-		itemInfo->nvOffset = NV_PAGE_HEADER_LEN;
-		return NV_SUCC;
+
+	itemHdr_t hdr;
+	flash_read(idx.offset, sizeof(itemHdr_t), (u8*)&hdr);
+	if(hdr.size == len && hdr.used == ITEM_FIELD_VALID && hdr.itemId == itemId){
+		flash_read(idx.offset + sizeof(itemHdr_t), len, buf);
+	}else{
+		ret = NV_ITEM_NOT_FOUND;
 	}
-
-	flash_read(startAddr + sizeof(u16), sizeof(u16), (u8*)&(itemInfo->usedSize));
-
-
-    /* find the id page which contain the required id */
-    for ( j=0; j<NV_HEADER_TABLE_SIZE; j++ ) {
-		wd_clear();
-		readAddr = startAddr + NV_PAGE_HEADER_LEN + NV_HEADER_SIZE * j;
-		flash_read(readAddr, NV_HEADER_SIZE, buf);
-        nvHdrPtr = (nv_header_t*)buf;
-		itemInfo->nvOffset = NV_PAGE_HEADER_LEN + j * NV_HEADER_SIZE;
-        /* if the id is found, return it */
-        if ( nvHdrPtr->id == id ) {
-            memcpy(&(itemInfo->hdrInfo), nvHdrPtr, sizeof(nv_header_t));
-			return NV_SUCC;
-        }
-		else if ( nvHdrPtr->id == INVALID_NV_VALUE ) {
-			itemInfo->hdrInfo.id = INVALID_NV_VALUE;
-			return NV_SUCC;
-        }
-    }
-    return NV_NOT_ENOUGH_SAPCE;
+	return ret;
 }
 
-void  nv_xferData(u32 srcAddr, u32 dstAddr, u16 size)
-{
-    u32 srcA = srcAddr;
-    u32 dstA = dstAddr;
-    u16 readSize;
-
-    u8 tmp[READ_BYTES_PER_TIME];
-    u16 xferLen;
-    u32 xferSrc;
-    u32 xferDst;
-    u8 xferSize;
-
-    /* get the avaliable page size */
-    readSize = PAGE_AVALIABLE_SIZE(srcAddr);
-    readSize = (readSize > size) ? size : readSize;
-	wd_clear();
-    xferLen = readSize;
-    xferSrc = srcAddr;
-    xferDst = dstAddr;
-    while ( xferLen > 0 ) {
-        xferSize = (xferLen > READ_BYTES_PER_TIME) ? READ_BYTES_PER_TIME : xferLen;
-        flash_read(xferSrc, xferSize, tmp);
-        flash_write(xferDst, xferSize, tmp);
-        xferSrc += xferSize;
-        xferDst += xferSize;
-        if ( xferLen > READ_BYTES_PER_TIME ) {
-            xferLen -= READ_BYTES_PER_TIME;
-        } else {
-            xferLen = 0;
-        }
-		wd_clear();
-    }
-
-    if ( size > PAGE_AVALIABLE_SIZE(srcAddr) ) {
-        size -= readSize;
-        srcA += readSize;
-        dstA += readSize;
-        while ( size > 0 ) {
-            readSize = (size > FLASH_PAGE_SIZE) ? FLASH_PAGE_SIZE : size;
-            xferLen = readSize;
-            xferSrc = srcA;
-            xferDst = dstA;
-            while ( xferLen > 0 ) {
-                xferSize = (xferLen > READ_BYTES_PER_TIME) ? READ_BYTES_PER_TIME : xferLen;
-                flash_read(xferSrc, xferSize, tmp);
-				wd_clear();
-				flash_write(xferDst, xferSize, tmp);
-                xferSrc += xferSize;
-                xferDst += xferSize;
-                if ( xferLen > READ_BYTES_PER_TIME ) {
-                    xferLen -= READ_BYTES_PER_TIME;
-                } else {
-                    xferLen = 0;
-                }
-            }
-			wd_clear();
-            srcA += readSize;
-            dstA += readSize;
-            if ( size > FLASH_PAGE_SIZE ) {
-                size -= FLASH_PAGE_SIZE;
-            } else {
-                size = 0;
-            }
-        }
-    }
+nv_sts_t nv_itemDeleteByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx){
+	nv_sts_t ret = NV_SUCC;
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+	nv_info_idx_t idx;
+	u8 staOffset = OFFSETOF(nv_info_idx_t, usedState);
+	idx.usedState = ITEM_FIELD_INVALID;
+	flash_write(idxStartAddr+opIdx*sizeof(nv_info_idx_t)+staOffset, 1, &(idx.usedState));
+	return ret;
 }
 
-nv_sts_t  nv_write(u8 modules, u8 id, u16 len, u8 *buf)
-{
-    item_info_t itemInfo;
-	//u8 need2erase = FALSE;
-	u32 nextPageAddr;
-	u16 inactiveFlags = 0;
-	u16 activeFlags = NV_ACTIVE_PAGE_FLAGS;
-	u8 firstItem = 0;
-	u8 flashUnportect = 0;
-	u8 checksum = nv_calculateCheckSum(buf, len);
 
-    if ( id == INVALID_NV_VALUE ) {
-        return NV_INVALID_ID;
-    }
+nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
+	nv_sts_t ret = NV_SUCC;
+	nv_sect_info_t sectInfo;
+	u8 opSect = 0;
+	u32 moduleStartAddr = MODULES_START_ADDR(id);
 
-    if ( modules > DS_MAX_MODULS ) {
-        return NV_INVALID_MODULS;
-    }
+	s32 i = 0;
 
-   	u8 r = irq_disable();
-
-    if ( SUCCESS != nv_findItem(modules, id, &itemInfo, 1) ) {
-		irq_restore(r);
-        return NV_NOT_ENOUGH_SAPCE;
-    }
-
-    nv_header_t *nvHdr = &(itemInfo.hdrInfo);
-
-	/* if the sector is empty and this the first item */
-	if ( itemInfo.usedSize == 0 && itemInfo.startAddr == MOUDLES_START_ADDR(modules) ) {
-		nextPageAddr = MOUDLES_START_ADDR(modules);
-	}
-	else {
-		nextPageAddr = NV_NEXT_PAGE_ADDR(itemInfo.startAddr + itemInfo.usedSize);
-		/* if the next start address is still in the same sector, check the available size */
-		if ( nextPageAddr < MOUDLES_START_ADDR(modules+1) ) {
-			/* if the id is already existed */
-			if ( itemInfo.hdrInfo.id != INVALID_NV_VALUE && MOUDLES_AVALIABLE_SIZE(nextPageAddr) < itemInfo.usedSize ) {
-				nextPageAddr = ( nextPageAddr > MOUDLES_SECOND_HALF_ADDR(modules) ) ? MOUDLES_START_ADDR(modules) : MOUDLES_SECOND_HALF_ADDR(modules);
-			}
-			else if ( (itemInfo.hdrInfo.id == INVALID_NV_VALUE) && MOUDLES_AVALIABLE_SIZE(nextPageAddr) < NV_ALIGN_LENTH(len + 1) ) {
-				nextPageAddr = ( nextPageAddr > MOUDLES_SECOND_HALF_ADDR(modules) ) ? MOUDLES_START_ADDR(modules) : MOUDLES_SECOND_HALF_ADDR(modules);
-			}
-		}
-		else {
-			nextPageAddr = MOUDLES_START_ADDR(modules);
-		}
+	/* check item length, if  */
+	if(NV_SECTOR_SIZE(id) < ITEM_TOTAL_LEN(len) + MODULE_INFO_SIZE(id)){
+		return NV_NOT_ENOUGH_SAPCE;
 	}
 
-	/* if next address and current address is not in the same sector */
-	if ( !NV_IN_SAME_SECTOR(itemInfo.startAddr, nextPageAddr) ) {
-		/* erase the dest sector */
-		flashUnportect = 1;
-#if (FLASH_PROTECT)
-		if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
+	/* search valid operation sub-sector */
+	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+	if(ret != NV_SUCC){
+#if 0
+		for(s32 j = 0; j < MODULE_SECTOR_NUM; j++){
+			flash_erase(moduleStartAddr + j * FLASH_SECTOR_SIZE);
 		}
 #endif
-		flash_erase_sector(nextPageAddr);
+		opSect = 0;
+	}else{
+		opSect = sectInfo.opSect;
 	}
 
 
-    /* if the NV item is already in flash */
-    if ( nvHdr->id == id ) {
-        /* check the length */
-        if ( nvHdr->len != NV_ALIGN_LENTH(len + 1) ) {
-			if ( flashUnportect == 1 ) {
-#if (FLASH_PROTECT)
-				if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-					irq_restore(r);
-					return NV_ENABLE_PROTECT_ERROR;
-				}
-#endif
-			}
-			irq_restore(r);
-            return NV_ITEM_LEN_NOT_MATCH;
-        }
-#if (FLASH_PROTECT)
-		if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
+	/*
+	 * search the index, find a valid space to write
+	 * read 4 indexes once */
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+	u16 wItemIdx = 0;
+	nv_info_idx_t idxInfo[4];
+	u8 sectorUpdate = 0;
+	s32 idxTotalNum = MODULE_IDX_NUM(id);
+	ret = nv_index_read(id, ITEM_FIELD_IDLE, len, opSect, idxTotalNum, &wItemIdx);
+	if(ret == NV_SUCC){
+		flash_read(idxStartAddr + wItemIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)idxInfo );
+		if((wItemIdx == idxTotalNum - 1) ||
+				(idxInfo[0].offset + idxInfo[0].size + ITEM_TOTAL_LEN(len)) > MODULE_SECT_END(id, opSect)){
+			sectorUpdate = 1;
+		}else{
+			wItemIdx += 1;
 		}
-#endif
-		wd_clear();
+	}
 
-        /* write back the restored data before this item */
-        nv_xferData(itemInfo.startAddr, nextPageAddr, itemInfo.hdrInfo.offset);
+	u8 oldSect = opSect;
+	if(sectorUpdate){
+		wItemIdx = 0;
+		opSect = (opSect + 1) & (MODULE_SECTOR_NUM - 1);
 
-		wd_clear();
-
-        /* if there are still some data after the item */
-        if ( itemInfo.hdrInfo.offset + itemInfo.hdrInfo.len < itemInfo.usedSize ) {
-            /* write bakc the restored data after this item */
-            nv_xferData(itemInfo.startAddr + itemInfo.hdrInfo.offset + itemInfo.hdrInfo.len,
-                        nextPageAddr + itemInfo.hdrInfo.offset + itemInfo.hdrInfo.len,
-                        itemInfo.usedSize - itemInfo.hdrInfo.offset - itemInfo.hdrInfo.len);
-        }
-
-
-		wd_clear();
-        /* update the NV item */
-        ds_flashWrite(nextPageAddr + itemInfo.hdrInfo.offset, len, buf);
-
-		/* mark the previous page is inactive */
-        flash_write(itemInfo.startAddr, 2, (u8*)&inactiveFlags);
-
-		wd_clear();
-        /* write the fcs */
-        ds_flashWrite(nextPageAddr + itemInfo.hdrInfo.offset + len, 1, &checksum);
-#if (FLASH_PROTECT)
-		if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
+		u8 nv_realSectNum = NV_SECTOR_SIZE(id)/FLASH_SECTOR_SIZE;
+		u32 eraseAddr = moduleStartAddr + opSect * NV_SECTOR_SIZE(id);
+		for(s32 k = 0; k < nv_realSectNum; k++){
+			//flash_erase(moduleStartAddr + opSect * FLASH_SECTOR_SIZE);
+			flash_erase(eraseAddr);
+			eraseAddr += FLASH_SECTOR_SIZE;
 		}
-		else
-#endif
-		{
-			u8 verifyFcs;
-			if ( len < LARGE_BUFFER ) {
-				u8 *tmpBuf = ev_buf_allocate(LARGE_BUFFER);
-				if (tmpBuf == NULL ) {
-					while(1);
-				}
-				/*
-				foreach (i, len) {
-					tmpBuf[i] = read_reg8(nextPageAddr + nvHdr->offset + i);
-				}*/
-				flash_read(nextPageAddr + nvHdr->offset, len, tmpBuf);
-				flash_read(nextPageAddr + nvHdr->offset + len, 1, &verifyFcs);
-				irq_restore(r);
-				if ( verifyFcs == nv_calculateCheckSum(tmpBuf, len) ) {
-					ev_buf_free(tmpBuf);
-        			return NV_SUCC;
-				}
-				else {
-					ev_buf_free(tmpBuf);
-					return NV_CHECK_SUM_ERROR;
+
+		u32 sizeusedAddr = 0;
+		u8 readIdxNum = 0;
+		sizeusedAddr = MODULE_CONTEXT_START(id, opSect, len);
+		idxStartAddr = MODULE_IDX_START(id, oldSect);
+		idxTotalNum = MODULE_IDX_NUM(id);
+		/* copy valid items to new sector */
+		while(idxTotalNum > 0){
+			readIdxNum = (idxTotalNum > 4) ? 4 : idxTotalNum;
+			flash_read(idxStartAddr, readIdxNum * sizeof(nv_info_idx_t), (u8*)idxInfo);
+			for( i = 0; i < readIdxNum; i++){
+				if(idxInfo[i].usedState == ITEM_FIELD_VALID &&
+					(idxInfo[i].itemId != itemId || ((idxInfo[i].itemId == itemId) && !single))){
+					ret = nv_write_item(id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset);
+					if(ret != NV_SUCC){
+						return ret;
+					}
+					sizeusedAddr += idxInfo[i].size;
+					sizeusedAddr = ((sizeusedAddr + 0x03) & (~0x03));
+					wItemIdx += 1;
 				}
 			}
-			else {
-				irq_restore(r);
-				return NV_SUCC;
-			}
-		}
-    }
-    /* it is a new NV item in flash */
-    else {
-        u16 usedSize;
-        /* update the nv header info */
-        nvHdr->id = id;
-        nvHdr->len = NV_ALIGN_LENTH(len + 1);
-        if ( itemInfo.usedSize == 0 ) {
-            nvHdr->offset = PAGE_HEADER_SISE;
-            usedSize = nvHdr->len + PAGE_HEADER_SISE;
-            itemInfo.usedSize = PAGE_HEADER_SISE;
-			firstItem = 1;
-			nextPageAddr = itemInfo.startAddr;
-        } else {
-            nvHdr->offset = itemInfo.usedSize;
-            usedSize = itemInfo.usedSize + nvHdr->len;
-        }
-
-#if (FLASH_PROTECT)
-		if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
-		}
-#endif
-		if ( firstItem == 0 ) {
-	        nv_xferData(itemInfo.startAddr + NV_PAGE_HEADER_LEN, nextPageAddr + NV_PAGE_HEADER_LEN, itemInfo.nvOffset);
-
-			wd_clear();
+			idxTotalNum -= readIdxNum;
+			idxStartAddr += readIdxNum * sizeof(nv_info_idx_t);
 		}
 
-        /* save page header info */
-		flash_write(nextPageAddr + sizeof(u16), sizeof(u16), (u8*)&usedSize);
-
-		flash_write(nextPageAddr + itemInfo.nvOffset, sizeof(nv_header_t), (u8*)nvHdr);
-		wd_clear();
-		if ( firstItem == 0 ) {
-        	nv_xferData(itemInfo.startAddr + itemInfo.nvOffset + sizeof(nv_header_t),
-                    nextPageAddr + itemInfo.nvOffset + sizeof(nv_header_t),
-                    itemInfo.usedSize - itemInfo.nvOffset - sizeof(nv_header_t));
-
-			/* mark the previouse page is inactive */
-        	flash_write(itemInfo.startAddr, 2, (u8*)&inactiveFlags);
+		idxTotalNum = MODULE_IDX_NUM(id);
+		if(wItemIdx == idxTotalNum || (sizeusedAddr + ITEM_TOTAL_LEN(len)) > MODULE_SECT_END(id, opSect)){
+			return NV_NOT_ENOUGH_SAPCE;
 		}
-
-		flash_write(nextPageAddr, 2, (u8*)&activeFlags);
-
-        /* save to Flash */
-		ds_flashWrite(nextPageAddr + nvHdr->offset, len, buf);
-		wd_clear();
-        ds_flashWrite(nextPageAddr + nvHdr->offset + len, 1, &checksum);
-        //flash_read(itemInfo.hdrAddr, sizeof(nv_header_t), (u8*)(&t_itemInfo.hdrInfo));
+	}
 
 
-		/* protect the flash */
-		wd_clear();
-#if (FLASH_PROTECT)
-		if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-			irq_restore(r);
-			return NV_ENABLE_PROTECT_ERROR;
+	/* search the same item id, need to delete after update */
+	u8 deleteItemEn = 0;
+	u16 deleteIdx = 0;
+	idxTotalNum = MODULE_IDX_NUM(id);
+	if(single){
+		if(NV_SUCC == nv_index_read(id, itemId, len, opSect, idxTotalNum, &deleteIdx)){
+			deleteItemEn = 1;
 		}
-		else
-#endif
-		{
-			u8 verifyFcs;
-			if ( len < LARGE_BUFFER ) {
-				u8 *tmpBuf = ev_buf_allocate(LARGE_BUFFER);
-				if (tmpBuf == NULL ) {
-					while(1);
-				}
-				/*foreach (i, len) {
-					tmpBuf[i] = read_reg8(nextPageAddr + nvHdr->offset + i);
-				}*/
-				flash_read(nextPageAddr + nvHdr->offset, len, tmpBuf);
-				flash_read(nextPageAddr + nvHdr->offset + len, 1, &verifyFcs);
-				irq_restore(r);
-				if ( verifyFcs == nv_calculateCheckSum(tmpBuf, len) ) {
-					ev_buf_free(tmpBuf);
+	}
+
+	/* sector is full, and then need write in the another sector */
+	ret = nv_write_item(id, itemId, opSect, wItemIdx, len, buf);
+
+	/* the last item set as invalid */
+	idxStartAddr = MODULE_IDX_START(id, opSect);
+	if(deleteItemEn){
+		u8 staOffset = OFFSETOF(nv_info_idx_t, usedState);
+		idxInfo[0].usedState = ITEM_FIELD_INVALID;
+		flash_write(idxStartAddr+deleteIdx*sizeof(nv_info_idx_t)+staOffset, 1, &(idxInfo[0].usedState));
+	}
+
+
+	if(ret == NV_SUCC){
+		if(sectorUpdate){
+			sectInfo.idName = id;
+			sectInfo.opSect = opSect;
+			sectInfo.usedFlag = NV_SECTOR_INVALID;
+			flash_write(MODULE_SECT_START(id, oldSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
+
+			sectInfo.usedFlag = NV_SECTOR_VALID;
+			sectInfo.opSect = opSect;
+			flash_write(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
+		}else{
+			 if(wItemIdx == 0){
+				sectInfo.idName = id;
+				sectInfo.usedFlag = NV_SECTOR_VALID;
+				sectInfo.opSect = opSect;
+				flash_write(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
+			 }
+		}
+	}
+
+	return ret;
+}
+
+
+nv_sts_t nv_flashReadNew(u8 single, u8 id, u8 itemId, u16 len, u8 *buf){
+	nv_sts_t ret = NV_SUCC;
+	nv_sect_info_t sectInfo;
+	u8 opSect = 0;
+	s32 idxTotalNum = 0;
+	u16 opIdx = 0;
+
+	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+	if(ret != NV_SUCC){
+		return ret;
+	}
+
+	opSect = sectInfo.opSect;
+	idxTotalNum = MODULE_IDX_NUM(id);
+
+	ret = NV_ITEM_NOT_FOUND;
+	ret = nv_index_read(id, itemId, len, opSect, idxTotalNum, &opIdx);
+	if(single){
+		if(ret == NV_SUCC){
+			ret = nv_flashReadByIndex(id, itemId, opSect, opIdx, len, buf);
+		}
+	}else{
+		itemIfno_t *pInfo = (itemIfno_t*)buf;
+		pInfo->opIndex = opIdx;
+		pInfo->opSect = opSect;
+	}
+
+	return ret;
+}
+
+
+nv_sts_t nv_nwkFrameCountSearch(u8 id, u8 opSect, u32 *frameCount, u32 *validAddr){
+	nv_sts_t ret = NV_ITEM_NOT_FOUND;
+	u16 frmCntTotalNum = FRAMECOUNT_NUM_PER_SECT();
+	u32 sizeUsed = frmCntTotalNum * 4;
+	u32 pageUsed = (sizeUsed & 0xff) ? sizeUsed/FLASH_PAGE_SIZE+1 : sizeUsed/FLASH_PAGE_SIZE;
+	u16 checkSize = 0;
+	*validAddr = FRAMECOUNT_PAYLOAD_START(opSect);
+
+	u32 *opPageAddr = (u32 *)(MODULE_SECT_END(id, opSect) - FLASH_PAGE_SIZE);
+	s32 i = 0;
+	u32 checkValid[4];
+
+	for(i = 0; i < pageUsed-1; i++){
+		flash_read((u32)opPageAddr, 4, (u8 *)checkValid);
+		if(checkValid[0] != 0xffffffff){
+			checkSize = FLASH_PAGE_SIZE;
+			break;
+		}else{
+			*validAddr = (u32)opPageAddr;	//???validAddr = opPageAddr;
+		}
+		opPageAddr -= FLASH_PAGE_SIZE/4;
+	}
+	if( i == pageUsed-1){
+		opPageAddr = (u32 *)(FRAMECOUNT_PAYLOAD_START(opSect));
+		checkSize = (FLASH_PAGE_SIZE - sizeof(nv_sect_info_t)) & (~0x03);
+	}
+
+	opPageAddr = (u32 *)(((u32)opPageAddr + FLASH_PAGE_SIZE) & (~(FLASH_PAGE_SIZE - 1)));
+	u8 unitSize = 16;
+	while(checkSize){
+		u8 readSize = (checkSize > unitSize) ? unitSize : checkSize;
+		opPageAddr -= readSize/4;
+		checkSize -= readSize;
+
+		flash_read((u32)opPageAddr, readSize, (u8 *)checkValid);
+		if(checkValid[0] != 0xffffffff){
+			*frameCount = checkValid[0];
+			for(s32 i = 1; i < readSize/4; i++){
+				if(checkValid[i] != 0xffffffff){
+					*frameCount = checkValid[i];
+					if(i == (readSize/4 - 1)){
+						*validAddr = (u32)(opPageAddr + i + 1);
+						return NV_SUCC;
+					}
+				}else{
+					*validAddr = (u32)(opPageAddr + i);
 					return NV_SUCC;
 				}
-				else {
-					ev_buf_free(tmpBuf);
-					return NV_CHECK_SUM_ERROR;
-				}
 			}
-			else {
-				irq_restore(r);
-				return NV_SUCC;
-			}
+		}else{
+			*validAddr = (u32)opPageAddr;
 		}
-    }
+	}
+
+	return ret;
 }
 
-nv_sts_t  nv_read(u8 modules, u8 id, u16 len, u8 *buf)
-{
-    item_info_t itemInfo;
-    u32 readAddr;
-    nv_header_t *nvHdr = &(itemInfo.hdrInfo);
 
-    /* id should be bigger than 0 */
-    if ( id == INVALID_NV_VALUE ) {
-        return NV_INVALID_ID;
-    }
+nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
+	nv_sts_t ret = NV_SUCC;
+	nv_sect_info_t sectInfo;
+	u8 opSect = 0;
+	u8 id = DS_NWK_FRAMECOUNT_MODULE;
+	u32 moduleStartAddr = MODULES_START_ADDR(id);
 
-	u8 r = irq_disable();
+	/* search valid operation sub-sector */
+	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+	if(ret != NV_SUCC){
+		for(s32 j = 0; j < MODULE_SECTOR_NUM; j++){
+			flash_erase(moduleStartAddr + j * FLASH_SECTOR_SIZE);
+		}
+		opSect = 0;
+	}else{
+		opSect = sectInfo.opSect;
+	}
 
-	if ( SUCCESS != nv_findItem(modules, id, &itemInfo, 1) ) {
-		irq_restore(r);
-        return NV_ITEM_LEN_NOT_MATCH;
-    }
+	u32 lastFrmCnt;
+	u32 wAddr;
+	u8 oldSect = opSect;
+	u8 sectorUpdate = 0;
+	if(NV_SUCC == nv_nwkFrameCountSearch(id, opSect, &lastFrmCnt, &wAddr)){
+		if(wAddr == (MODULE_SECT_END(id, opSect))){
+			opSect = (opSect + 1) & (MODULE_SECTOR_NUM - 1);
+			flash_erase(moduleStartAddr + opSect * FLASH_SECTOR_SIZE);
+			flash_write(FRAMECOUNT_PAYLOAD_START(opSect), 4, (u8*)&lastFrmCnt);
+			wAddr = FRAMECOUNT_PAYLOAD_START(opSect) + 4;
+			sectorUpdate = 1;
+		}
+	}
 
-	wd_clear();
-    if ( nvHdr->id == INVALID_NV_VALUE ) {
-		irq_restore(r);
-        return NV_ITEM_NOT_FOUND;
-    }
+	flash_write(wAddr, 4, (u8*)&frameCount);
 
-    /* read the nv item from flash */
-    if ( NV_ALIGN_LENTH(len+1) == nvHdr->len ) {
-        /* read from Flash */
-        readAddr = itemInfo.startAddr + nvHdr->offset;
-        /*foreach(i, len) {
-            buf[i] = read_reg8(readAddr + i);
-        }*/
-        flash_read(readAddr, len, buf);
-		wd_clear();
-        u8 checksum ;//= read_reg8((itemInfo.startAddr + nvHdr->offset + len));
-        flash_read(itemInfo.startAddr + nvHdr->offset + len, 1, &checksum);
+	if(sectorUpdate || (wAddr == FRAMECOUNT_PAYLOAD_START(opSect))){
+		sectInfo.usedFlag = NV_SECTOR_VALID;
+		sectInfo.opSect = opSect;
+		sectInfo.idName = id;
+		flash_write((u32)MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8 *)&sectInfo);
 
-        if ( checksum != nv_calculateCheckSum(buf, len) ) {
-			irq_restore(r);
-            return NV_CHECK_SUM_ERROR;
-        }
-		wd_clear();
-		irq_restore(r);
+		if(sectorUpdate){
+			sectInfo.usedFlag = NV_SECTOR_INVALID;
+			flash_write((u32)MODULE_SECT_START(id, oldSect), sizeof(nv_sect_info_t), (u8 *)&sectInfo);
+		}
+	}
 
-        return NV_SUCC;
-    }
-	else {
-        irq_restore(r);
-		return NV_ITEM_LEN_NOT_MATCH;
-    }
+	return ret;
 }
 
-nv_sts_t  nv_resetModule(u8 modules)
-{
-#if (FLASH_PROTECT)
-	if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-		return NV_ENABLE_PROTECT_ERROR;
+
+nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount){
+	nv_sts_t ret = NV_SUCC;
+	u8 id = DS_NWK_FRAMECOUNT_MODULE;
+	nv_sect_info_t sectInfo;
+	u32 lastFrmCnt;
+	u32 wAddr;
+	u8 opSect = 0;
+
+	/* search valid operation sub-sector */
+	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+	if(ret != NV_SUCC){
+		return ret;
+	}
+	opSect = sectInfo.opSect;
+
+	ret = nv_nwkFrameCountSearch(id, opSect, &lastFrmCnt, &wAddr);
+	if(ret == NV_SUCC){
+		*frameCount = lastFrmCnt;
+	}
+
+	return ret;
+}
+
+nv_sts_t nv_resetModule(u8 modules) {
+	u32 eraseAddr = MODULES_START_ADDR(modules);
+	u8 sectNumber = NV_SECTOR_SIZE(modules)/FLASH_SECTOR_SIZE;
+	for(s32 i = 0; i < MODULE_SECTOR_NUM; i++){
+		for(s32 j = 0; j < sectNumber; j++){
+			flash_erase(eraseAddr);
+			eraseAddr += FLASH_SECTOR_SIZE;
+		}
+	}
+	return SUCCESS;
+}
+
+
+nv_sts_t nv_resetAll(void) {
+#if NV_ENABLE
+	foreach(i, NV_MAX_MODULS) {
+		nv_resetModule(i);
 	}
 #endif
-	flash_erase_sector(MOUDLES_START_ADDR(modules));
-	wd_clear();
-	flash_erase_sector(MOUDLES_SECOND_HALF_ADDR(modules));
-
-#if (FLASH_PROTECT)
-	if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-		return NV_ENABLE_PROTECT_ERROR;
-	}
-#endif
-    return NV_SUCC;
+	return SUCCESS;
 }
 
+
+nv_sts_t nv_resetToFactoryNew(void) {
+#if NV_ENABLE
+	foreach(i, NV_MAX_MODULS) {
+		if(i != NV_MODULE_NWK_FRAME_COUNT){
+			nv_resetModule(i);
+		}
+	}
+#endif
+	return SUCCESS;
+}
+
+nv_sts_t nv_init(u8 rst) {
+	if(rst) {
+		/* if reset is true, erase all flash for NV */
+		nv_resetAll();
+	}
+	return NV_SUCC;
+}
+
+
+nv_sts_t nv_write(u8 modules, u8 id, u16 len, u8 *buf)
+{
+	return nv_flashWriteNew(1, modules, id,  len, buf);
+}
+
+
+
+nv_sts_t nv_read(u8 modules, u8 id, u16 len, u8 *buf)
+{
+	return nv_flashReadNew(1, modules, id,  len, buf);
+}
 
 nv_sts_t nv_userSaveToFlash(u8 id, u16 len, u8 *buf)
 {
@@ -739,131 +585,3 @@ nv_sts_t nv_userLoadFromFlash(u8 id, u16 len, u8 *buf)
 }
 
 
-nv_sts_t nv_userReset(void)
-{
-    return nv_resetModule(DS_USER_MODULS);
-}
-
-nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
-	nv_sts_t ret = NV_CHECK_SUM_ERROR;
-
-	u32 startAddr = MOUDLES_START_ADDR(DS_NWK_FRAMECOUNT_MODULE);
-	u32 module_startAddr = startAddr;
-	u32 wAddr = module_startAddr + FLASH_4K_PAGE_NUM*FLASH_PAGE_SIZE;
-
-	u32 nvBuf[NV_SUBPAGE_LENGHT/4];
-	for(s32 i = 0; i < FLASH_4K_32B_NUM; i++){
-		flash_read(startAddr, NV_SUBPAGE_LENGHT, (u8 *)nvBuf);
-		if(nvBuf[NV_SUBPAGE_LENGHT/4-1] == 0xffffffff){
-			for(s32 j = 0; j < NV_SUBPAGE_LENGHT/4; j++){
-				if(nvBuf[j] == 0xffffffff){
-					wAddr = startAddr + j * 4;
-					break;
-				}
-			}
-		}
-		if(wAddr != module_startAddr + FLASH_4K_PAGE_NUM*FLASH_PAGE_SIZE){
-			break;
-		}
-		startAddr += NV_SUBPAGE_LENGHT;
-		//nv_buf += (FLASH_PAGE_SIZE/4);
-	}
-
-#if 0
-	u32 *nv_buf = (u32 *)startAddr;
-	for(s32 i = 0; i < FLASH_4K_PAGE_NUM; i++){
-		//flash_read(startAddr, 256, (u8 *)nv_buf);
-		if(nv_buf[FLASH_PAGE_SIZE/4-1] == 0xffffffff){
-			for(s32 j = 0; j < FLASH_PAGE_SIZE/4; j++){
-				if(nv_buf[j] == 0xffffffff){
-					wAddr = startAddr + j * 4;
-					break;
-				}
-			}
-		}
-		if(wAddr != module_startAddr + FLASH_4K_PAGE_NUM*FLASH_PAGE_SIZE){
-			break;
-		}
-		startAddr += FLASH_PAGE_SIZE;
-		nv_buf += (FLASH_PAGE_SIZE/4);
-	}
-#endif
-#if (FLASH_PROTECT)
-	if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
-		return NV_ENABLE_PROTECT_ERROR;
-	}
-#endif
-
-	u32 wCurAddr = wAddr;
-	for(s32 i = 0; i < 3; i++){
-		if(wAddr == (module_startAddr + FLASH_4K_PAGE_NUM*FLASH_PAGE_SIZE)){
-			flash_erase_sector(module_startAddr);
-			wd_clear();
-			wCurAddr = module_startAddr;
-		}
-		flash_write(wCurAddr, 4, (u8 *)&frameCount);
-
-		u32 valueCheck = 0;
-		flash_read(wCurAddr, 4, (u8 *)&valueCheck);
-		if(valueCheck == frameCount){
-			ret = NV_SUCC;
-			break;
-		}
-	}
-#if (FLASH_PROTECT)
-	if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
-		return NV_ENABLE_PROTECT_ERROR;
-	}
-#endif
-
-	return ret;
-}
-
-nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount)
-{
-	u32 startAddr = MOUDLES_START_ADDR(DS_NWK_FRAMECOUNT_MODULE);
-
-	u32 addr = startAddr + (FLASH_4K_32B_NUM - 1) * NV_SUBPAGE_LENGHT;
-	u32 nvBuf[NV_SUBPAGE_LENGHT/4];
-	for(s32 i = 0; i < FLASH_4K_32B_NUM; i++){
-		flash_read(addr, NV_SUBPAGE_LENGHT, (u8 *)nvBuf);
-		if(nvBuf[0] != 0xffffffff){
-			for(s32 j = NV_SUBPAGE_LENGHT/4 - 1; j >= 0; j--){
-				if(nvBuf[j] != 0xffffffff){
-					*frameCount = nvBuf[j];
-					return NV_SUCC;
-				}
-			}
-		}
-		addr -= NV_SUBPAGE_LENGHT;
-	}
-
-#if 0
-	u32 *pAddr = (u32 *)(startAddr + (FLASH_4K_PAGE_NUM - 1) * FLASH_PAGE_SIZE);
-	for(s32 i = 0; i < FLASH_4K_PAGE_NUM; i++){
-		if(pAddr[0] != 0xffffffff){
-			for(s32 j = FLASH_PAGE_SIZE/4 - 1; j >= 0; j--){
-				if(pAddr[j] != 0xffffffff){
-					*frameCount = pAddr[j];
-					return NV_SUCC;
-				}
-			}
-		}
-		pAddr -= (FLASH_PAGE_SIZE/4);
-	}
-#endif
-	return NV_ITEM_NOT_FOUND;
-}
-
-#else
-nv_sts_t nv_write(u8 modules, u8 id, u16 len, u8 *buf){return NV_NO_MEDIA;}
-nv_sts_t nv_init(u8 rst){return NV_NO_MEDIA;}
-nv_sts_t nv_read(u8 modules, u8 id, u16 len, u8 *buf){return NV_NO_MEDIA;}
-nv_sts_t nv_resetModule(u8 modules){return NV_NO_MEDIA;}
-
-nv_sts_t nv_userSaveToFlash(u8 id, u16 len, u8 *buf){return NV_NO_MEDIA;}
-nv_sts_t nv_userLoadFromFlash(u8 id, u16 len, u8 *buf){return NV_NO_MEDIA;}
-nv_sts_t nv_userReset(void){return NV_NO_MEDIA;}
-void ds_flashWrite(u32 startAddr, u16 len, u8 *buf){return NV_NO_MEDIA;}
-
-#endif

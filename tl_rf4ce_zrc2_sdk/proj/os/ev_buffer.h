@@ -145,7 +145,7 @@ ev_bufItem_t* ev_buf_getHead(u8* pd);
 u8* ev_buf_getTail(u8* pd, int offsetToTail);
 u8 buf_message_post(u8 *ptr,buf_item_state_t state);
 u8 *buf_message_poll(buf_item_state_t *state);
-
+u16 ev_buf_getfreeSize(void);
 #define		TL_RXBUF_TO_EVBUF(p)	(p - RF_RX_BUFFER_OFFSET)
 #endif
 

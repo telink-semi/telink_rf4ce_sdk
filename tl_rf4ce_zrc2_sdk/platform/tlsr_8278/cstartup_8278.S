@@ -92,7 +92,8 @@ __start:					@ MUST,  referenced by boot.link
 	.extern  _ramcode_size_align_256_
 	.extern  _ictag_start_
 	.extern  _ictag_end_
-	.extern  tl_multi_addr
+	.extern  tl_multi_addr_L
+	.extern  tl_multi_addr_H
 	.org 0x0
 	tj	__reset
 @	.word	(firmwareVersion)
@@ -298,11 +299,13 @@ RANA_REG_END:
 MULTI_ADDRESS_BEGIN:
 	tloadr      r0, MULTI_ADDRESS_DATA
 	tloadr		r1, MULTI_ADDRESS_DATA+4
+	tloadr		r3, MULTI_ADDRESS_DATA+8
 	tloadrb		r2, [r1,#0]
 	tstorerb    r2, [r0,#0]
+	tloadrb		r2, [r3,#0]
+	tstorerb    r2, [r0,#1]
 MULTI_ADDRESS_END:
 #endif
-
 
 ENTER_MAIN:
 	tjl	main
@@ -346,8 +349,8 @@ FLL_D:
 
 MULTI_ADDRESS_DATA:
 	.word	(0x0080063e)				@0
-	.word   tl_multi_addr				@4
-
+	.word   tl_multi_addr_L				@4
+	.word   tl_multi_addr_H				@8
 
 	.align 4
 __irq:

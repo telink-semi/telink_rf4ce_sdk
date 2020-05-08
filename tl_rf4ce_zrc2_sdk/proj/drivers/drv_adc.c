@@ -152,7 +152,12 @@ unsigned char drv_adc_init()
 	ADC_Init();
 	AUDIO2ADC();
 	return 1;
-#elif  defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#elif  defined(MCU_CORE_8258)
+	rng_init();
+	adc_init();
+	return 1;
+#elif  defined(MCU_CORE_8278)
+	random_generator_init();
 	adc_init();
 	return 1;
 #endif

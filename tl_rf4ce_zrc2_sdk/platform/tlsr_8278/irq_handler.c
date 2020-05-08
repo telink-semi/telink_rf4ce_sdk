@@ -53,9 +53,7 @@ _attribute_ram_code_ void irq_handler(void){
 	u32 src = reg_tmr_sta;
 
 	if(IRQ_TIMER1_ENABLE && (src & FLD_TMR_STA_TMR1)){
-//		*(volatile unsigned char *)0x80058b |= 2;
 		timer_irq1_handler();
-//		*(volatile unsigned char *)0x80058b &= ~2;
 		return;
 	}
 

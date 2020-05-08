@@ -163,7 +163,7 @@ extern "C" {
 #define	PULL_WAKEUP_SRC_PD2		MATRIX_ROW_PULL
 #define	PULL_WAKEUP_SRC_PD4		MATRIX_ROW_PULL
 #define	PULL_WAKEUP_SRC_PD6		MATRIX_ROW_PULL
-//#define	PULL_WAKEUP_SRC_PD7		MATRIX_ROW_PULL
+#define	PULL_WAKEUP_SRC_PD7		MATRIX_ROW_PULL
 //drive pin open input to read gpio wakeup level
 #define PD5_INPUT_ENABLE		1
 #define PD2_INPUT_ENABLE		1

@@ -411,3 +411,18 @@ u8* ev_buf_getTail(u8* pd, int offsetToTail)
 {
 	return (u8*)(pd - RF_RX_BUFFER_OFFSET + BUFFER_SIZE - offsetToTail);
 }
+
+
+
+
+u16 ev_buf_getfreeSize(void)
+{
+	u16 size = 0;
+
+    for(u16 i=0;i<LengthOfArray(ev_bufItem);i++){
+        if(ev_bufItem[i].buf_item_state_tbl[BUF_ITEM_STATE_BUSY] == 0){
+        	size++;
+        }
+    }
+	return size;
+}

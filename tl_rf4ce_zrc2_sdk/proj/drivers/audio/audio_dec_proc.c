@@ -157,10 +157,14 @@ void abuf_dec_usb (void){
 	}
 	else
 	{
+
+#if 0
+		//Fill 0
 		for (int i=0; i<USB_ISO_IN_SIZE * 2; i++)
 		{
 			reg_usb_ep7_dat = 0;
 		}
+#endif
 		buffer_empty = 1;
 	}
 	reg_usb_ep7_ctrl = BIT(0);			//ACK iso in

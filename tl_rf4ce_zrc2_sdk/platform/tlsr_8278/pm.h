@@ -38,11 +38,11 @@
 
 #define XTAL_READY_CHECK_TIMING_OPTIMIZE	1
 
-
+#define RAM_CRC_EN							0		//if use RAM_CRC func, retention ldo will turn down to 0.6V in A1, A0 is 0.8V.
 
 //when timer wakeup,the DCDC delay time is accurate,but other wake-up sources wake up,
 //this time is ((PM_DCDC_DELAY_CYCLE+1)*2-1)*32us ~ (PM_DCDC_DELAY_CYCLE+1)*2*32us
-#define PM_DCDC_DELAY_DURATION     					62   // delay_time_us = (PM_DCDC_DELAY_CYCLE+1)*2*32us
+#define PM_DCDC_DELAY_DURATION     					187   // delay_time_us = (PM_DCDC_DELAY_CYCLE+1)*2*32us
 												  // 2 * 1/16k = 125 uS, 3 * 1/16k = 187.5 uS  4*1/16k = 250 uS
 
 #define PM_XTAL_MANUAL_MODE_DELAY		    200  //150  200
@@ -57,16 +57,17 @@
 #define PM_DCDC_DELAY_CYCLE		3
 #endif
 
-
-#define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 175)  //100: code running time margin//154
-#define EARLYWAKEUP_TIME_US_DEEP    		(PM_DCDC_DELAY_DURATION  + 32)
+#define SOFT_START_DELAY       	    		(0x08)
+#define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 200)  //100: code running time margin//154  //175
+#define EARLYWAKEUP_TIME_US_DEEP_RET    	(PM_DCDC_DELAY_DURATION + 64)//(PM_DCDC_DELAY_DURATION + 32)
+#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DELAY)*62))
 #define EMPTYRUN_TIME_US       	    		(EARLYWAKEUP_TIME_US_SUSPEND + 200)
 
 
 
 
 
-#define PM_LONG_SLEEP_WAKEUP_EN			    1 //if user need to make MCU sleep for a long time that is more than 268s, this macro need to be enabled and use "pm_long_sleep_wakeup" function
+#define PM_LONG_SLEEP_WAKEUP_EN			    0//if user need to make MCU sleep for a long time that is more than 268s, this macro need to be enabled and use "pm_long_sleep_wakeup" function
 
 /**
  * @brief analog register below can store infomation when MCU in deepsleep mode
@@ -92,14 +93,6 @@
 
 
 #define SYS_NEED_REINIT_EXT32K			    BIT(0)
-
-
-/* used to restore data during deep sleep mode or reset by software */
-#define DATA_STORE_FLAG				0x55
-
-#define	REG_DEEP_BACK_FLAG			DEEP_ANA_REG0//0x3A, power on reset clean
-#define	REG_DEEP_FLAG				DEEP_ANA_REG6//0x35, watch dog reset clean
-#define	REG_FRAMECOUNT				DEEP_ANA_REG7//0x36, watch dog reset clean, 4Bytes from 0x36 to 0x39
 
 
 //ana3b system used, user can not use
@@ -170,18 +163,11 @@ typedef struct{
 
 extern  _attribute_aligned_(4) misc_para_t 				blt_miscParam;
 
-enum{
-	BACK_FROM_REPOWER,
-	BACK_FROM_DEEP,
-	BACK_FROM_DEEP_RETENTION,
-};
-
-
 /**
  * @brief   deepsleep wakeup status
  */
 typedef struct{
-	unsigned char back_mode;
+	unsigned char is_deepretn_back;
 	unsigned char is_pad_wakeup;
 	unsigned char wakeup_src;
 	unsigned char rsvd;
@@ -204,6 +190,34 @@ extern _attribute_aligned_(4) pm_tim_recover_t			pm_timRecover;
 typedef int (*suspend_handler_t)(void);
 extern  suspend_handler_t 		 func_before_suspend;
 
+/**
+ * @brief      This function serves to enable dp and dm deep gpio low level wakeup. if enable, current will
+ * 						add about 0.1uA
+ * @param[in]  none.
+ * @return     none.
+ */
+extern unsigned char PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN;
+static inline void deepsleep_dp_dm_gpio_low_wake_enable(void)
+{
+	PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 0;
+}
+/**
+ * @brief      This function serves to disable dp and dm deep gpio low level wakeup.
+ * @param[in]  none.
+ * @return     none.
+ */
+static inline void deepsleep_dp_dm_gpio_low_wake_disable(void)
+{
+	PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 1;
+}
+
+/**
+ * @brief     this function servers to wait bbpll clock lock
+ * @param[in] none
+ * @return    none
+ */
+void pm_wait_bbpll_done(void);
+
 void bls_pm_registerFuncBeforeSuspend (suspend_handler_t func );
 
 
@@ -214,10 +228,7 @@ void bls_pm_registerFuncBeforeSuspend (suspend_handler_t func );
  */
 static inline int pm_is_MCU_deepRetentionWakeup(void)
 {
-	if(pmParam.back_mode == BACK_FROM_DEEP_RETENTION){
-		return 1;
-	}
-	return 0;
+	return pmParam.is_deepretn_back;
 }
 
 /**
@@ -305,10 +316,11 @@ extern unsigned int pm_get_32k_tick(void);
 
 /**
  * @brief   This function serves to initialize MCU
- * @param   none
+ * @param   power mode- set the power mode(LOD mode, DCDC mode, DCDC_LDO mode)
+ * @param   xtal- set this parameter based on external crystal
  * @return  none
  */
-void cpu_wakeup_init(void);
+void cpu_wakeup_init(POWER_MODE_TypeDef power_mode,XTAL_TypeDef xtal) ;
 
 /**
  * @brief   This function serves to recover system timer from tick of internal 32k RC.
@@ -378,8 +390,10 @@ static inline void blc_pm_select_external_32k_crystal(void)
 	blt_miscParam.pad32k_en 	= 1; // set '1': 32k clk src use external 32k crystal
 }
 
+
 /**********************************  Internal APIs (not for user)***************************************************/
-extern  unsigned char 		    tl_multi_addr;
+extern  unsigned char 		    tl_multi_addr_L;
+extern  unsigned char 		    tl_multi_addr_H;
 extern  unsigned char 		    tl_24mrc_cal;
 extern 	unsigned int 			tick_32k_calib;
 extern  unsigned int 			tick_cur;

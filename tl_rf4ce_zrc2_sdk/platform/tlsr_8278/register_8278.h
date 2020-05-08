@@ -814,7 +814,7 @@ enum{
 /*******************************      system timer registers: 0x740      ******************************/
 
 #define reg_system_tick				REG_ADDR32(0x740)
-#define reg_system_tick_irq			REG_ADDR32(0x744)
+#define reg_system_tick_irq_level	REG_ADDR32(0x744)
 #define reg_system_irq_mask			REG_ADDR8(0x748)
 #define reg_system_cal_irq			REG_ADDR8(0x749)
 #define reg_system_ctrl				REG_ADDR8(0x74a)
@@ -1046,7 +1046,7 @@ enum{
 #define reg_dfifo1_num			REG_ADDR16(0xb24)
 #define reg_dfifo2_num			REG_ADDR16(0xb28)
 
-#define reg_dfifo0_manual		REG_ADDR8(0xb2c)
+#define reg_dfifo_manual_mode		REG_ADDR8(0xb2c)
 enum{
 	FLD_DFIFO_MANUAL_MODE_EN	= BIT(0),
 };
@@ -1264,10 +1264,10 @@ enum{
 
 #define mdec_rst_addr                   0x16
 enum{
-//	FLD_SELE_PA0 = 				BIT(0),  //not support now
+	FLD_SELE_PA0 = 				BIT(0),  //not support now
 	FLD_SELE_PB7 = 				BIT(1),
 	FLD_SELE_PC4 = 			    BIT(2),
-//	FLD_SELE_PD0 = 				BIT(3),  //not support now
+	FLD_SELE_PD0 = 				BIT(3),  //not support now
 	FLD_RST_MDEC =              BIT(4),
 	FLD_CLS_MDEC = 				BIT_RNG(0,4),
 };

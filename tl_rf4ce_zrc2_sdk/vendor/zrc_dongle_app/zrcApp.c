@@ -222,7 +222,7 @@ void zrc_bindCnf(u8 pairingRef, u8 status)
 #endif
 	}
 
-    ev_on_timer(zrc_doPair, 0, 1);
+    ev_on_timer(zrc_doPair, 0, 100*1000);
    /* u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
 	uartBuf[0] = 4;// Pair OK;
 	uartBuf[1] = ZRC_APP_VALIDATION_SUCC_IND;// Pair OK;
@@ -248,7 +248,7 @@ void zrc_startCnfCb(u8 status)
 {
 	if ( status == SUCCESS ) {
 		/* Force start in channel 25 */
-        ev_on_timer(zrc_doPair, 0, 1);
+        ev_on_timer(zrc_doPair, 0, 100*1000);
 	}
 	u8 value = 20;// 20;
 	nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
@@ -272,7 +272,7 @@ void zrc_pairCnfCb(u8 pairingRef, u8 status, u8 profileSize, u8 *profileList)
 	if ( status == SUCCESS ) {
 		zrcApp_state = ZRC_APP_START_VALIDATION;
 	} else {
-		ev_on_timer(zrc_doPair, 0, 1);
+		ev_on_timer(zrc_doPair, 0, 100*1000);
 	}
 }
 
@@ -632,5 +632,27 @@ void gdp_pushIndCb(u8 pairingRef, u8 attrId, u8 *pData){
 	uartBuf[6] = pData[0];
 	sendCmdToTH(uartBuf, uartBuf[0] + 1);
 }
+
+
+
+/*********************************************************************
+ * @fn      changePairEntryChannel
+ *
+ * @brief   change the Channel in Pair Entry
+ *
+ * @param   channel
+ *
+ * @return  none
+ */
+void changePairEntryChannel(u8 chl)
+{
+	u8 pairingRef = zrc_bondWithTargetIndex();
+	 pairTable_t *pEntry = getPairingEntryByIndex(pairingRef);
+	 if(pEntry!=NULL)
+	 {
+		 pEntry->destChannel = chl;
+	 }
+}
+
 
 #endif  /* __PROJECT_MSO_ADAPTOR_APP__ */

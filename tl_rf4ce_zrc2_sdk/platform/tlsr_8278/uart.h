@@ -245,7 +245,7 @@ extern unsigned char uart_ndmairq_get(void);
  * @return    1: send success ;
  *            0: DMA busy
  */
-extern unsigned char uart_dma_send(unsigned char* Addr);
+extern volatile unsigned char uart_dma_send(unsigned char* Addr);
 
 /**
  * @brief     uart send data function, this  function tell the DMA to get data from the RAM and start
@@ -263,7 +263,7 @@ extern volatile unsigned char uart_send_byte(unsigned char byte);
  * @return    none
  */
 
-extern void uart_recbuff_init(unsigned short *RecvAddr, unsigned short RecvBufLen);
+extern void uart_recbuff_init(unsigned char *RecvAddr, unsigned short RecvBufLen);
 
 
 

@@ -702,11 +702,7 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt){
 		 *
 		 * */
 		//if((key1 == VK_HOMEKEY && key2 == VK_MENU) || (key1 == VK_MENU && key2 == VK_HOMEKEY)){
-#if (MCU_CORE_8278)
-    	if(keyCode == VK_OKKEY)
-#else
     	if(keyCode == VK_HOMEKEY)
-#endif
     	{
 			/* enter Programming mode, stop repeat timer if need it */
 			zrc_restoreAppState();

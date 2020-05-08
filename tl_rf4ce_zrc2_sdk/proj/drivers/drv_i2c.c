@@ -134,7 +134,7 @@ void drv_i2c_read_series(unsigned int Addr, unsigned int AddrLen, unsigned char 
 
 
 
-
+#if	defined (MCU_CORE_826x)||defined(MCU_CORE_8258)
 /**
  * @brief      This function selects a pin port for I2C interface.
  * @param[in]  PinGrp - the pin port selected as I2C interface pin port.
@@ -148,7 +148,22 @@ void drv_i2c_gpio_set(I2C_GPIO_GroupTypeDef i2c_pin_group)
 {
 #if	defined (MCU_CORE_826x)
 	I2C_PinSelect(i2c_pin_group);
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#elif defined(MCU_CORE_8278)
 	i2c_gpio_set(i2c_pin_group);
 #endif
 }
+#elif defined(MCU_CORE_8278)
+/**
+ * @brief      This function selects a pin port for I2C interface.
+ * @param[in]  i2c_pin_group - the pin port selected as I2C interface pin port.
+ * @return     none
+ * 	A3:5b7[0] set 1 as spi input,set 0 not as spi input ;5b7[4] set 1 as i2c input ,set 0 not as i2c input
+ *	A4:5b7[1] set 1 as spi input,set 0 not as spi input ;5b7[5] set 1 as i2c input ,set 0 not as i3c input
+ *	B6:5b7[2] set 1 as spi input,set 0 not as spi input ;5b7[6] set 1 as i2c input ,set 0 not as i4c input
+ *	D7:5b7[3] set 1 as spi input,set 0 not as spi input ;5b7[7] set 1 as i2c input ,set 0 not as i5c input
+ */
+void drv_i2c_gpio_set(I2C_GPIO_SdaTypeDef sda_pin,I2C_GPIO_SclTypeDef scl_pin)
+{
+	i2c_gpio_set(sda_pin,scl_pin);
+}
+#endif

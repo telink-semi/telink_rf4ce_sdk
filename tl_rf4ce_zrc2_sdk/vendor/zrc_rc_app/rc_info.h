@@ -6,7 +6,7 @@
 //    PATCH_VER = 1,
 //    BUILD_VER = 4
 //};
-#define firmwareVersion 	0x01000104
+#define firmwareVersion 	0x01000105
 #define APP_VENDOR_ID_LIST  0x1141
 
 #if (MCU_CORE_8258)

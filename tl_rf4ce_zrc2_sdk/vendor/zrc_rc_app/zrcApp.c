@@ -791,4 +791,9 @@ void enter_deepsleep_exit_bind(void){
 	app_validLevelForPm(0);
 }
 
+
+
+
+
+
 #endif  /* __PROJECT_ZRC_CLASS_DEV_APP__ */

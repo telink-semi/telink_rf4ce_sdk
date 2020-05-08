@@ -79,7 +79,7 @@ void tl_audio_start(u8 profile, u8 pairingRef);
 
 void tl_audio_stop(u8 profile, u8 pairingRef);
 
-int audio_startfailed(void *arg);
+int audio_startsendtry(void *arg);
 //u8 tl_audioDataSend(u8 profile, u8 *data, u8 len);
 
 //u8 tl_audioDataSendCnfHandler(u8 handler, u8 *cnf);

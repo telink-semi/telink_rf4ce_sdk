@@ -23,7 +23,11 @@
 #include "drv_pm.h"
 
 void platform_wakeup_init(void){
+#if defined(MCU_CORE_8278)
+	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+#else
 	cpu_wakeup_init();
+#endif
 }
 
 void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en){
@@ -71,9 +75,6 @@ platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_
 		srcType |= PM_WAKEUP_TIMER;
 	}
 
-#if defined(MCU_CORE_8278)
-	blc_pm_select_internal_32k_crystal();
-#endif
 	int wakeupSrc = cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
 	if(wakeupSrc & BIT(1)){
 		ws = PLATFORM_WAKEUP_TIMER;

@@ -49,6 +49,15 @@ typedef enum{
  * define audio input type.
  */
 typedef enum{
+	GPIO_PB4_PB5,
+	GPIO_PB6_PB7,
+}Audio_SDM_OutPut_Pin;
+
+
+/**
+ * define audio input type.
+ */
+typedef enum{
 	AMIC,
 	DMIC,
 	I2S_IN,
@@ -116,6 +125,15 @@ static inline unsigned short get_mic_wr_ptr (void)
  * 	@return    none
  */
 void audio_amic_init(AudioRate_Typedef Audio_Rate);
+
+/**
+ * @brief     This function servers to close PGA input and CODEC clock.After calling the Audio module,
+ *            you need to call this API to close Audio,to get the current back to the call.
+ * @param[in] none.
+ * @return    none.
+ */
+void audio_codec_and_pga_disable(void);
+
 /**
  * 	@brief     audio DMIC init function, config the speed of DMIC and downsample audio data to required speed.         actually audio data is dmic_speed/d_samp.
  * 	@param[in] Audio_Rate - set the DMIC speed. such as 1 indicate 1M and 2 indicate 2M.
@@ -153,7 +171,7 @@ void audio_i2s_init(void);
 *	@param[in]	audio_out_en - audio output enable or disable set, '1' enable audio output; '0' disable output.
 *	@return	none
 */
-void audio_set_sdm_output(AudioInput_Typedef InType,AudioRate_Typedef Audio_Rate,unsigned char audio_out_en);
+void audio_set_sdm_output(Audio_SDM_OutPut_Pin OutPin,AudioInput_Typedef InType,AudioRate_Typedef Audio_Rate,unsigned char audio_out_en);
 
 /**
  * @brief     This function servers to set USB input/output.
@@ -177,17 +195,8 @@ void audio_set_i2s_output(AudioInput_Typedef InType,AudioRate_Typedef Audio_Rate
  * 	@param[in] sysclk - system clock.
  * 	@return    none.
  */
-void audio_set_codec(I2C_GPIO_GroupTypeDef i2c_pin_group, CodecMode_Typedef CodecMode,unsigned int sysclk);
 
-
-/**
- * @brief     This function servers to close PGA input and CODEC clock.After calling the Audio module,
- *            you need to call this API to close Audio to get the current back to the call.
- *            when use this API to close Audio module,you should turn on PGA_Audio_Enable to open Audio module again!(example: turn ana_0x34<2>:1 to ana_0x34<2>:0)
- * @param[in] none.
- * @return    none.
- */
-void audio_codec_and_pga_disable(void);
+void audio_set_codec(I2C_GPIO_SdaTypeDef sda_pin,I2C_GPIO_SclTypeDef scl_pin, CodecMode_Typedef CodecMode,unsigned sysclk);
 
 
 #endif

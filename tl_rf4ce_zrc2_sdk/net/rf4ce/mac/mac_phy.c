@@ -573,6 +573,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
     	if ((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_BEACON) {
     		fDrop = 1;
     	}
+    	else if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND && ev_buf_getfreeSize()<4)
+    	{
+    		fDrop = 1;
+    	}
     }
 
 	if (fDrop) {

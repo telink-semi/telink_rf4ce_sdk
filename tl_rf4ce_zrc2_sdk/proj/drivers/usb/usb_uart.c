@@ -86,7 +86,7 @@ static void usb_uart_rxHandler(u8* pData)
   */
 static void usb_uart_tXFinishCb(u8* pData)
 {
-	usb_uart_txPendingEvt_t* pEvt;
+//	usb_uart_txPendingEvt_t* pEvt;
     u8 len;
     u8 *p;
 
@@ -95,10 +95,11 @@ static void usb_uart_tXFinishCb(u8* pData)
 
     /* If there is pending data, send it again */
     if ( usb_uart_txPendingQ.curNum ) {
-        pEvt = (usb_uart_txPendingEvt_t*)ev_queue_pop(&usb_uart_txPendingQ);
-        p = pEvt->txBuf;
-        len = pEvt->len;
-        
+        p = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
+//        p = pEvt->txBuf;
+//        len = pEvt->len;
+        len = *(u8 *)p;
+        len+=1;
         
         usb_uart_write(p, len);
     }
@@ -157,11 +158,10 @@ usbcdc_sts_t usb_uart_write(u8* buf, u8 len)
     if (usbcdc_isAvailable()) {
         return usbcdc_sendData(buf, len);
     } else {
-        pEvt = &usb_uart_txPendingEvt_v;
-        
-        pEvt->len = len;
-        pEvt->txBuf = buf;
-        ev_queue_push(&usb_uart_txPendingQ, (u8*)pEvt);
+//        pEvt = &usb_uart_txPendingEvt_v;
+//        pEvt->len = len;
+//        pEvt->txBuf = buf;
+        ev_queue_push(&usb_uart_txPendingQ, (u8*)buf);
         return USB_MULTIBLOCK;
     }
 }

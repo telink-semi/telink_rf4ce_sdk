@@ -89,7 +89,7 @@ typedef enum{
 			gpio_set_func(biasPin, AS_GPIO);    \
 			gpio_set_output_en (biasPin, 1);	\
 			gpio_set_input_en (biasPin, 0);		\
-			gpio_set_data_strength (biasPin, 1);\
+			gpio_set_data_strength (biasPin, 0);\
 			gpio_write (biasPin, 0);			\
 			}									\
 		}while(0);

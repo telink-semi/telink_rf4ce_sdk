@@ -38,7 +38,10 @@ enum UARTIRQSOURCE{
 	RF_TX_DMA3=4,
 };
 
-
+#define CLK32M_UART9600			uart_Init(237,13,1,1,NOCONTROL)
+#define	CLK32M_UART115200		uart_Init(19,13,1,1,NOCONTROL)
+#define	CLK16M_UART115200		uart_Init(9,13,1,1,NOCONTROL)
+#define	CLK16M_UART9600			uart_Init(103,15,1,1,NOCONTROL)
 
 //UART_TX/UART_RX gpio pin config
 #define	   UART_GPIO_CFG_PA6_PA7()  do{\

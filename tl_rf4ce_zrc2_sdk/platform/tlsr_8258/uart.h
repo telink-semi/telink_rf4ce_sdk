@@ -122,7 +122,7 @@ extern void uart_dma_enable(unsigned char rx_dma_en, unsigned char tx_dma_en);
  * @param[in] tx_irq_en - 1:enable tx irq. 0:disable tx irq
  * @return    none
  */
-extern void uart_irq_enable(unsigned char rx_irq_en, unsigned char tx_irq_en);
+extern void uart_irq_enable(unsigned char rx_irq_en,unsigned char tx_irq_en);
 /**
  * @brief     uart send data function with not DMA method.
  *            variable uart_TxIndex,it must cycle the four registers 0x90 0x91 0x92 0x93 for the design of SOC.
