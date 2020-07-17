@@ -86,8 +86,8 @@ extern "C" {
 /////////////user defined values////////////////////////////////
 #define USE_NEW_EV_MAIN         (0)
 //////////////////// Timer  //////////////////////////////
+#define IRQ_TIMER0_ENABLE         1
 #define IRQ_TIMER1_ENABLE         1
-
 /////////////////// Clock  /////////////////////////////////
 #define CLOCK_SYS_TYPE  		CLOCK_TYPE_PLL	//  CLOCK_TYPE_PLL, CLOCK_TYPE_OSC, CLOCK_TYPE_PAD, CLOCK_TYPE_ADC
 #define CLOCK_SYS_CLOCK_HZ  	32000000		// 32000000//16000000
@@ -100,7 +100,7 @@ extern "C" {
 
 ///////////////////  MIC  /////////////////////////////////
 #define MIC_RESOLUTION_BIT		16
-#define MIC_SAMPLE_RATE			8000
+#define MIC_SAMPLE_RATE			16000
 #define MIC_CHANNLE_COUNT		1
 #define	MIC_ENOCDER_ENABLE		0
 
@@ -139,6 +139,8 @@ extern "C" {
 
 #define RF4CE_MAX_PAIR_ENTRY_NUM           1
 
+/*********************UART_PRINTF_MODE******************/
+#define UART_PRINTF_MODE				1
 
 #include "board_cfg.h"
 

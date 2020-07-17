@@ -52,6 +52,7 @@ extern int AES_Encrypt(unsigned char *Key, unsigned char *Data, unsigned char *R
 extern int AES_Decrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
 
 
+
 /**
  * @brief       This function servers to perform aes_128 encryption
  *              with specific 16-Byte key in DMA MODE

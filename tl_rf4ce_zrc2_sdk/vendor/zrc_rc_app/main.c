@@ -99,6 +99,11 @@ int main (void) {
     tick_usb_enum = clock_time ();
     irq_enable();
 
+#if (MODULE_WATCHDOG_ENABLE)
+    wd_setintervalms(600);
+    wd_start();
+#endif
+
     while(1){
 #if (MODULE_AUDIO_DEBUG)
         audio_debug_usb_direct_out(tick_usb_enum);

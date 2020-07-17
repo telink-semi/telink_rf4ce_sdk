@@ -101,7 +101,7 @@ u8 zrc_batteryLowCnt;
 tl_audioRecInfo_t g_audioRecInfo = {
 		.sampleRate = MIC_SAMPLE_RATE,
 		.resoutionBits = MIC_RESOLUTION_BIT,
-		.channelNum = MIC_CHANNLE_COUNT,
+		.micChlNum = MIC_CHANNLE_COUNT,
 		.codecType = TL_AUDIO_CODEC_TYPE_ADPCM,
 		.pktSize = MIC_ADPCM_FRAME_SIZE,
 		.interval = 10,
@@ -402,7 +402,7 @@ void user_init(void){
     /* audio module Initialization */
 #if (MODULE_AUDIO_ENABLE)
 	APP_AMIC_PIN_CFG_OFF;
-	tl_audioRecInit(PROFILE_ZRC2, &g_audioRecInfo, zrc_appAudioCb);
+	tl_audioRecInit(PROFILE_ZRC2, &g_audioRecInfo);
 #endif
 
 	drv_adc_init();
@@ -727,9 +727,10 @@ void app_idle_handler(void){
 		ev_rf4ceStackEnable(1);
 	}
 
-	if ( (ZRC_READY_STATE == zrc_getAppState())||
-		 (ZRC_OTA_STATE == zrc_getAppState())||
-		 (ZRC_AUDIO_STATE == zrc_getAppState())) {
+	if ( (ZRC_READY_STATE == zrc_getAppState())
+		 ||(ZRC_OTA_STATE == zrc_getAppState())
+		 ||(ZRC_AUDIO_STATE == zrc_getAppState())
+		 ) {
 		u32 nwk_frameCnt;
 		static u32 nwk_frameCntInFlash = 0;
 		nwk_nlmeGetReq(NWK_FRAME_COUNTER, 0, (u8*)&nwk_frameCnt);

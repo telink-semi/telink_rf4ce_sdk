@@ -262,22 +262,15 @@ extern "C" {
 	#define GPIO_IR_OUT            		  		GPIO_PB3
 	#define IR_PWN_FUNC							AS_PWM0_N
 	#define IR_PWM_PIN_CFG						gpio_set_func(GPIO_IR_OUT,IR_PWN_FUNC)
-
-
-
-
-
-#define PORT_DEBUG   			0
-#if PORT_DEBUG
-#define	PB0_FUNC				AS_GPIO
-#define PB0_INPUT_ENABLE		0
-#define PB0_OUTPUT_ENABLE		1
-#define PB0_DATA_STRENGTH       1
-//
-#define	PB1_FUNC				AS_GPIO
-#define PB1_INPUT_ENABLE		0
-#define PB1_OUTPUT_ENABLE		1
-#define PB1_DATA_STRENGTH       1
+/*
+ * GPIO PIN configuration for printf DEBUG
+ * DEBUG_INFO_TX_PIN: used in function "soft_uart_putc()"
+ *
+ * */
+#if UART_PRINTF_MODE
+	#define	DEBUG_INFO_TX_PIN	    GPIO_PB4//print
+	#define PB4_OUTPUT_ENABLE		1
+	#define PB4_INPUT_ENABLE		0
 #endif
 /*
  *

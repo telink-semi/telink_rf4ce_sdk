@@ -260,9 +260,9 @@ extern "C" {
  *
  * */
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC5//print
-	#define PC5_OUTPUT_ENABLE		1
-	#define PC5_INPUT_ENABLE		0
+	#define	DEBUG_INFO_TX_PIN	    GPIO_PB4//print
+	#define PB4_OUTPUT_ENABLE		1
+	#define PB4_INPUT_ENABLE		0
 #endif
 
 
@@ -287,33 +287,6 @@ extern "C" {
 #define APP_AMIC_PIN_CFG_ON		AMIC_PIN_CFG_ON(GPIO_PC4, GPIO_PC5, GPIO_PC6)
 
 #define APP_AMIC_PIN_CFG_OFF		AMIC_PIN_CFG_OFF(GPIO_PC4, GPIO_PC5, GPIO_PC6)
-
-
-//for test
-#define PB4_FUNC                	AS_GPIO
-#define PB4_INPUT_ENABLE        	0
-#define PB4_OUTPUT_ENABLE       	1
-#define PB4_DATA_STRENGTH       	0
-
-#define PB5_FUNC                	AS_GPIO
-#define PB5_INPUT_ENABLE        	0
-#define PB5_OUTPUT_ENABLE       	1
-#define PB5_DATA_STRENGTH       	0
-
-#define PB6_FUNC                	AS_GPIO
-#define PB6_INPUT_ENABLE        	0
-#define PB6_OUTPUT_ENABLE       	1
-#define PB6_DATA_STRENGTH       	0
-
-#define PB7_FUNC                	AS_GPIO
-#define PB7_INPUT_ENABLE        	0
-#define PB7_OUTPUT_ENABLE       	1
-#define PB7_DATA_STRENGTH       	0
-
-
-
-
-
 
 
 /* Disable C linkage for C++ Compilers: */

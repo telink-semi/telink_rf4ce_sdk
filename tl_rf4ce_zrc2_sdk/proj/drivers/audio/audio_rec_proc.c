@@ -26,7 +26,9 @@
 #include "drv_audio.h"
 #include "audio_codec_adpcm.h"
 #include "../drv_adc.h"
-
+#include "../../os/timer.h"
+#include "../../../net/rf4ce/mac/mac_phy.h"
+#include "../../../net/rf4ce/rf4ce_includes.h"
 #if TL_MIC_BUFFER_SIZE
 #define		APP_AUDIO_HDR_LEN		4
 static s16 	buffer_mic[TL_MIC_BUFFER_SIZE>>1];
@@ -36,13 +38,11 @@ u8			buffer_mic_pkt_wptr = 0;
 u8			buffer_mic_pkt_rptr = 0;
 
 u8 audio_status = AUDIO_IDLE;
-u16 audio_delay_sent=0;
-u32 audio_run_time = 0;
-u8 sendAudioCnt = 0;
-u8 sendAudio = 0;
 int audio_delay_times = 0;
-
+u8 TIMER_FOR_USER   = TIMER_IDX_0;
 audio_rec_ntf  g_audioRecNtf = NULL;
+
+bool GetAudioTxState(void);
 
 #if MCU_CORE_826x
 /*
@@ -192,7 +192,16 @@ static int	*mic_encoder_data_buffer (void){
 	if (buffer_mic_pkt_rptr == buffer_mic_pkt_wptr) {
 			return 0;
 	}
+	u8 value = 0;
+	s8 buffer_mic_pkt_diff = (s8)(buffer_mic_pkt_wptr-buffer_mic_pkt_rptr);
+	if(buffer_mic_pkt_diff>20)
+		value = 1;
+	else
+		value = 3;
 
+	mac_mlmeSetReq(MAC_MAX_FRAME_RETRIES, &value);
+	value = 0;
+	mac_mlmeSetReq( MAC_MAX_CSMA_BACKOFFS, &value );
 	int *ps = buffer_mic_enc + (ADPCM_PACKET_LEN>>2) *
 			(buffer_mic_pkt_rptr & (TL_MIC_PACKET_BUFFER_NUM - 1));
 
@@ -205,27 +214,19 @@ static int	*mic_encoder_data_buffer (void){
  * collection unit: send out the audio data
  *
  * */
-volatile u8 audioSentCnt = 0;
 static void proc_sending84(void){
+	if(--audio_delay_times > 0){
+		return;
+	}
+	if(!GetAudioTxState()){
 	int *buff_adpcm =  mic_encoder_data_buffer();
     if ( buff_adpcm ) {
-    	if(audio_delay_times > 0){
-			audio_delay_times--;
-			sendAudio =0;
-			return;
-		}
         memcpy(&buff_adpcm_temp[APP_AUDIO_HDR_LEN], buff_adpcm, MIC_ADPCM_FRAME_SIZE);
-        sendAudio = 1;
-    }
-    if(sendAudio == 1){
     	if(g_audioRecNtf){
-    		if(SUCCESS == g_audioRecNtf(buff_adpcm_temp, MIC_ADPCM_FRAME_SIZE+APP_AUDIO_HDR_LEN)){
-    			sendAudio =0;
-    		}
-    	}else{
-    		sendAudio =0;
-    	}
-    }
+    		g_audioRecNtf(buff_adpcm_temp, MIC_ADPCM_FRAME_SIZE+APP_AUDIO_HDR_LEN);
+			}
+		}
+	}
 }
 
 void audio_recInit(u32 sampleRate, audio_rec_ntf audioUserhandler)
@@ -247,22 +248,24 @@ void audio_recTaskStart(void){
 
 #if MCU_CORE_826x
 		BIT_SET(reg_dfifo_ana_in,4); //enable difofo
+		BIT_SET(reg_dfifo_ana_in,5); //enable difofo
 #elif MCU_CORE_8258
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 #elif MCU_CORE_8278
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 		set_pga_input_vol();
 #endif
-		audio_delay_times = 50;
+		audio_delay_times = 20;
 	}
 }
 
 void audio_recTaskStop(void){
     audio_status = AUDIO_IDLE;
-
     APP_AMIC_PIN_CFG_OFF;
 #if MCU_CORE_826x
-	BIT_CLR(reg_dfifo_ana_in,4); //enable difofo
+    BIT_CLR(reg_dfifo_ana_in,4); //enable difofo
+	BIT_CLR(reg_dfifo_ana_in,5); //enable difofo
+	AUDIO2ADC();
 #elif MCU_CORE_8258
 	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
 #elif  MCU_CORE_8278
@@ -284,8 +287,54 @@ void audio_recTaskRun(void){
     proc_sending84();
 }
 
+
+
 u8 audio_recTaskStatusGet(void){
     return audio_status;
 }
+
+volatile bool AudioTxDataFlag;
+volatile u8   AudioTxCurCnt;
+
+
+
+_attribute_ram_code_ void SetAudioTxState(bool flag)
+{
+	AudioTxDataFlag = flag;
+}
+
+_attribute_ram_code_ void SetAudioTxCnt(u8 cnt)
+{
+	AudioTxCurCnt = cnt;
+}
+
+
+_attribute_ram_code_ bool GetAudioTxState(void)
+{
+	return AudioTxDataFlag;
+}
+
+_attribute_ram_code_ u8 GetAudioTxCnt(void)
+{
+	return AudioTxCurCnt;
+}
+extern u8 rf_tx_buf[];
+
+extern u32 T_Debug_Rx_Time[];
+_attribute_ram_code_ int AudioTimeOutTxCb(void* arg)
+{
+	clock_enable_clock(TIMER_FOR_USER, 0);
+	ZB_RADIO_RX_DONE_CLR;
+	ZB_RADIO_TX_DONE_CLR;
+	rf_setTrxState(RF_STATE_TX);
+	ZB_RADIO_TX_START(rf_tx_buf);//Manual mode
+
+	u8 cnt = GetAudioTxCnt();
+	SetAudioTxCnt(cnt+1);
+	return -1;
+}
+
+
+
 
 #endif

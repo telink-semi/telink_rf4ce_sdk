@@ -84,7 +84,10 @@ _attribute_ram_code_ void irq_handler(void)
 	u8  eth_irq = reg_mac_irq_sta;
 #endif
 
-
+    if((src & FLD_IRQ_TMR0_EN)){
+		reg_irq_src = FLD_IRQ_TMR0_EN;
+		timer_irq_handler(TIMER_IDX_0);
+	}
     if((src & FLD_IRQ_TMR2_EN)){
 		reg_irq_src = FLD_IRQ_TMR2_EN;
 		timer_irq_handler(TIMER_IDX_2);

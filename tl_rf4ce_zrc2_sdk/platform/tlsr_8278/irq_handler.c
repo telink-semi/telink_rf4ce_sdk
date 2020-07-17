@@ -57,9 +57,9 @@ _attribute_ram_code_ void irq_handler(void){
 		return;
 	}
 
-    if((src & FLD_IRQ_TMR2_EN)){
-//		reg_irq_src = FLD_IRQ_TMR2_EN;
-	}
+//    if((src & FLD_IRQ_TMR2_EN)){
+////		reg_irq_src = FLD_IRQ_TMR2_EN;
+//	}
 
 
 	u16  src_rf = rf_irq_src_get();
@@ -100,6 +100,12 @@ _attribute_ram_code_ void irq_handler(void){
 		usb_endpoints_irq_handler();
 	}
 #endif
+
+
+	if(IRQ_TIMER0_ENABLE && (src & FLD_TMR_STA_TMR0)){
+		timer_irq0_handler();
+		return;
+	}
 
 }
 

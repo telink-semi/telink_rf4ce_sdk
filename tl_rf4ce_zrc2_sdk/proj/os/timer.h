@@ -21,7 +21,7 @@
 #define TIMER_IDX_1             1                   //!< Timer1 used as software timer @ref SOFTTIMER
 #define TIMER_IDX_2             2                   //!< Timer2 is for user use
 #define TIMER_NUM               3                   //!< Total number of timer
-#define TIMER_FOR_USER          TIMER_IDX_2         //!< Macro for the timerIdx used by user
+
 /** @} end of group hardware_timer_index */
 
 /** @addtogroup hardware_timer_mode Hardware Timer Mode

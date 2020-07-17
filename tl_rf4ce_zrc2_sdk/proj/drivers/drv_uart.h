@@ -23,7 +23,6 @@
 
 #include "../common/types.h"
 #include "../common/compiler.h"
-#define MASTER_CLK_FREQ				tickPerUs
 typedef void (*uart_irq_callback)(void);
 
 typedef unsigned char (* uart_data_send)(unsigned char *data);

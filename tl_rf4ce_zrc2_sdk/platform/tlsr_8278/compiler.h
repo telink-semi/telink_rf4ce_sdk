@@ -37,10 +37,7 @@
 #endif
 
 #if (BLC_PM_DEEP_RETENTION_MODE_EN)
-#define _attribute_data_retention_   __attribute__((section(".retention_data")))
-#define _attribute_bss_retention_    __attribute__((section(".retention_bss")))
+	#define _attribute_data_retention_   __attribute__((section(".retention_data")))
 #else
-
-#define _attribute_data_retention_
-#define _attribute_bss_retention_
+	#define _attribute_data_retention_
 #endif

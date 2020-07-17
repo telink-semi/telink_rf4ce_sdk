@@ -21,7 +21,7 @@
 	.equ IRQ_MODE, 		0x12	@ Interrupt Request mode
 	.equ SVC_MODE, 		0x13	@ Supervisor mode 
 
-	.equ IRQ_STK_SIZE,	0x200
+	.equ IRQ_STK_SIZE,	0x100
 	.equ __LOAD_RAM, 	0xd
 	
 #ifdef CHIP_8269

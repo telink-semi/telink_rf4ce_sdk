@@ -142,6 +142,10 @@ void sys_init(void){
 	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
 #endif
 
+#if (__PROJECT_ZRC_2_RC__)
+	extern u8 TIMER_FOR_USER;
+	hwTmr_init(TIMER_FOR_USER, TIMER_MODE_SCLK);
+#endif
     sys_idle_handler_ptr = sys_idle_handler;
 
 #if (MODULE_PM_ENABLE)

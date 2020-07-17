@@ -38,7 +38,7 @@ typedef enum{
 }audio_sampleRate_e;
 
 #ifndef		TL_MIC_PACKET_BUFFER_NUM
-#define		TL_MIC_PACKET_BUFFER_NUM    4
+#define		TL_MIC_PACKET_BUFFER_NUM    32
 #endif
 
 /*

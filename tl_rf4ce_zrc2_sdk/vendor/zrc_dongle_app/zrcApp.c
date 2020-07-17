@@ -250,7 +250,7 @@ void zrc_startCnfCb(u8 status)
 		/* Force start in channel 25 */
         ev_on_timer(zrc_doPair, 0, 100*1000);
 	}
-	u8 value = 20;// 20;
+	u8 value = 15;// 20;
 	nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
 }
 
@@ -632,27 +632,5 @@ void gdp_pushIndCb(u8 pairingRef, u8 attrId, u8 *pData){
 	uartBuf[6] = pData[0];
 	sendCmdToTH(uartBuf, uartBuf[0] + 1);
 }
-
-
-
-/*********************************************************************
- * @fn      changePairEntryChannel
- *
- * @brief   change the Channel in Pair Entry
- *
- * @param   channel
- *
- * @return  none
- */
-void changePairEntryChannel(u8 chl)
-{
-	u8 pairingRef = zrc_bondWithTargetIndex();
-	 pairTable_t *pEntry = getPairingEntryByIndex(pairingRef);
-	 if(pEntry!=NULL)
-	 {
-		 pEntry->destChannel = chl;
-	 }
-}
-
 
 #endif  /* __PROJECT_MSO_ADAPTOR_APP__ */

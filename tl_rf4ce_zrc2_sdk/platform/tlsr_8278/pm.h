@@ -57,13 +57,14 @@
 #define PM_DCDC_DELAY_CYCLE		3
 #endif
 
-#define SOFT_START_DELAY       	    		(0x08)
 #define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 200)  //100: code running time margin//154  //175
 #define EARLYWAKEUP_TIME_US_DEEP_RET    	(PM_DCDC_DELAY_DURATION + 64)//(PM_DCDC_DELAY_DURATION + 32)
-#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DELAY)*62))
+//#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DLY)*62))
 #define EMPTYRUN_TIME_US       	    		(EARLYWAKEUP_TIME_US_SUSPEND + 200)
 
-
+#define EARLYWAKEUP_TIME			19
+#define	tick_32k_tick_per_ms		32
+#define PM_EMPTYRUN_TIME_US			25
 
 
 
@@ -209,6 +210,32 @@ static inline void deepsleep_dp_dm_gpio_low_wake_enable(void)
 static inline void deepsleep_dp_dm_gpio_low_wake_disable(void)
 {
 	PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 1;
+}
+
+/**
+ * @brief      This function serves to change the timing of enable ram crc.
+ * @param[in]  none.
+ * @return     none.
+ */
+extern unsigned int RAM_CRC_EN_16KRAM_TIME;
+extern unsigned int RAM_CRC_EN_32KRAM_TIME;
+static inline void ram_crc_en_timing(unsigned int RAM_CRC_16K_Timing, unsigned int RAM_CRC_32K_Timing)
+{
+	RAM_CRC_EN_16KRAM_TIME = RAM_CRC_16K_Timing;
+	RAM_CRC_EN_32KRAM_TIME = RAM_CRC_32K_Timing;
+}
+
+/**
+ * @brief      This function serves to change the timing of soft start delay.
+ * @param[in]  none.
+ * @return     none.
+ */
+extern unsigned char SOFT_START_DLY;
+extern unsigned int EARLYWAKEUP_TIME_US_DEEP;
+static inline void soft_start_dly_time(unsigned char soft_start_time)
+{
+	SOFT_START_DLY = soft_start_time;
+	EARLYWAKEUP_TIME_US_DEEP = PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DLY)*62);
 }
 
 /**

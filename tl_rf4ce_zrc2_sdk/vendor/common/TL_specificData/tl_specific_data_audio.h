@@ -44,11 +44,25 @@ enum{
 	TL_AUDIO_CODEC_TYPE_ADPCM = 0x01,
 };
 
+enum{
+	AUDIO_ED_SCAN_STA_IDLE,
+	AUDIO_ED_SCAN_STA_DOING,
+	AUDIO_ED_SCAN_STA_DONE
+};
+enum{
+	TL_AUDIO_STA_START = 0x90, 		//!< audio start
+	TL_AUDIO_STA_TIMEOUT = 0x91, 		//!< audio start timeout
+	TL_AUDIO_STA_STOP = 0x92, 		//!< audio stop
+};
+
+
+
+
 
 typedef struct{
 	u16 sampleRate;
 	u8 	resoutionBits;
-	u8 	channelNum;
+	u8 	micChlNum;
 	u8 	codecType;
 	u8 	pktSize;
 	u8 	interval;
@@ -57,27 +71,33 @@ typedef struct{
 typedef struct{
 	u16 sampleRate;
 	u8 resoutionBits;
-	u8 channelNum;
+	u8 micChlNum;
 	u8 codecType;
 	u8 pktSize;
 	u8 interval;
+	u8 channelNum;
+	u8 duration;
 }tl_audioStartReq_t;
 
 typedef struct{
-	u8 status;
+	u8 bestChannel;
 }tl_audioStartRsp_t;
 
-typedef tl_audioStartRsp_t	tl_audioStopRsp_t ;
+typedef struct{
+	u8 state;
+}tl_audioStopRsp_t;
+
+
 
 typedef void (*tl_audioUserCb_t)(u8 state, u8 status);
 
 void tl_appAudioCmdHandler(u8 *pd, u8 len);
 
-void tl_audioRecInit(u8 profileId, tl_audioRecInfo_t *info, tl_audioUserCb_t userCb);
+void tl_audioRecInit(u8 profileId, tl_audioRecInfo_t *info);
 
 void tl_audio_start(u8 profile, u8 pairingRef);
 
-void tl_audio_stop(u8 profile, u8 pairingRef);
+void tl_audio_stop(u8 profile);
 
 int audio_startsendtry(void *arg);
 //u8 tl_audioDataSend(u8 profile, u8 *data, u8 len);

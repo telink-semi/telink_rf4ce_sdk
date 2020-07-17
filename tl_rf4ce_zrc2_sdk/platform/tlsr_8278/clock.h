@@ -62,6 +62,7 @@ extern unsigned char system_clk_type;
  */
 #define  CLK_48M_XTAL_EN   			0
 
+#define  VULTURE_A0   				0
 /**
  * @brief 	Power type for different application
  */

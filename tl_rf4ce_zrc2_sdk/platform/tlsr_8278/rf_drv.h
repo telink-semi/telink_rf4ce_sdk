@@ -31,7 +31,7 @@
 #include "gpio_8278.h"
 #define RF_CHN_TABLE 		0x8000
 
-
+#define		ADJUST_RX_CALIBRATION			0
 
 /**
  *  @brief  Define RF mode
@@ -312,6 +312,8 @@ static inline void reset_baseband(void)
  * @param[in]  none
  * @return     none
  */
+#if ADJUST_RX_CALIBRATION
+
 static inline void rf_set_rxpara(void)
 {
 	unsigned char reg_calibration=0;
@@ -320,6 +322,7 @@ static inline void rf_set_rxpara(void)
 	write_reg8(0x12e5,(read_reg8(0x12e5)&0xc0)|reg_calibration);
 }
 
+#endif
 
 /**
 *	@brief     This function serves to initiate the mode of RF
@@ -632,24 +635,9 @@ static inline void rf_set_rxmode (void)
 	write_reg8 (0x800f02, RF_TRX_OFF);
     write_reg8 (0x800428, RF_TRX_MODE | BIT(0));	//rx enable
     write_reg8 (0x800f02, RF_TRX_OFF | BIT(5));	// RX enable
-    rf_set_rxpara();
-}
-
-
-/**
- * @brief   This function serves to calibration the radio frequency .
- * @param   addr - the flash address of calibration value.
- * @return  none.
- */
-static inline void rf_drv_cap(unsigned long addr)
-{
-	unsigned char cap = 0xff;
-	extern void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
-	flash_read_page(addr, 1, &cap);
-	if(cap != 0xff){
-		cap &= 0x3f;
-		WriteAnalogReg(0x8a, ReadAnalogReg(0x8a) | cap);
-	}
+#if ADJUST_RX_CALIBRATION
+        rf_set_rxpara();
+#endif
 }
 
 /**
@@ -963,7 +951,7 @@ extern void rf_tx_500k_simulate_100k(unsigned char *preamble, unsigned char prea
 *   @param[in]  none
 *	@return	 	none
 */
-extern void rf_ed_detecct_154(void);
+extern signed char rf_ed_detect_154(void);
 /**
 *	@brief	  	This function is to stop energy detect and get energy detect value of
 *				the current channel for zigbee mode.
@@ -1005,4 +993,8 @@ void tx_packet_process_1mbps(unsigned char *tx_buf, unsigned char *payload, unsi
 
 
 #endif
+
+extern unsigned char rf_stop_ed_154(void);
+
+
 #endif

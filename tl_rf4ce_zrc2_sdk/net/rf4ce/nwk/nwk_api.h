@@ -140,6 +140,7 @@ typedef struct {
     u16 srcAddr;                //!< The network address to be assumed by the source device 
     u8 destChannel;             //!< The expected channel of the destination device 
     u16 destPanId;              //!< The PAN identifier of the destination device 
+    u16 destVendorId;              //!< The vendorId identifier of the destination device
     u8 destNodeCap;             //!< The node capabilities of the recipient node 
     u32 destFrameCounter;       //!< The frame counter last received from the recipient node 
     u8 linkKey[16];             //!< A valid 128-bit key The link key to be used to secure this pairing link 

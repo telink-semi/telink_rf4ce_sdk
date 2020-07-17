@@ -67,7 +67,7 @@ extern "C" {
 
 //////////////////// Timer  //////////////////////////////
 #define IRQ_TIMER1_ENABLE         0
-
+#define IRQ_TIMER0_ENABLE         0
 
 /////////////////// Clock  /////////////////////////////////
 #define CLOCK_SYS_TYPE  		CLOCK_TYPE_PLL	//  one of the following:  CLOCK_TYPE_PLL, CLOCK_TYPE_OSC, CLOCK_TYPE_PAD, CLOCK_TYPE_ADC
@@ -103,7 +103,7 @@ extern "C" {
 
 ///////////////////  MIC  /////////////////////////////////
 #define MIC_RESOLUTION_BIT		16
-#define MIC_SAMPLE_RATE			8000
+#define MIC_SAMPLE_RATE			16000
 #define MIC_CHANNLE_COUNT		1
 
 #define	MIC_ADPCM_FRAME_SIZE    (80+4)//128

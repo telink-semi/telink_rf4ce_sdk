@@ -103,5 +103,9 @@ _attribute_ram_code_ void irq_handler(void){
 	}
 #endif
 
+	if(IRQ_TIMER0_ENABLE && (src & FLD_TMR_STA_TMR0)){
+		timer_irq0_handler();
+		return;
+	}
 }
 

@@ -408,15 +408,18 @@ void zrc_appDataIndCb(u8 pairingRef, u8 *pd, u8 len){
 }
 
 volatile u8 T_DBG_appAudioCb[8] = {0};
+extern u8 TIMER_FOR_USER;
 void zrc_appAudioCb(u8 state, u8 status){
 	T_DBG_appAudioCb[0]++;
-	if(state == AUDIO_OPENED && status == SUCCESS){
+	if(state == AUDIO_OPENED && status == TL_AUDIO_STA_START){
 		zrc_setAppState(ZRC_AUDIO_STATE);
 		zrc_ledOn(1);
 		T_DBG_appAudioCb[1]++;
 	}else if(state == AUDIO_IDLE){
 		zrc_restoreAppState();
 		zrc_ledOff(1);
+		clock_enable_clock(TIMER_FOR_USER, 0);
+		SetAudioTxState(0);
 		T_DBG_appAudioCb[2]++;
 	}
 	T_DBG_appAudioCb[4] = state;
@@ -594,9 +597,10 @@ void press_key_handler(u8 keyCode, u8 validKey){
 				 * need to work with TELINK dongle
 				 * */
 				if (audio_recTaskStatusGet() == AUDIO_OPENED){
-					tl_audio_stop(PROFILE_ZRC2, zrc_appInfo.pairingRef);
+					tl_audio_stop(PROFILE_ZRC2);
 				}else{
-					tl_audio_start(PROFILE_ZRC2, zrc_appInfo.pairingRef);
+//					tl_audio_start(PROFILE_ZRC2, zrc_appInfo.pairingRef);
+					app_audioStart(3,10,zrc_appAudioCb);
 				}
 #endif
 			}else{
@@ -732,7 +736,7 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt){
 #if MODULE_AUDIO_ENABLE
     else if(ZRC_AUDIO_STATE == zrc_getAppState()){
 		if(keyCode == VK_RECORED){
-			tl_audio_stop(PROFILE_ZRC2, zrc_appInfo.pairingRef);
+			tl_audio_stop(PROFILE_ZRC2);
 		}
 		lastKeyCode = keyCode;
 	}

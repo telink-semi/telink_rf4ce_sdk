@@ -25,7 +25,7 @@
 							<builder arguments="-j4" buildPath="${workspace_loc:/newArchitecture/Release}" command="make" id="com.telink.tc32eclipse.target.builder.TC32Win.app.release.1651635311" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder" superClass="com.telink.tc32eclipse.target.builder.TC32Win.app.release"/>
 							<tool id="com.telink.tc32eclipse.tool.assembler.TC32Win.app.release.988940210" name="TC32 CC/Assembler" superClass="com.telink.tc32eclipse.tool.assembler.TC32Win.app.release">
 								<option id="com.telink.tc32eclipse.assembler.option.debug.level.2127195085" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.assembler.option.debug.level" value="com.telink.tc32eclipse.assembler.option.debug.level.none" valueType="enumerated"/>
-								<option id="com.telink.tc32eclipse.asm.option.flags.143155576" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_CORE_826x -DPROJECT_ZRC_2_DONGLE" valueType="string"/>
+								<option id="com.telink.tc32eclipse.asm.option.flags.143155576" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_CORE_826x -DPROJECT_ZRC_2_DONGLE -DCHIP_8269" valueType="string"/>
 								<inputType id="com.telink.tc32eclipse.tool.assembler.input.551046095" superClass="com.telink.tc32eclipse.tool.assembler.input"/>
 							</tool>
 							<tool command="tc32-elf-gcc -ffunction-sections -fdata-sections" id="com.telink.tc32eclipse.tool.compiler.TC32Win.app.release.585135697" name="TC32 Compiler" superClass="com.telink.tc32eclipse.tool.compiler.TC32Win.app.release">
@@ -11308,7 +11308,7 @@
 							<builder buildPath="${workspace_loc:/newArchitecture/Release}" id="com.telink.tc32eclipse.target.builder.TC32Win.app.release.49469275" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder" superClass="com.telink.tc32eclipse.target.builder.TC32Win.app.release"/>
 							<tool id="com.telink.tc32eclipse.tool.assembler.TC32Win.app.release.2085779863" name="TC32 CC/Assembler" superClass="com.telink.tc32eclipse.tool.assembler.TC32Win.app.release">
 								<option id="com.telink.tc32eclipse.assembler.option.debug.level.1544056210" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.assembler.option.debug.level" value="com.telink.tc32eclipse.assembler.option.debug.level.none" valueType="enumerated"/>
-								<option id="com.telink.tc32eclipse.asm.option.flags.1310714925" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_CORE_826x -DPROJECT_ZRC_2_RC" valueType="string"/>
+								<option id="com.telink.tc32eclipse.asm.option.flags.1310714925" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_CORE_826x -DPROJECT_ZRC_2_RC -DCHIP_8269" valueType="string"/>
 								<inputType id="com.telink.tc32eclipse.tool.assembler.input.1537370561" superClass="com.telink.tc32eclipse.tool.assembler.input"/>
 							</tool>
 							<tool command="tc32-elf-gcc -ffunction-sections -fdata-sections" id="com.telink.tc32eclipse.tool.compiler.TC32Win.app.release.267000688" name="TC32 Compiler" superClass="com.telink.tc32eclipse.tool.compiler.TC32Win.app.release">

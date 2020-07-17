@@ -331,7 +331,7 @@ extern void rf_tx_500k_simulate_100k(unsigned char *preamble, unsigned char prea
                                      unsigned char *acc_code, unsigned char acc_len,
                                      unsigned char *payload, unsigned char pld_len,
                                      unsigned char *tx_buf, unsigned short crc_init);
-extern signed char rf_ed_detecct_154(void);
+extern signed char rf_ed_detect_154(void);
 extern unsigned char rf_stop_ed_154(void);
 
 

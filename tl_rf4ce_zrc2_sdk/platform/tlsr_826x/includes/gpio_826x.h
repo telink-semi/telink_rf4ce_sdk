@@ -437,12 +437,6 @@ static inline void gpio_init(void){
 		gpio_set_output_en(DBG_PIN6, 1);
 #endif
 
-#if (UART_PRINTF_MODE)
-	gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);//test june
-	gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);
-	gpio_set_input_en(DEBUG_INFO_TX_PIN, 0);
-	gpio_write(DEBUG_INFO_TX_PIN, 0);
-#endif
 }
 
 

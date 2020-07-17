@@ -40,7 +40,7 @@
 #define ZB_RADIO_MODE_AUTO_GAIN()
 
 /* get RSSI */
-#define ZB_RADIO_RSSI_GET()					rf_ed_detecct_154()
+#define ZB_RADIO_RSSI_GET()					rf_ed_detect_154()
 
 /* start sending a packet */
 #define ZB_RADIO_TX_START(txBuf)			rf_tx_pkt(txBuf)
