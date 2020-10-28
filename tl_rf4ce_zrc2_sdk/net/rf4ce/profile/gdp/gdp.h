@@ -367,3 +367,4 @@ nv_sts_t gdp_loadTgtAttrFromFlash(void);
 nv_sts_t gdp_loadPollVarsFromFlash(void);
 gdp_sts_t gdp_sendCheckValiResp(u8 pairingRef, u8 status);
 void gdp_enterValidation(void);
+void gdp_updatePollingState(void);

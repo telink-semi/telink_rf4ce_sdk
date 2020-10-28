@@ -23,7 +23,7 @@
 #define _RF_DRV_H_
 
 #include "bsp.h"
-
+#include "flash.h"
 
 #define RF_CHN_TABLE 		0x8000
 
@@ -339,5 +339,14 @@ static inline void rf_setIdleMode( void ){
     write_reg8 (0x800f02, 0x45);  //trx disable
 }
 
+static inline void rf_drv_cap(unsigned long addr)
+{
+	unsigned char cap = 0xff;
+	flash_read_page(addr, 1, &cap);
+	if(cap != 0xff){
+		cap &= 0x3f;
+		WriteAnalogReg(0x8a, (ReadAnalogReg(0x8a) & 0xc0) | cap);
+	}
+}
 
 #endif

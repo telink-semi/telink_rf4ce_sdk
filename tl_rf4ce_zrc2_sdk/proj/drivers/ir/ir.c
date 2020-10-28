@@ -29,6 +29,7 @@
 static u8 IR_CHAANEL;
 #define IR_DATA_LEN_MAX		128
 
+
 typedef struct{
 	int totalCnt;
 	int curCnt;
@@ -47,7 +48,11 @@ void ir_init(u8 channel){
 	pwm_INVInvert(IR_CHAANEL);
 #elif MCU_CORE_8258 || MCU_CORE_8278
 	pwm_set_clk(CLOCK_SYS_CLOCK_HZ, CLOCK_SYS_CLOCK_HZ);
+#if IR_DMA_FIFO_EN
+	pwm_set_mode(IR_CHAANEL, PWM_IR_DMA_FIFO_MODE);
+#else
 	pwm_set_mode(IR_CHAANEL, PWM_NORMAL_MODE);
+#endif
 	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
 	pwm_n_revert(IR_CHAANEL);
 	pwm_stop(IR_CHAANEL);
@@ -62,7 +67,17 @@ void ir_set(int hz, int low_duty){
 #elif MCU_CORE_8258 || MCU_CORE_8278
 	u16 max_tick = CLOCK_SYS_CLOCK_HZ/hz;
 	u16 cmp_tick = max_tick / low_duty;
-	drv_pwm_cfg(IR_CHAANEL,cmp_tick,max_tick);
+#if IR_DMA_FIFO_EN
+	pwm_set_mode(IR_CHAANEL, PWM_IR_DMA_FIFO_MODE);
+	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
+	pwm_set_cycle_and_duty(IR_CHAANEL, max_tick, cmp_tick);
+	reg_irq_mask |= FLD_IRQ_SW_PWM_EN;
+#else
+	pwm_set_mode(IR_CHAANEL, PWM_NORMAL_MODE);
+	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
+	pwm_set_cycle_and_duty(IR_CHAANEL, max_tick, cmp_tick);
+#endif
+
 #endif
 }
 
@@ -109,8 +124,8 @@ int ir_stopTimerCb(void *arg){
 volatile u8 T_irTimer1IrqCbCnt = 0;
 _attribute_ram_code_ int irTimer1IrqCb(void *arg){
 	int t_us = irInfo.interval[irInfo.curCnt];
-
-	hwTmr_setInterval(TIMER_IDX_1, t_us * tickPerUs - 128);
+	if(t_us>4)t_us-=4;
+	hwTmr_setInterval(TIMER_IDX_1, t_us);
 
 	T_irTimer1IrqCbCnt++;
 	if(irInfo.curCnt == irInfo.totalCnt){
@@ -123,8 +138,7 @@ _attribute_ram_code_ int irTimer1IrqCb(void *arg){
 	}
 
 	if (!(irInfo.curCnt&0x01)) {
-		MARK(t_us);
-		// change timer interval to t_us
+		MARK(t_us);		// change timer interval to t_us
 	} else {
 		SPACE(t_us);
 	}
@@ -152,7 +166,7 @@ void ir_send_serial(u16 *serial, u16 rawLen)
     memcpy(irInfo.interval, serial, 2*rawLen);
     irInfo.totalCnt = rawLen;
     irInfo.curCnt = 0;
-    hwTmr_set(TIMER_IDX_1, 1000 * tickPerUs, irTimer1IrqCb, NULL);
+    hwTmr_set(TIMER_IDX_1, 1000, irTimer1IrqCb, NULL);
     irInfo.sta = 1;
 }
 
@@ -183,9 +197,167 @@ void ir_send_raw(u8 *raw, u32 rawLen, u8 specialIndex, u8 specialBase)
     }
     irInfo.totalCnt = rawLen;
     irInfo.curCnt = 0;
-    hwTmr_set(TIMER_IDX_1, 1000 * tickPerUs, irTimer1IrqCb, NULL);
+    hwTmr_set(TIMER_IDX_1, 1000, irTimer1IrqCb, NULL);
     irInfo.sta = 1;
 }
+
+#if IR_DMA_FIFO_EN
+void ir_dma_send_raw(u16 *raw, u32 rawLen, u8 specialIndex, u8 specialBase);
+void ir_dma_convert_byte(u16 data, u8 bitLen, u16* p, u16 one_mark, u16 one_space, u8 fmls_1, u16 zero_mark, u16 zero_space, u8 fmls_0,u16 ir_carrier);
+
+zrc_ir_dma_callback_t zrcir_dma_handler = NULL;
+ir_dma_serial_t  irDMABuffer;
+void ir_send_release(void)
+{
+	u8 r = irq_disable();
+	pwm_stop_dma_ir_sending();
+	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear irq status
+	reg_pwm_irq_mask &= ~FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //disable irq mask
+	irInfo.sta = 0;
+	irInfo.interval = NULL;
+	irq_restore(r);
+}
+
+void zrcDMAIrcallback(zrc_ir_dma_callback_t ir_cb)
+{
+	zrcir_dma_handler = ir_cb;
+}
+
+void rc_ir_irq_prc(void)
+{
+	if(reg_pwm_irq_sta & FLD_IRQ_PWM0_IR_DMA_FIFO_DONE)
+	{
+		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //clear irq status
+		if(zrcir_dma_handler)
+			zrcir_dma_handler();
+	}
+}
+
+u8 Get_CarrierCycleTick(u32 freq)
+{
+	if(!freq)return 0;
+	irDMABuffer.series_freq = freq;
+	irDMABuffer.series_tick = CLOCK_SYS_CLOCK_HZ/freq;
+	return 1;
+}
+
+
+void ir_dma_send_serial(u16 *serial, u16 rawLen)
+{
+    u32 i;
+    u32 t_us;
+    u8 waveflag=0;
+    if(irInfo.repeatTimer){
+		ev_unon_timer(&irInfo.repeatTimer);
+	}
+
+    if(irInfo.stopTimer){
+		ev_unon_timer(&irInfo.stopTimer);
+	}
+
+    irInfo.interval = (u16 *)&irDMABuffer.series_cnt;
+    if(rawLen > IR_DMA_SERIES_CNT1 ){
+    	return;
+    }
+
+    for (i = 0; i < rawLen; i++) {
+    	t_us = serial[i];
+    	waveflag = (i&0x1)?(0):(1);
+        irInfo.interval[i+2] = pwm_config_dma_fifo_waveform(waveflag, PWM0_PULSE_NORMAL, t_us * MASTER_CLK_FREQ/irDMABuffer.series_tick);;
+
+    }
+
+	unsigned int length = rawLen*2;
+	unsigned char* buff = (unsigned char*)&irInfo.interval[0];
+	buff[0]= length&0xff;
+	buff[1]= (length>>8)&0xff;
+	buff[2]= (length>>16)&0xff;
+	buff[3]= (length>>24)&0xff;
+	pwm_set_dma_address(buff);
+
+    irInfo.totalCnt = length;
+    irInfo.curCnt = 0;
+    irInfo.sta = 1;
+
+    zrcDMAIrcallback(ir_send_release);
+	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
+	reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
+	pwm_start_dma_ir_sending();
+}
+
+
+
+/* Here the special bit means the level is the  tsame with it's previous one */
+void ir_dma_send_raw(u16 *raw, u32 rawLen, u8 specialIndex, u8 specialBase)
+{
+    u32 i;
+    u32 t_us;
+    if(irInfo.repeatTimer){
+		ev_unon_timer(&irInfo.repeatTimer);
+	}
+    if(irInfo.stopTimer){
+		ev_unon_timer(&irInfo.stopTimer);
+	}
+
+    irInfo.interval = (u16 *)&irDMABuffer.series_cnt;
+    if(rawLen > IR_DMA_SERIES_CNT1 ){
+    	return;
+    }
+
+    for (i = 0; i < rawLen; i++) {
+        if (i == specialIndex) {
+            t_us = specialBase;
+        } else {
+            t_us = raw[i];
+        }
+        irInfo.interval[i+2] = t_us;
+    }
+
+	unsigned int length = rawLen*2;
+	unsigned char* buff = (unsigned char*)&irInfo.interval[0];
+	buff[0]= length&0xff;
+	buff[1]= (length>>8)&0xff;
+	buff[2]= (length>>16)&0xff;
+	buff[3]= (length>>24)&0xff;
+	pwm_set_dma_address(buff);
+
+    zrcDMAIrcallback(ir_send_release);
+	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
+	reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
+	pwm_start_dma_ir_sending();
+}
+
+
+
+void ir_dma_convert_byte(u16 data, u8 bitLen, u16* p, u16 one_mark, u16 one_space, u8 fmls_1, u16 zero_mark, u16 zero_space, u8 fmls_0,u16 ir_carrier_cycle_tick)
+{
+    u16  i;
+    u16  waveform_logic_1_1st = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, one_mark * MASTER_CLK_FREQ/ir_carrier_cycle_tick);
+    u16  waveform_logic_1_2nd = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, one_space * MASTER_CLK_FREQ/ir_carrier_cycle_tick);
+    u16  waveform_logic_0_1st = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, zero_mark * MASTER_CLK_FREQ/ir_carrier_cycle_tick);
+    u16  waveform_logic_0_2nd = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, zero_space * MASTER_CLK_FREQ/ir_carrier_cycle_tick);
+    for (i = 0; i < bitLen; i++) {
+        if (data & 0x0001) {
+            if (fmls_1) {
+                *p++ = waveform_logic_1_1st;
+                *p++ = waveform_logic_1_2nd;
+            } else {
+                *p++ = waveform_logic_1_2nd;
+                *p++ = waveform_logic_1_1st;
+            }
+        } else {
+            if (fmls_0) {
+                *p++ = waveform_logic_0_1st;
+                *p++ = waveform_logic_0_2nd;
+            } else {
+                *p++ = waveform_logic_0_2nd;
+                *p++ = waveform_logic_0_1st;
+            }
+        }
+        data >>= 1;
+    }
+}
+#endif
 
 
 void ir_convert_byte(u16 data, u8 bitLen, u8* p, u8 one_mark, u8 one_space, u8 fmls_1, u8 zero_mark, u8 zero_space, u8 fmls_0)
@@ -266,6 +438,59 @@ void ir_send_upd6121f(u16 addr, u16 cmd, u8 fRepeat)
 }
 #endif
 
+
+
+
+
+
+#if IR_DMA_FIFO_EN
+#define upd6121g_carrier						38000
+#define PWM_CARRIER_CYCLE_TICK					(CLOCK_SYS_CLOCK_HZ/upd6121g_carrier)
+
+void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat)
+{
+	ir_set(38000, 3);
+    u16 *buf = (u16 *)ev_buf_allocate(DFLT_LARGE_BUF_SIZE);
+	if ( NULL == buf ) {
+		while(1);
+	}
+	u16 *p = buf;
+    u8 first_addr = (addr & 0xff00)>>8;
+    u8 second_addr = addr & 0x00ff;
+    u8 first_cmd = (cmd & 0xff00)>>8;
+    u8 second_cmd = cmd & 0x00ff;
+
+    if (!fRepeat)
+    {
+        *p++ = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, NEC_HDR_MARK * MASTER_CLK_FREQ/PWM_CARRIER_CYCLE_TICK);
+        *p++ = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, NEC_HDR_SPACE * MASTER_CLK_FREQ/PWM_CARRIER_CYCLE_TICK);
+
+        ir_dma_convert_byte(first_addr, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        p += 16;
+        ir_dma_convert_byte(second_addr, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        p += 16;
+        ir_dma_convert_byte(first_cmd, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        p += 16;
+        ir_dma_convert_byte(second_cmd, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        p += 16;
+    }
+    else
+    {
+        *p++ = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, NEC_HDR_MARK * MASTER_CLK_FREQ/PWM_CARRIER_CYCLE_TICK);
+        *p++ = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, NEC_RPT_SPACE * MASTER_CLK_FREQ/PWM_CARRIER_CYCLE_TICK);
+    }
+
+    	*p++ = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, NEC_BIT_MARK * MASTER_CLK_FREQ/PWM_CARRIER_CYCLE_TICK);
+    	ir_dma_send_raw(buf, p-buf, NO_SPECIAL, 0);
+#if (__DEBUG_BUFM__)
+    if ( ERR_NONE != ev_buf_free(buf) ) {
+		while(1);
+    }
+#else
+    ev_buf_free((u8*)buf);
+#endif
+}
+#else
 void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat)
 {
 	ir_set(38000, 3);
@@ -287,10 +512,7 @@ void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat)
     if (!buf) {
         while(1);
     }
-
-
     if (!fRepeat) {
-
         /* Lead code */
         *p++ = NEC_HDR_MARK/IR_BASE_TIME;
         *p++ = NEC_HDR_SPACE/IR_BASE_TIME;
@@ -323,6 +545,9 @@ void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat)
     ev_buf_free(buf);
 #endif
 }
+#endif
+
+
 
 #if 0
 void ir_send_sony(u8 addr, u8 cmd, u8 fRepeat)
@@ -904,7 +1129,6 @@ void ir_send_mn6014_c6d6(u8 addr, u8 cmd, u8 fRepeat)
 
     /* Send data out */
     ir_send_raw(buf, p-buf, NO_SPECIAL, 0);
-
 #if (__DEBUG_BUFM__)
     if ( ERR_NONE != ev_buf_free(buf) ) {
 		while(1);
@@ -949,10 +1173,6 @@ void ir_send_mn6014_c5d6(u8 addr, u8 cmd, u8 fRepeat)
 
     /* Stop bit */
     *p++ = one_mark;
-
-
-
-
 
     /* Send data out */
     ir_send_raw(buf, p-buf, NO_SPECIAL, 0);

@@ -13,7 +13,7 @@
 #include <malloc.h>
 #endif
 
-ev_bufItem_t ev_bufItem[BUFFER_NUM] = {0};
+ev_bufItem_t ev_bufItem[BUFFER_NUM] = {{0}};
 
 #if USE_NEW_MSG_MANAGER
 

@@ -360,29 +360,6 @@ u8 zrcApp_cmdQPop(cmdQ_t *q) {
 
 
 
-/*
- * send IR code using action mapping
- *
- * */
-volatile u8 T_zrc_sendActionMapingKeyCnt[2] = {0};
-s8  zrc_sendActionMapingKey(u8 keyType, u8 keyCode, u8 *permant, u8 *useDefault){
-	if(zrcIrGetState()){
-		return INVALID_TASK;
-	}
-
-	T_zrc_sendActionMapingKeyCnt[0]++;
-//	zrc_startSendRepeateDataTimer(50000);   //start a timer to enter couch-off mode
-	u8 *irCode = zrc_actionMappingKeyGet(keyType, keyCode, permant, useDefault);
-	if(irCode){
-		T_zrc_sendActionMapingKeyCnt[1]++;
-		return zrcIrInit(irCode);
-	}
-
-	return FAILURE;
-}
-
-
-
 zrc_sts_t user_ZrcPowerStatusPush(u8 status){
 	zrc_sts_t ret = ZRC_SUCC;
 

@@ -84,8 +84,12 @@ static u8 platform_init(void){
 
     ZB_RADIO_INIT();
 
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+		internalFlashSizeCheck();
+#endif
     return ret;
 }
+
 
 int main (void) {
 	platform_init();
@@ -97,10 +101,11 @@ int main (void) {
     user_init ();
 
     tick_usb_enum = clock_time ();
+
     irq_enable();
 
 #if (MODULE_WATCHDOG_ENABLE)
-    wd_setintervalms(600);
+    wd_setintervalms(1000);
     wd_start();
 #endif
 

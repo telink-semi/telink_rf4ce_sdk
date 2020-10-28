@@ -1,7 +1,7 @@
 
 #include "../../proj/tl_common.h"
 #include "../../proj/os/timer.h"
-
+#include "../../proj/drivers/audio/drv_audio.h"
 void gpio_user_irq_handler(void);
 void timer_irq_handler(u8 tmrIdx);
 void usb_suspend_irq_handler(void);
@@ -44,19 +44,11 @@ irq_handler_t	p_irq_handler = 0;
 
 _attribute_ram_code_ void irq_handler(void)
 {
-#if (ZIPIR_ENABLE)
-	if(zipir_send_ctrl.is_sending || zrcIrState){
-		ZipIR_IRQHandler();
-		return;
-	}
-	u32 src = reg_irq_src;
-#else
 	u32 src = reg_irq_src;
 	if(IRQ_TIMER1_ENABLE && (src & FLD_IRQ_TMR1_EN)){
 		reg_irq_src = FLD_IRQ_TMR1_EN;
 		timer_irq_handler(TIMER_IDX_1);
 	}
-#endif
 
 #if MODULE_QRP_ENABLE
 	/* enable for testing */
@@ -100,7 +92,7 @@ _attribute_ram_code_ void irq_handler(void)
     }
 #endif
 
-#if IRQ_GPIO_ENABLE
+#if MODULE_IR_LEARN_ENABLE||IRQ_GPIO_ENABLE
     if(src & FLD_IRQ_GPIO_EN){
     	gpio_user_irq_handler();
     	reg_irq_src = FLD_IRQ_GPIO_EN;

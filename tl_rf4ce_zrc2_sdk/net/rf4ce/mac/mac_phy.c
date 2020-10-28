@@ -528,6 +528,9 @@ _CODE_MAC_ void rf_setTxPower(u8 power){
 
 #if __PROJECT_ZRC_2_RC__ && MODULE_AUDIO_ENABLE
 extern u8 TIMER_FOR_USER;
+void hwTmr_reset(u8 tmrIdx);
+_attribute_ram_code_ bool GetAudioTxState(void);
+_attribute_ram_code_ u8 tl_audioDataSendCnfHandler(u8 sta);
 #endif
 
 /*********************************************************************
@@ -565,9 +568,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
         fcf1 = *(p + ZB_RADIO_RX_HDR_LEN);    // frame control byte 1
         if(len==5&&(fcf1 & MAC_FCF_FRAME_TYPE) == 0x02)
         {
+        	hwTmr_reset(TIMER_FOR_USER);
         	clock_enable_clock(TIMER_FOR_USER, 0);
         	tl_audioDataSendCnfHandler(SUCCESS);
-        	reg_tmr_sta |= (1 << TIMER_FOR_USER);
+        	reg_tmr_sta = (1 << TIMER_FOR_USER);
 			*((u32*)rf_rxBuf) = 0;
 			ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
 			ZB_RADIO_RX_ENABLE;
@@ -587,9 +591,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 
     u8 beaconFlt = 1;
 #if RF4CE_TARGET
-    if(mac_getState() == MAC_STATE_SCAN){
-    	beaconFlt = 0;
-    }
+	beaconFlt = 0;
 #endif
     if(beaconFlt)
     {
@@ -603,7 +605,13 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
     }
     else
     {
-		if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND && ev_buf_getfreeSize()<4)
+    	if ((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_BEACON) {
+    	    if(mac_getState() == MAC_STATE_SCAN)
+        		fDrop = 0;
+    	    else
+    	    	fDrop = 1;
+    	}
+    	else if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND && ev_buf_getfreeSize()<4)
 		{
 			fDrop = 1;
 		}
@@ -681,6 +689,8 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 
 extern int AudioTimeOutTxCb(void* arg);
 extern unsigned long tickPerUs;
+_attribute_ram_code_ u8 GetAudioTxCnt(void);
+
 //extern mac_pib_t macPib;
 /*********************************************************************
  * @fn      rf_tx_irq_handler
@@ -700,7 +710,7 @@ _attribute_ram_code_ /*__attribute__((optimize("-Os")))*/ void rf_tx_irq_handler
     		//timer on
     		/* Must change to RX mode first, otherwise the next ACK may miss */
     		ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
-    		hwTmr_set(TIMER_FOR_USER, 650 * tickPerUs, AudioTimeOutTxCb, NULL);
+    		hwTmr_set(TIMER_FOR_USER, 700, AudioTimeOutTxCb, NULL);
     	}else{
     		tl_audioDataSendCnfHandler(FAILURE);
     	}

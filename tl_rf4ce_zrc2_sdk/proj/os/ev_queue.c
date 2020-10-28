@@ -56,8 +56,8 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
     queue_item_t* current;
     u8 r;
 #if (__DEBUG__ )	
-    T_queue = q;
-    T_newItem = newElement;
+    T_queue = (u8 *)q;
+    T_newItem = (u8 *)newElement;
 #endif	
     if (NULL == q || NULL == newElement) {
         return QUEUE_INVALID_PARAMETER;

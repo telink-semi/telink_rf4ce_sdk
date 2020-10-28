@@ -42,7 +42,7 @@ void drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart
 	uart_RecBuffInit(rxBuf, rxBufLen);	/* configure receive buffer */
 
 #else
-	uart_recbuff_init( (unsigned short *)rxBuf, rxBufLen);
+	uart_recbuff_init( rxBuf, rxBufLen);
 	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
 #if	defined(MCU_CORE_8278)

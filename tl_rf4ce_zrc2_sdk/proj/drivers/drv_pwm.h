@@ -28,7 +28,7 @@ void drv_pwm_init(void);
 
 void drv_pwm_cfg(u32  pwmId, unsigned short cmp_tick, unsigned short cycle_tick);
 
-#ifdef MCU_CORE_8258 || MCU_CORE_8278
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define drv_pwm_start(pwmId)		pwm_start(pwmId)
 #define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
 #define drv_pwm_invert(pwmId)		pwm_revert(pwmId)

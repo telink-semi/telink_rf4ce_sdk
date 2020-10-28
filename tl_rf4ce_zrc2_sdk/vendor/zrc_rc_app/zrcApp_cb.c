@@ -41,6 +41,7 @@
 
 #if (MODULE_AUDIO_ENABLE)
 #include "../../proj/drivers/audio/drv_audio.h"
+#include "../../proj/drivers/ir/ir_learn.h"
 #include "../common/TL_specificData/TL_specific_data.h"
 #include "../common/TL_specificData/TL_specific_data_audio.h"
 #include "../common/TL_specificData/TL_specific_data_ota.h"
@@ -571,14 +572,6 @@ void press_key_handler(u8 keyCode, u8 validKey){
 		zrc_startLed(1, ZRC_APP_LED_BLINK_SEND_DATA_TIME, 1);
 	}
 
-//	if(keyCode == VK_BACK){
-//		defaultActionmappingRecovery();
-//	}
-//	if(keyCode == VK_VOLUME_DOWN || keyCode == VK_VOLUME_UP || keyCode == VK_MUTE){
-//		zrc_volume_keyHandler(keyCode);
-//		return;
-//	}
-
 	if(zrc_appInfo.pairingRef != RF4CE_INVALID_PAIR_REF){
 		if(ZRC_READY_STATE == zrc_getAppState()){
 #if MODULE_AUDIO_ENABLE
@@ -599,7 +592,6 @@ void press_key_handler(u8 keyCode, u8 validKey){
 				if (audio_recTaskStatusGet() == AUDIO_OPENED){
 					tl_audio_stop(PROFILE_ZRC2);
 				}else{
-//					tl_audio_start(PROFILE_ZRC2, zrc_appInfo.pairingRef);
 					app_audioStart(3,10,zrc_appAudioCb);
 				}
 #endif
@@ -636,7 +628,22 @@ void press_key_handler(u8 keyCode, u8 validKey){
 			zrcIrInit(volumnUp);
 			return;
 		}
+#if (MODULE_IR_LEARN_ENABLE)
+		void LearningStaCallBack(u8 st);
+		if(keyCode==ZRCmdRC_SetupMenu)//sw38
+		{
+			setlearningState(LearningStaCallBack);
+			ir_start_learn(ZRCmdRC_Mute);//sw35
+			return;
+		}
 
+		if(keyCode==ZRCmdRC_Mute)//sw35
+		{
+			zrc_setAppState(ZRC_SENDING_IR_STATE);
+			if(ir_learn_send_nv(keyCode)==SUCCESS)
+			return;
+		}
+#endif
 		zrc_sendIRData(ZRC_KEY_FOR_DTA, keyCode, 0);
 		T_press_key_handler++;
 	}
@@ -648,6 +655,27 @@ void release_key_handler(u8 keyCode){
 		zrcStop();
 	}
 }
+
+#if (MODULE_IR_LEARN_ENABLE)
+void LearningStaCallBack(u8 st)
+{
+	if(st==IR_LEARN_START)//start learning
+	{
+		zrc_startLed(0,500*1000,1);
+		zrc_setAppState(ZRC_LEARNING_IR_STATE);
+	}
+	else if(st==IR_LEARN_SUCCESS)//stop learning
+	{
+		zrc_startLed(3,100*1000,1);
+		zrc_restoreAppState();
+	}
+	else if(st==IR_LEARN_FAILED)//stop learning
+	{
+		zrc_ledOff(1);
+		zrc_restoreAppState();
+	}
+}
+#endif
 
 /**********************************************keyScan_keyPressedCB***********************
  * @fn      keyScan_keyPressedCB
@@ -754,6 +782,7 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt){
 		zrc_appVars.flags.bf.allowedDeep = 1;
     }
 }
+
 
 
 /*********************************************************************

@@ -476,9 +476,28 @@ void rf_setRxState(u8 fEnable);
  * @return  none
  */
 void rf_set(u8 id, u8 *pValue, u8 len);
+/*********************************************************************
+ * @fn      rf_tx
+ *
+ * @brief   Transmit the data through CSMA/CA mechnism.
+ *
+ * @param   buf - The buffer to be transmitted
+ * @param   len - The length of byte to be transmitted
+ *
+ * @return  none
+ */
+void rf_tx(u8* buf, u8 len);
 
-
-
+/*********************************************************************
+* @fn      rf_RxGainSet
+*
+* @brief   Set gain mode.
+*
+* @param   mode - auto or maxium
+*
+* @return  none
+*/
+void rf_RxGainModeSet(u8 mode);
 #if 0
 /*********************************************************************
  * TYPES

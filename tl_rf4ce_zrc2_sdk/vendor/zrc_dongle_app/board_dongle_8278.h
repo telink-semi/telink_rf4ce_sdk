@@ -30,27 +30,14 @@
 #endif
 
 
-//#define PB2_FUNC                	AS_GPIO
-//#define PB2_INPUT_ENABLE        	0
-//#define PB2_OUTPUT_ENABLE       	1
-//#define PB2_DATA_STRENGTH       	0
-//
-//#define PB3_FUNC                	AS_GPIO
-//#define PB3_INPUT_ENABLE        	0
-//#define PB3_OUTPUT_ENABLE       	1
-//#define PB3_DATA_STRENGTH       	0
-//
-//#define PB4_FUNC                	AS_GPIO
-//#define PB4_INPUT_ENABLE        	0
-//#define PB4_OUTPUT_ENABLE       	1
-//#define PB4_DATA_STRENGTH       	0
+/*
+ * ADC PIN configuration
+ *
+ * */
+	#define ZRC_APP_ADC_PIN                  GPIO_PB7
 
-//#define PA2_FUNC                	AS_GPIO
-//#define PA2_INPUT_ENABLE        	0
-//#define PA2_OUTPUT_ENABLE       	1
-//#define PA2_DATA_STRENGTH       	0
-//
-//#define GREEN_LED_PORT            		  	GPIO_PA2
-//#define GREEN_LED_ON()						gpio_write(GREEN_LED_PORT,1)
-//#define GREEN_LED_OFF()						gpio_write(GREEN_LED_PORT,0)
+
+
+
+
 

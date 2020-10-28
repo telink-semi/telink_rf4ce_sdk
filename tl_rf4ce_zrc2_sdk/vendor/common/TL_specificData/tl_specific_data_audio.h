@@ -87,6 +87,19 @@ typedef struct{
 	u8 state;
 }tl_audioStopRsp_t;
 
+typedef void (*audioUserCb)(u8 state, u8 status);
+/**
+ *  @brief  Define the structure for audio various
+ */
+typedef struct{
+	ev_time_event_t *dataReqTimeoutCb;  //!< time out callback for data request
+	audioUserCb audioCb; //!< audio call back for application
+	u8  channelNum;
+	u8  scanDuration;
+	u8  scanSta;
+	u8	pairingRef;
+	u8	dataReqRetries;
+}audioVars_t;
 
 
 typedef void (*tl_audioUserCb_t)(u8 state, u8 status);
@@ -100,6 +113,8 @@ void tl_audio_start(u8 profile, u8 pairingRef);
 void tl_audio_stop(u8 profile);
 
 int audio_startsendtry(void *arg);
+
+u8 app_audioStart(u8 channelNum, u8 duration, audioUserCb cb);
 //u8 tl_audioDataSend(u8 profile, u8 *data, u8 len);
 
 //u8 tl_audioDataSendCnfHandler(u8 handler, u8 *cnf);

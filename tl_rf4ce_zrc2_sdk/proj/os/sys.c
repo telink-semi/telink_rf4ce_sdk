@@ -17,12 +17,13 @@ extern void app_idle_handler(void);
 sys_stat_ctrl_t sys_stat_ctrl;
 u32 sys_active_event_time = 0;
 extern ev_poll_callback_t sys_idle_handler_ptr;
-
-
+int app_saveInfoPm(void);
+u8 app_allowedDeep(void);
 u32 sysSuspendTimeInMs = PM_SUSPEND_WAKEUP_TIME;
 #if(MODULE_PM_ENABLE)
 extern int app_saveInfoPm(void);
-
+extern u8 app_validLevelForPm(u8 reset);
+extern u8 app_isIdle(void);
 void sys_suspendTimerSet(u32 ms){
 	sysSuspendTimeInMs = ms;
 }
@@ -62,8 +63,7 @@ static void sys_enter_suspend_mode(void){
 		wakeupSrc |= PLATFORM_WAKEUP_PAD;
 	}
 #endif
-
-	platform_wakeup_e ws = platform_lowpower_enter(PLATFORM_MODE_SUSPEND, wakeupSrc, realInterval);
+	platform_lowpower_enter(PLATFORM_MODE_SUSPEND, wakeupSrc, realInterval);
 	lastWakeupTime = clock_time();
 	firstRun = 0;
 //	app_validLevelForPm(0);

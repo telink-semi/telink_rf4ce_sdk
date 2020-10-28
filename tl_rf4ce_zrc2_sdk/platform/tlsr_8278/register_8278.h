@@ -814,7 +814,7 @@ enum{
 /*******************************      system timer registers: 0x740      ******************************/
 
 #define reg_system_tick				REG_ADDR32(0x740)
-#define reg_system_tick_irq_level	REG_ADDR32(0x744)
+#define reg_system_tick_irq			REG_ADDR32(0x744)
 #define reg_system_irq_mask			REG_ADDR8(0x748)
 #define reg_system_cal_irq			REG_ADDR8(0x749)
 #define reg_system_ctrl				REG_ADDR8(0x74a)

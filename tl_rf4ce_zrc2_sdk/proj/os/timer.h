@@ -1,4 +1,24 @@
-
+/********************************************************************************************************
+ * @file     timer.h
+ *
+ * @brief    Interface of hardware timer header file
+ *
+ * @author
+ * @date     Oct. 8, 2016
+ *
+ * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
+ *******************************************************************************************************/
 #pragma once
 
 
@@ -20,7 +40,8 @@
 #define TIMER_IDX_0             0                   //!< Timer0 used as system tick
 #define TIMER_IDX_1             1                   //!< Timer1 used as software timer @ref SOFTTIMER
 #define TIMER_IDX_2             2                   //!< Timer2 is for user use
-#define TIMER_NUM               3                   //!< Total number of timer
+#define TIMER_IDX_3             3                   //!< Timer3 is for system tick
+#define TIMER_NUM               4                   //!< Total number of timer
 
 /** @} end of group hardware_timer_index */
 
@@ -113,7 +134,7 @@ void hwTmr_init(u8 tmrIdx, u8 mode);
   *
   * @return      Status
   */
-hw_timer_sts_t hwTmr_set(u8 tmrIdx, u32 interval, timerCb_t func, void* arg);
+hw_timer_sts_t hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void* arg);
 
  /**
   * @brief       Set a new timer through absolute time value
@@ -137,17 +158,20 @@ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer, timerCb_t func, void
 void hwTmr_cancel(u8 tmrIdx);
 
 /**
-  * @brief       Interrupt handler of Timer1
+  * @brief       Interrupt handler of Timer
   *
   * @param       None
   *
   * @return      None
   */
+void timer_irq0_handler(void);
 void timer_irq1_handler(void);
-
+void timer_irq3_handler(void);
 _attribute_ram_code_ void timer_irq_handler(u8 tmrIdx);
 
 void hwTmr_setInterval(u8 tmrIdx, u32 interval);
+
+void hwTmr_idle(u8 tmrIdx);
 
 /**  @} end of group HARDWARETIMER_Functions */
 

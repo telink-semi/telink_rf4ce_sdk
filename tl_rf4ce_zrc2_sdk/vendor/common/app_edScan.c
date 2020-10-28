@@ -13,6 +13,7 @@ s32 app_energyScanCb(void *arg){
 
 	if(curEnergy <= ED_SCAN_LQI_THRESHOLD){
 		g_appEdScanInfo.bestChannel = RF4CE_Idx2Channel(idx);
+		g_appEdScanInfo.bestChannelEnergy = curEnergy;
 		if(g_appEdScanInfo.doneCb){
 			g_appEdScanInfo.doneCb(g_appEdScanInfo.bestChannel);
 		}
@@ -24,7 +25,7 @@ s32 app_energyScanCb(void *arg){
 
 	if(curEnergy < g_appEdScanInfo.bestChannelEnergy){
 		g_appEdScanInfo.bestChannelEnergy = curEnergy;
-		g_appEdScanInfo.bestChannel = idx;
+		g_appEdScanInfo.bestChannel = RF4CE_Idx2Channel(idx);
 	}
 
 	/* get next channel */

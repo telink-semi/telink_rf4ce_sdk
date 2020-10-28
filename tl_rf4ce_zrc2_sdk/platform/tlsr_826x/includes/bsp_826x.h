@@ -211,7 +211,7 @@ typedef struct TBLCMDSET {
 #define	REG_DEEP_EXCEPT_FLAG		0x3A
 #define	REG_FRAMECOUNT				0x35   //4Bytes, from 0x35 to 0x38
 
-int LoadTblCmdSet (	const TBLCMDSET * pt, int size);
+int LoadTblCmdSet (	const BSP_TblCmdSetTypeDef * pt, int size);
 
 void cacheFlush(void);
 

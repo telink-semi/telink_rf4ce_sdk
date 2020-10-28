@@ -599,8 +599,8 @@ extern "C" {
 #define IR_USE_PWM			0
 #endif
 
-#ifndef GPIO_IR
-#define	GPIO_IR			    0
+#ifndef GPIO_IR_OUT
+#define	GPIO_IR_OUT			    0
 #endif
 
 #ifndef IR_PWM_ID

@@ -60,6 +60,14 @@
 static ir_learn_ctrl_t ir_learn_ctrl;
 static ir_learn_pattern_t ir_learn_pattern;
 
+learnSetStateCb learnStateCb = NULL;
+ir_learn_save_t ir_learn_dat;
+void setlearningState(learnSetStateCb cb)
+{
+	learnStateCb = cb;
+}
+
+
 static int ir_write_universal_data(u8 flash_index){
 	u8 ir_start_cnt = 0;
 	u8 ir_lead_search_cnt = ir_learn_pattern.series_cnt < 50 ? ir_learn_pattern.series_cnt : 50;
@@ -173,17 +181,29 @@ _attribute_ram_code_ void ir_record(u32 tm, u32 pol)
 		}
     	else if((ir_learn_ctrl.time_interval > 70*CLOCK_SYS_CLOCK_1US)&&(ir_learn_ctrl.time_interval < 200001*CLOCK_SYS_CLOCK_1US))
 		{
+    		if(CLOCK_TICK_TO_US(  ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time ))
+    		{
 			ir_learn_pattern.series_tm[ir_learn_pattern.series_cnt]= CLOCK_TICK_TO_US(  ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time );
 			ir_learn_pattern.series_cnt++;
+    		}
+    		if(CLOCK_TICK_TO_US(ir_learn_ctrl.curr_trigger_tm - ir_learn_ctrl.last_trigger_tm))
+    		{
 			ir_learn_pattern.series_tm[ir_learn_pattern.series_cnt]= CLOCK_TICK_TO_US(ir_learn_ctrl.curr_trigger_tm - ir_learn_ctrl.last_trigger_tm);
 			ir_learn_pattern.series_cnt++;
+    		}
 			ir_learn_ctrl.record_last_time=ir_learn_ctrl.curr_trigger_tm;
 		}
         else if(ir_learn_ctrl.time_interval > 200000*CLOCK_SYS_CLOCK_1US)
 		{
+    		if(CLOCK_TICK_TO_US( ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time ))
+    		{
 			ir_learn_pattern.series_tm[ir_learn_pattern.series_cnt]=CLOCK_TICK_TO_US( ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time );
 			ir_learn_pattern.series_cnt++;
+    		}
+    		if(CLOCK_TICK_TO_US(ir_learn_ctrl.curr_trigger_tm - ir_learn_ctrl.last_trigger_tm))
+    		{
 			ir_learn_pattern.series_tm[ir_learn_pattern.series_cnt]=CLOCK_TICK_TO_US(ir_learn_ctrl.curr_trigger_tm - ir_learn_ctrl.last_trigger_tm);
+    		}
 			ir_learning_flag = 0;
 
 			ir_stop_learn();
@@ -202,13 +222,13 @@ _attribute_ram_code_ void ir_record(u32 tm, u32 pol)
 
 void ir_learn_intf_init(int en){
 	if(en){
-		gpio_set_func(GPIO_IR, AS_GPIO);
-		gpio_write(GPIO_IR,		0);
-		gpio_set_output_en(GPIO_IR, 1);
+		gpio_set_func(GPIO_IR_OUT, AS_GPIO);
+		gpio_write(GPIO_IR_OUT,		0);
+		gpio_set_output_en(GPIO_IR_OUT, 1);
 		gpio_write(GPIO_IR_CTRL,	0);
 	}else{
 		gpio_write(GPIO_IR_CTRL, 1);
-		gpio_set_func(GPIO_IR, AS_PWM);
+		gpio_set_func(GPIO_IR_OUT, IR_PWM_ID);
 	}
 }
 
@@ -216,18 +236,33 @@ void ir_learn_intf_init(int en){
 void  ir_stop_learn(void){
 	gpio_clr_interrupt(GPIO_IR_LEARN_IN);
 
+	if(CLOCK_TICK_TO_US( ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time ))
+	{
     ir_learn_pattern.series_tm[ir_learn_pattern.series_cnt]=CLOCK_TICK_TO_US( ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time );
+	}
+    else
+	{
+		if(ir_learn_pattern.series_cnt)
+			ir_learn_pattern.series_cnt--;
+	}
 
     if(ir_learn_pattern.series_tm[0] < 200)     //包头小于200us 舍弃
     {
     	memset4(&ir_learn_pattern, 0, sizeof(ir_learn_pattern));
+        if(learnStateCb)
+        	learnStateCb(IR_LEARN_FAILED);
     }else{
     	nv_ir_write(kb_keyindex_pressed, ir_learn_pattern.carr_high_tm, ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt+1);
+        if(learnStateCb)
+        	learnStateCb(IR_LEARN_SUCCESS);
     }
     ir_learn_ready = 0;
     ir_learning_flag = 0;
 
     ir_learn_intf_init(0);
+	reg_gpio_wakeup_irq &= ~FLD_GPIO_CORE_INTERRUPT_EN;
+	reg_irq_src &= ~FLD_IRQ_GPIO_EN;
+	reg_irq_mask &= ~FLD_IRQ_GPIO_EN;
 }
 
 void ir_start_learn(u8 keyCode){
@@ -240,10 +275,15 @@ void ir_start_learn(u8 keyCode){
     memset4(&ir_learn_pattern, 0, sizeof(ir_learn_pattern));
 
     ir_learn_intf_init(1);
-
+    if(learnStateCb)
+    	learnStateCb(IR_LEARN_START);
     // Enable interrupt.
-    reg_irq_src = FLD_IRQ_GPIO_EN;
     gpio_set_interrupt(GPIO_IR_LEARN_IN, 1);
+    gpio_en_interrupt(GPIO_IR_LEARN_IN, 1);
+
+	reg_gpio_wakeup_irq |= FLD_GPIO_CORE_INTERRUPT_EN;
+	reg_irq_src |= FLD_IRQ_GPIO_EN;
+	reg_irq_mask |= FLD_IRQ_GPIO_EN;
 }
 
 
@@ -270,12 +310,12 @@ void ir_learn_send(void)
 	gpio_clr_interrupt(GPIO_IR_LEARN_IN);
 
 	gpio_write(GPIO_IR_CTRL, 1);
-	gpio_set_func(GPIO_IR, AS_PWM);
 
-	ir_init((u8)PWM0);
-	PWM0_CFG_GPIO_A0();
+	ir_init(IR_PWM_ID);
 
-	ir_set(1000000/ir_learn_pattern.carr_high_tm, 2);
+	IR_PWM_PIN_CFG;
+
+	ir_set(1000000/ir_learn_pattern.carr_high_tm, 3);//
 
 	ir_send_serial(ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt+1);
 
@@ -294,6 +334,76 @@ void ir_learn_send(void)
 	SAPCE(0);
 #endif
 }
+
+volatile u32 T_Debug_gpio_irq[8] = {0};
+u8 ir_learn_send_nv(u8 key)
+{
+	u32 irFreq = 0;
+	u8 ret = SUCCESS;
+
+	memset4(&ir_learn_pattern, 0, sizeof(ir_learn_pattern));
+
+	if(NV_SUCC != nv_ir_read(key, &irFreq, (u16 *)ir_learn_pattern.series_tm, &ir_learn_pattern.series_cnt))
+		return FAILURE;
+
+	if(irFreq==0||ir_learn_pattern.series_cnt==0||ir_learn_pattern.series_tm==NULL)
+		return FAILURE;
+
+	gpio_clr_interrupt(GPIO_IR_LEARN_IN);
+
+	gpio_write(GPIO_IR_CTRL, 1);
+
+	ir_init(IR_PWM_ID);
+
+	IR_PWM_PIN_CFG;
+
+	ir_set(1000000/irFreq, 3);//
+#if IR_DMA_FIFO_EN
+	Get_CarrierCycleTick(1000000/irFreq);
+	ir_dma_send_serial((u16 *)ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt);
+#else
+	ir_send_serial((u16 *)ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt);
+#endif
+	return ret;
+}
+
+
+
+_attribute_ram_code_ void gpio_user_irq_handler(void){
+	if(reg_irq_src & FLD_IRQ_GPIO_EN){
+		if(ir_learn_check() != IR_LEARN_IDLE){
+		    ir_record(clock_time(), 1);
+		}
+	}
+}
+
+
+
+nv_sts_t nv_ir_write(u8 keycode,u32 freq,  u16 *buf, u16 len)
+{
+	ir_learn_dat.carr_high_tm = freq;
+	ir_learn_dat.series_cnt = len;
+	memset(&ir_learn_dat.series_tm[0],0xff,IR_LEARN_SERIES_CNT1*2);
+	memcpy(&ir_learn_dat.series_tm[0],buf,len*2);
+	nv_sts_t sta = nv_flashWriteNew(1, DS_IR_LEARN_MODULE, keycode,  sizeof(ir_learn_dat), (u8 *)&ir_learn_dat);
+	return sta;
+}
+
+nv_sts_t nv_ir_read(u8 keyCode, u32 *freq, u16 *buf, u16 *len)
+{
+	nv_sts_t sta = nv_flashReadNew(1, DS_IR_LEARN_MODULE, keyCode, sizeof(ir_learn_dat), (u8 *)&ir_learn_dat);
+	if(sta==NV_SUCC&&ir_learn_dat.series_cnt)
+	{
+	 *freq = ir_learn_dat.carr_high_tm;
+	 *len =  ir_learn_dat.series_cnt;
+	 memcpy(buf,&ir_learn_dat.series_tm[0],ir_learn_dat.series_cnt*2);
+	}
+	return sta;
+}
+
+
+
+
 
 #endif
 

@@ -21,7 +21,8 @@
  *******************************************************************************************************/
 #include "../../proj/tl_common.h"
 #include "../../proj/os/timer.h"
-
+#include "../../proj/drivers/ir/ir.h"
+#include "../../proj/drivers/audio/drv_audio.h"
 void gpio_user_irq_handler(void);
 void timer_irq1_handler(void);
 void usb_suspend_irq_handler(void);
@@ -29,6 +30,7 @@ void eth_rx_irq_handler(void);
 void rf_rx_irq_handler(void);
 void rf_tx_irq_handler(void);
 void timer_irq2_handler(void);
+void rc_ir_irq_prc(void);
 // called by irq in cstartup.s
 
 #if (MODULE_UART_ENABLE)
@@ -50,17 +52,23 @@ _attribute_ram_code_ void  usb_endpoints_irq_handler (void) {
 
 
 _attribute_ram_code_ void irq_handler(void){
-	u32 src = reg_tmr_sta;
-
-	if(IRQ_TIMER1_ENABLE && (src & FLD_TMR_STA_TMR1)){
+	u32 src = irq_get_src();
+	if(IRQ_TIMER1_ENABLE && (src & FLD_IRQ_TMR1_EN)){
 		timer_irq1_handler();
+//		reg_irq_src = FLD_IRQ_TMR1_EN;
 		return;
 	}
 
-//    if((src & FLD_IRQ_TMR2_EN)){
-////		reg_irq_src = FLD_IRQ_TMR2_EN;
-//	}
 
+    if((src & FLD_IRQ_TMR2_EN)){
+		reg_irq_src = FLD_IRQ_TMR2_EN;
+		timer_irq2_handler();
+	}
+
+    if((src & FLD_IRQ_SYSTEM_TIMER)){
+    	reg_irq_src = FLD_IRQ_SYSTEM_TIMER;
+    	timer_irq3_handler();
+    }
 
 	u16  src_rf = rf_irq_src_get();
 	if(src_rf & FLD_RF_IRQ_TX){
@@ -71,13 +79,17 @@ _attribute_ram_code_ void irq_handler(void){
 		rf_rx_irq_handler();
 	}
 
-
-
-#if 0
-	if((src & FLD_IRQ_GPIO_EN)==FLD_IRQ_GPIO_EN)
-	{
-		gpio_irq_handler();
+#if IR_DMA_FIFO_EN
+	if(reg_pwm_irq_sta & FLD_IRQ_PWM0_IR_DMA_FIFO_DONE){
+	 	 rc_ir_irq_prc();
 	}
+#endif
+
+#if MODULE_IR_LEARN_ENABLE||IRQ_GPIO_ENABLE
+    if(src & FLD_IRQ_GPIO_EN){
+    	gpio_user_irq_handler();
+    	reg_irq_src = FLD_IRQ_GPIO_EN;
+    }
 #endif
 
 #if (MODULE_UART_ENABLE)

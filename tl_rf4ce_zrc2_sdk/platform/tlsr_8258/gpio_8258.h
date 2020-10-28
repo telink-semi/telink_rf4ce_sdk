@@ -225,6 +225,19 @@ static inline void gpio_set_interrupt_pol(GPIO_PinTypeDef pin, GPIO_PolTypeDef f
 	}
 }
 
+/**
+ * @brief     This function disables a pin's IRQ function.
+ * @param[in] pin - the pin needs to disable its IRQ function.
+ * @return    none
+ */
+static inline void gpio_clr_interrupt(u32 pin){
+	u8	bit = pin & 0xff;
+	BM_CLR(reg_gpio_irq_wakeup_en(pin), bit);
+}
+
+
+
+
 
 
 static inline void gpio_en_interrupt(GPIO_PinTypeDef pin, int en)   // reg_irq_mask: FLD_IRQ_GPIO_EN
@@ -241,7 +254,7 @@ static inline void gpio_en_interrupt(GPIO_PinTypeDef pin, int en)   // reg_irq_m
 static inline void gpio_set_interrupt(GPIO_PinTypeDef pin, GPIO_PolTypeDef falling)
 {
 	unsigned char	bit = pin & 0xff;
-	//BM_SET(reg_gpio_irq_wakeup_en(pin), bit);
+	BM_SET(reg_gpio_irq_wakeup_en(pin), bit);
 	if(falling){
 		BM_SET(reg_gpio_pol(pin), bit);
 	}else{
@@ -438,3 +451,4 @@ void gpio_set_wakeup(GPIO_PinTypeDef pin, GPIO_LevelTypeDef level, int en);
 void gpio_setup_up_down_resistor(GPIO_PinTypeDef gpio, GPIO_PullTypeDef up_down);
 void gpio_set_input_en(GPIO_PinTypeDef pin, unsigned int value);
 void gpio_set_func(GPIO_PinTypeDef pin, GPIO_FuncTypeDef func);
+void gpio_set_data_strength(GPIO_PinTypeDef pin, unsigned int value);

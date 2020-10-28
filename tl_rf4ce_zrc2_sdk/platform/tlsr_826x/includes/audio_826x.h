@@ -89,7 +89,7 @@ enum{
  * @param[in] size_buff - the size of pbuff.
  * @return    none
  */
-void audio_config_mic_buf(signed short pbuff, unsigned int size_buff);
+void audio_config_mic_buf(unsigned short *pbuff, unsigned int size_buff);
 /**
  * @brief     configure the SDM buffer's address and size
  * @param[in] pbuff - the first address of buffer SDM read data from.

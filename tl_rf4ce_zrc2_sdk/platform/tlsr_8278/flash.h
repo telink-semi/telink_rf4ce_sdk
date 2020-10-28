@@ -70,14 +70,14 @@ typedef enum{
  * The value of temp_buf[2] reflects flash capacity.
  */
 typedef enum {
-    FLASH_SIZE_64K     = 0x10,
-    FLASH_SIZE_128K    = 0x11,
-    FLASH_SIZE_256K    = 0x12,
-    FLASH_SIZE_512K    = 0x13,
-    FLASH_SIZE_1M      = 0x14,
-    FLASH_SIZE_2M      = 0x15,
-    FLASH_SIZE_4M      = 0x16,
-    FLASH_SIZE_8M      = 0x17,
+    FLASH_CAP_SIZE_64K     = 0x10,
+    FLASH_CAP_SIZE_128K    = 0x11,
+    FLASH_CAP_SIZE_256K    = 0x12,
+    FLASH_CAP_SIZE_512K    = 0x13,
+    FLASH_CAP_SIZE_1M      = 0x14,
+    FLASH_CAP_SIZE_2M      = 0x15,
+    FLASH_CAP_SIZE_4M      = 0x16,
+    FLASH_CAP_SIZE_8M      = 0x17,
 } Flash_CapacityDef;
 
 /**
@@ -105,14 +105,14 @@ _attribute_ram_code_ void flash_write_page(unsigned long addr, unsigned long len
  */
 _attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
 
-#if 0
+
 /**
  * @brief This function write the status of flash.
  * @param[in]  the value of status
  * @return status
  */
 _attribute_ram_code_ unsigned char flash_write_status(unsigned char data);
-
+#if 0
 /**
  * @brief     This function serves to erase a page(256 bytes).
  * @param[in] addr - the start address of the page needs to erase.

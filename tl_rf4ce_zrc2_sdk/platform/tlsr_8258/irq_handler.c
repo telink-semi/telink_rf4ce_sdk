@@ -21,7 +21,8 @@
  *******************************************************************************************************/
 #include "../../proj/tl_common.h"
 #include "../../proj/os/timer.h"
-
+#include "../../proj/drivers/ir/ir.h"
+#include "../../proj/drivers/audio/drv_audio.h"
 void gpio_user_irq_handler(void);
 void timer_irq1_handler(void);
 void usb_suspend_irq_handler(void);
@@ -73,13 +74,18 @@ _attribute_ram_code_ void irq_handler(void){
 		rf_rx_irq_handler();
 	}
 
-
-
-#if 0
-	if((src & FLD_IRQ_GPIO_EN)==FLD_IRQ_GPIO_EN)
-	{
-		gpio_irq_handler();
+#if IR_DMA_FIFO_EN
+	if(reg_pwm_irq_sta & FLD_IRQ_PWM0_IR_DMA_FIFO_DONE){
+	 	 rc_ir_irq_prc();
 	}
+#endif
+
+#if MODULE_IR_LEARN_ENABLE||IRQ_GPIO_ENABLE
+	src = reg_irq_src;
+    if(src & FLD_IRQ_GPIO_EN){
+    	gpio_user_irq_handler();
+    	reg_irq_src = FLD_IRQ_GPIO_EN;
+    }
 #endif
 
 #if (MODULE_UART_ENABLE)

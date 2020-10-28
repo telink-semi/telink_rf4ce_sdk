@@ -23,4 +23,8 @@
 #pragma  once
 
 
-
+/*
+ * ADC PIN configuration
+ *
+ * */
+	#define ZRC_APP_ADC_PIN                  GPIO_PB7

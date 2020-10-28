@@ -672,6 +672,15 @@ extern void  rf_rx_cfg(int size, unsigned char  PingpongEn);
 void  rf_pn_disable();
 
 
+/**
+*	@brief	  	This function serves to get rssi
+*   @param[in]      none
+*	@return	 	none
+*/
+
+signed char rf_ed_detect_154(void);
+
+
 
 #if 0
 /**

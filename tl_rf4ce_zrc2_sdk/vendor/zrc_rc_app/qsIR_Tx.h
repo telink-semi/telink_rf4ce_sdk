@@ -13,10 +13,8 @@
 #include "board_cfg.h"
 #include "zrcApp.h"
 #include "../../proj/os/timer.h"
-#include "../../proj/drivers/ir/ir.h"
-#if (ZIPIR_ENABLE)
-#include "../common/zipIR/ZipIR_API.h"
-#endif
+
+
 typedef struct {
 	u8 		irconfig;
 	u8 		codeLength;
@@ -40,7 +38,7 @@ typedef struct {
 
 
 typedef struct {
-	u16      Size;
+	u32      Size;
 	u16		 Symbol[maxframe];
 }zrcIRTimeData;
 
@@ -53,6 +51,7 @@ typedef struct {
 //}zrcIRFrame;
 
 typedef struct {
+	u32	carrierFreq;
 	u16	curCnt;
 	u16	totalCnt;
 	u16 *zrcIRdata;
@@ -119,7 +118,7 @@ void zrcStopIR(void);
 int qsTimer1IrqCb(void *arg);
 u8 zrcIrGetState(void);
 void zrcStop(void);
-
+void qsIrqCallBack(void);
 
 //zipir interface
 extern u8 ir_pwm;

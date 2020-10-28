@@ -39,7 +39,6 @@ void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en){
 }
 
 platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms ){
-	platform_wakeup_e ws = PLATFORM_WAKEUP_TIMER;
 #if defined (MCU_CORE_826x)
 	u8 sleep_mode = 0;
 	if(mode == PLATFORM_MODE_DEEPSLEEP){
@@ -60,6 +59,7 @@ platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_
 		return PLATFORM_WAKEUP_PAD;
 	}
 #else
+	platform_wakeup_e ws = PLATFORM_WAKEUP_TIMER;
 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
 	if(mode == PLATFORM_MODE_SUSPEND){
 		sleep_mode = SUSPEND_MODE;

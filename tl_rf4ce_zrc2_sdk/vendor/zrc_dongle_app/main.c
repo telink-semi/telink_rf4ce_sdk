@@ -21,6 +21,7 @@
  *******************************************************************************************************/
 
 #include "../../proj/tl_common.h"
+#include "../../proj/drivers/audio/drv_audio.h"
 #include "../../vendor/common/user_config.h"
 #include "../../net/rf4ce/rf4ce_includes.h"
 #include "../../vendor/common/user_trace.h"
@@ -62,6 +63,9 @@ static void platform_init(void){
 
     ZB_RADIO_INIT();
 
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+		internalFlashSizeCheck();
+#endif
 }
 
 int main (void) {

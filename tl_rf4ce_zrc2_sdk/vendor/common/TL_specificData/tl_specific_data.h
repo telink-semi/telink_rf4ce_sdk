@@ -45,26 +45,6 @@ typedef struct{
 }tl_appFrameFmt_t;
 
 
-
-typedef void (*audioUserCb)(u8 state, u8 status);
-/**
- *  @brief  Define the structure for audio various
- */
-typedef struct{
-	ev_time_event_t *dataReqTimeoutCb;  //!< time out callback for data request
-	audioUserCb audioCb; //!< audio call back for application
-	u8  channelNum;
-	u8  scanDuration;
-	u8  scanSta;
-	u8	pairingRef;
-	u8	dataReqRetries;
-}audioVars_t;
-
-
-
-
-
-
 extern u8 	g_tlAppDataSeqNo;
 
 #define TL_SPECIFC_SEQNO_ADD		(g_tlAppDataSeqNo++)

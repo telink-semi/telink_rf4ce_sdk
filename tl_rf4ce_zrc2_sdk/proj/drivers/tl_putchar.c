@@ -24,7 +24,7 @@
 
 
 #ifndef		BIT_INTERVAL
-#ifdef MCU_CORE_8258 || MCU_CORE_8278
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define BAUDRATE			1000000//1M
 #define	BIT_INTERVAL	 	(16*1000*1000 / BAUDRATE)
 #else

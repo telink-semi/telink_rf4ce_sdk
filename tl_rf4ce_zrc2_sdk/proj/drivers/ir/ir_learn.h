@@ -24,13 +24,19 @@
 #define IR_STORED_SERIES_ADDRESS 	(0xa000)
 #define IR_LEARN_SERIES_CNT1		247//(125*2 )
 #define IR_LEARN_SERIES_CNT     	160
-
+typedef void (*learnSetStateCb)(u8 sta);
 
 enum{
 	IR_LEARN_IDLE,
 	IR_LEARN_READY,
 	IR_LEARN_DOING,
 	IR_LEARN_DONE
+};
+
+enum{
+	IR_LEARN_START,
+	IR_LEARN_SUCCESS,
+	IR_LEARN_FAILED,
 };
 
 
@@ -66,7 +72,18 @@ typedef struct{
 	u32 record_last_time;
 }ir_learn_ctrl_t;
 
+
+typedef struct{
+	u32 carr_high_tm;
+	u16 series_cnt;
+	u16 series_tm[IR_LEARN_SERIES_CNT1]; // 时间精度 us， 所以最长的 pulse  是65 ms
+}ir_learn_save_t;
+
 void ir_start_learn(u8 keyCode);
 void  ir_stop_learn(void);
 void ir_learn_send(void);
 u8 ir_learn_check(void);
+u8 ir_learn_send_nv(u8 key);
+void setlearningState(learnSetStateCb cb);
+nv_sts_t nv_ir_write(u8 keycode,u32 freq,  u16 *buf, u16 len);
+nv_sts_t nv_ir_read(u8 keyCode, u32 *freq, u16 *buf, u16 *len);

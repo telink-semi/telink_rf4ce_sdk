@@ -72,15 +72,15 @@ int timer1IrqCb(void* arg){
 	T_timerCnt++;
 
 	if(T_timerCnt & 0x01){
-		hwTmr_setInterval(TIMER_IDX_1, 10*1000 * CLOCK_SYS_CLOCK_1US);
+		hwTmr_setInterval(TIMER_IDX_1, 10*1000);
 	}else{
-		hwTmr_setInterval(TIMER_IDX_1, 5000*1000 * CLOCK_SYS_CLOCK_1US);
+		hwTmr_setInterval(TIMER_IDX_1, 5000*1000);
 	}
 }
 void moduleTest_forTimer(void){
 	irq_enable();
 	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
-	hwTmr_set(TIMER_IDX_1, 1000*1000 * CLOCK_SYS_CLOCK_1US, timer1IrqCb, NULL);
+	hwTmr_set(TIMER_IDX_1, 1000*1000, timer1IrqCb, NULL);
 	while(1){
 		WaitMs(100);
 		wd_clear();

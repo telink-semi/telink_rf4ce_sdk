@@ -5,7 +5,7 @@
 
 //u32 EV_TIMER_SAFE_MARGIN = (EV_TIMER_SAFE_MARGIN_US * CLOCK_SYS_CLOCK_1US)
 
-ev_time_event_t timer_list[10] = {0};
+ev_time_event_t timer_list[10] = {{0}};
 int timer_current_pos = 0;
 static int inline ev_is_timer_expired(ev_time_event_t *e, u32 now){
     return ((u32)(now - e->t) < (EV_TIMER_SAFE_MARGIN_US * CLOCK_SYS_CLOCK_1US));

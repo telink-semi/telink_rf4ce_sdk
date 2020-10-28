@@ -212,13 +212,13 @@ enum{
  	MISC_PERIOD_HIG   = BIT_RNG(8,15),
  };
 
-#define    SET_PFM(v)			       REG_ADC_MISC_PERIOD = ((v<<2)&0x0FFF)      //WRITE_REG16(0x30,(v<<2)&0x0FFF)
+//#define    SET_PFM(v)			       REG_ADC_MISC_PERIOD = ((v<<2)&0x0FFF)      //WRITE_REG16(0x30,(v<<2)&0x0FFF)
 
 /**
  *  set period for L
  */
 #define    REG_ADC_LEFT_PERIOD         READ_REG16(0x32)
-#define    SET_PFL(v)			       REG_ADC_LEFT_PERIOD = v        //WRITE_REG8(0x32,v)
+//#define    SET_PFL(v)			       REG_ADC_LEFT_PERIOD = v        //WRITE_REG8(0x32,v)
  /**
   *
   */

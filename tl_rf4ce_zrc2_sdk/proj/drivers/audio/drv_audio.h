@@ -21,7 +21,8 @@
  *******************************************************************************************************/
 
 #include "../../../proj/tl_common.h"
-
+#include "../../../platform/platform_includes.h"
+#include "audio_codec_adpcm.h"
 #define DMIC_ENABLE		0
 #define AMIC_ENABLE		1
 
@@ -114,3 +115,13 @@ void audio_decInit(void);
 void abuf_mic_add (u32 *p);
 
 void abuf_mic_dec (void);
+
+void SetAudioTxState(bool flag);
+
+void SetAudioTxCnt(u8 cnt);
+
+bool GetAudioTxState(void);
+
+u8 GetAudioTxCnt(void);
+
+void abuf_dec_usb (void);

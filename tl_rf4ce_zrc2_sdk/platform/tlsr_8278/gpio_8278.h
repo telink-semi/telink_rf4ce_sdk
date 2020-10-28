@@ -456,9 +456,22 @@ static inline void gpio_set_interrupt(GPIO_PinTypeDef pin, GPIO_PolTypeDef falli
 		BM_CLR(reg_gpio_pol(pin), bit);
 	}
 /*clear gpio interrupt sorce (after setting gpio polarity,before enable interrupt)to avoid unexpected interrupt. confirm by minghai*/
-	reg_irq_src |= FLD_IRQ_GPIO_EN|FLD_IRQ_GPIO_RISC0_EN|FLD_IRQ_GPIO_RISC1_EN;
-	reg_irq_mask |= FLD_IRQ_GPIO_EN;
+//	reg_irq_src |= FLD_IRQ_GPIO_EN|FLD_IRQ_GPIO_RISC0_EN|FLD_IRQ_GPIO_RISC1_EN;
+//	reg_irq_mask |= FLD_IRQ_GPIO_EN;
 }
+
+/**
+ * @brief     This function disables a pin's IRQ function.
+ * @param[in] pin - the pin needs to disable its IRQ function.
+ * @return    none
+ */
+static inline void gpio_clr_interrupt(u32 pin){
+	u8	bit = pin & 0xff;
+	BM_CLR(reg_gpio_irq_wakeup_en(pin), bit);
+}
+
+
+
 
 /**
  * @brief     This function enables a pin's IRQ function.

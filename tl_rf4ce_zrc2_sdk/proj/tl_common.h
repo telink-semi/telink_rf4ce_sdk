@@ -13,6 +13,7 @@
 #include "os/ev.h"
 #include "os/ev_buffer.h"
 #include "os/sys.h"
+#include "os/timer.h"
 #include "drivers/usb/usb.h"
 
 #include "../platform/platform_includes.h"

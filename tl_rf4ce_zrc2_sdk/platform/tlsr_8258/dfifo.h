@@ -106,7 +106,7 @@ inline void adc_config_misc_channel_buf(unsigned short* pbuff,unsigned int size_
  */
 static inline void audio_config_mic_buf(unsigned short* pbuff,unsigned int size_buff)
 {
-	reg_dfifo_audio_addr = (unsigned short)((unsigned int)pbuff);
+	reg_dfifo_audio_addr = (unsigned short)(unsigned int)pbuff;
 	reg_dfifo_audio_size = (size_buff>>4)-1;
 }
 

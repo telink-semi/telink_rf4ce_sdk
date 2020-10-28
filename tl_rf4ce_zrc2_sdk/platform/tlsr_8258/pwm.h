@@ -23,7 +23,7 @@
 #define PWM_H_
 
 #include "register.h"
-
+#include "clock.h"
 /*********************************************************************************
     PWM0   :  PA2.  PC1.  PC2.	PD5
     PWM1   :  PA3.  PC3.
@@ -212,10 +212,22 @@ static inline void pwm_set_dma_address(void * pdat)
 
 static inline void pwm_start_dma_ir_sending(void)
 {
+	reg_dma_chn_en |= FLD_DMA_CHN_PWM;
 	reg_dma_tx_rdy0 |= FLD_DMA_CHN_PWM;
 }
 
+/**
+ * @brief     This fuction servers to stop the pwm's IRQ sending.
+ * @param[in] none.
+ * @return	  none.
+ */
 
+static inline void pwm_stop_dma_ir_sending(void)
+{
+	reg_rst0 = FLD_RST0_PWM;
+	sleep_us(20);  //1us <-> 4 byte
+	reg_rst0 = 0;
+}
 
 
 #endif /* PWM_H_ */

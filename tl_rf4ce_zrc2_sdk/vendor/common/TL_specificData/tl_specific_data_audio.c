@@ -24,10 +24,13 @@
 #include "../../../net/rf4ce/rf4ce_includes.h"
 #include "tl_specific_data.h"
 #include "tl_specific_data_audio.h"
-
+#include "../app_edScan.h"
 #define AudioErrTimes			0x96
 audioVars_t g_uapiVar;
 
+#if (MODULE_AUDIO_ENABLE)
+#include "../../../proj/drivers/audio/drv_audio.h"
+#endif
 
 #if (__PROJECT_ZRC_2_RC__)
 static u8 g_tlAppAudioErr = 0;
@@ -38,9 +41,7 @@ static u8 g_audioProfileId = 0;
 #define AudioReqTryTime     		5
 
 #include "../../zrc_rc_app/zrcApp_led.h"
-#if (MODULE_AUDIO_ENABLE)
-#include "../../../proj/drivers/audio/drv_audio.h"
-#endif
+
 
 
 
@@ -320,7 +321,7 @@ void tl_appAudioCmdHandler(u8 *pd, u8 len){
 #endif
 	}else if(pHdr->cmdId == TL_CMD_AUDIO_START_RSP){
 #if (__PROJECT_ZRC_2_RC__)
-			tl_audioStartRsp_t *rsp = (tl_audioStartRsp_t *)pld;
+//			tl_audioStartRsp_t *rsp = (tl_audioStartRsp_t *)pld;
 			if(g_uapiVar.dataReqTimeoutCb){
 				ev_unon_timer(&g_uapiVar.dataReqTimeoutCb);
 			}

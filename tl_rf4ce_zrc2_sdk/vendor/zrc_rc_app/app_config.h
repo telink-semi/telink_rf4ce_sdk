@@ -137,11 +137,13 @@ extern "C" {
 
 #define	RF_MODE_250K					1
 
-#define RF4CE_MAX_PAIR_ENTRY_NUM           1
+#define RF4CE_MAX_PAIR_ENTRY_NUM        1
 
 /*********************UART_PRINTF_MODE******************/
-#define UART_PRINTF_MODE				1
+#define UART_PRINTF_MODE				0
 
+/*********************IR_LEARN_ENABLE******************/
+#define	MODULE_IR_LEARN_ENABLE			0
 #include "board_cfg.h"
 
     ///////////////////  RF4CE Profile Configuration /////////////////////////////////

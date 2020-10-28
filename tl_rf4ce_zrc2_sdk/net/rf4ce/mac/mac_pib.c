@@ -10,7 +10,7 @@
 #include "mac_const.h"
 #include "mac_pib.h"
 #include "mac_phy.h"
-
+#include "mac_task.h"
 #if (MODULE_FLASH_ENABLE)
 #include "../../../proj/drivers/nv.h"
 #endif

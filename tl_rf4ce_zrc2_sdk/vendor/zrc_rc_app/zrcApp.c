@@ -21,7 +21,7 @@
  *******************************************************************************************************/
 
 #include "../../proj/tl_common.h"
-
+#include "../../platform/platform_includes.h"
 #if __PROJECT_ZRC_2_RC__
 
 /**********************************************************************
@@ -40,6 +40,7 @@
 #include "../../proj/drivers/ir/ir.h"
 #include "../../proj/drivers/drv_adc.h"
 #include "../../proj/drivers/drv_pm.h"
+#include "../../proj/drivers/nv.h"
 #include "../../proj/os/timer.h"
 #include "../../proj/os/sys.h"
 
@@ -300,10 +301,17 @@ void zrc_resetAll(void* arg)
 volatile u8 T_zrcApp_irSentCnt = 0;
 void zrcApp_initIR(void){
 
-	ir_init(IR_PWN_ID);
+	ir_init(IR_PWM_ID);
 	IR_PWM_PIN_CFG;
-	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+	IR_CTRL_PIN_CFG;
 
+#if (MODULE_IR_LEARN_ENABLE)
+	IR_LEARN_PIN_CFG;
+#endif
+
+#if	!IR_DMA_FIFO_EN
+	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+#endif
 
 #if (0 || IR_DEBUG)
 	void ir_send_mn6014_c6d6(u8 addr, u8 cmd, u8 fRepeat);
@@ -456,6 +464,9 @@ u8 app_isIdle(void){
 		 (app_isSendingIR())
 #if MODULE_AUDIO_ENABLE
 		 || (audio_recTaskStatusGet() == AUDIO_OPENED)
+#endif
+#if MODULE_IR_LEARN_ENABLE
+		 || (zrc_getAppState() == ZRC_LEARNING_IR_STATE)
 #endif
 		) {
     	idle &= 0;

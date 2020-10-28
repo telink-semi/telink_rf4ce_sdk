@@ -24,5 +24,5 @@
 
 void mic_to_adpcm_split (signed short *ps, int len, signed short *pds, int start);
 
-
+void adpcm_to_pcm (signed short *ps, signed short *pd, int len);
 

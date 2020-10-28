@@ -26,8 +26,8 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-#define	ZIPIR_ENABLE				0
+#define	IR_DMA_FIFO_EN				1
+#define FLASH_SIZE_1M				1
 
 #define	MAXTRIX_GPIO_PULL_UP        PM_PIN_PULLUP_10K
 #define	MAXTRIX_GPIO_PULL_DOWN      PM_PIN_PULLDOWN_100K
@@ -148,7 +148,16 @@ extern "C" {
 #define	MATRIX_ROW_PULL					PM_PIN_PULLDOWN_100K
 #define	MATRIX_COL_PULL					PM_PIN_PULLUP_10K
 
-//#define	PULL_WAKEUP_SRC_PA7		PM_PIN_PULLUP_1M  //SWS pull up
+#if (MODULE_USB_ENABLE)
+#define	PA5_FUNC				AS_USB
+#define	PA6_FUNC				AS_USB
+#define PA5_INPUT_ENABLE		1
+#define PA6_INPUT_ENABLE		1
+#define PULL_WAKEUP_SRC_PA5           PM_PIN_PULLUP_1M  //DM
+#define PULL_WAKEUP_SRC_PA6           PM_PIN_PULLUP_1M  //DP
+#endif
+
+#define	PULL_WAKEUP_SRC_PA7		PM_PIN_PULLUP_1M  //SWS pull up
 
 
 
@@ -221,7 +230,7 @@ extern "C" {
 
 
 #define ZRC_APP_ADC_PIN                  GPIO_PB7
-#define GPIO_IR_CTRL            		 GPIO_PA3
+
 
 #define  KB_DRIVE_PINS  {GPIO_PD5, GPIO_PD2, GPIO_PD4, GPIO_PD6, GPIO_PD7}
 #define  KB_SCAN_PINS   {GPIO_PC5, GPIO_PA0, GPIO_PB2, GPIO_PA4, GPIO_PA3, GPIO_PD3}
@@ -254,14 +263,37 @@ extern "C" {
 
 
 
+
 /*
  * IR PIN configuration
  *
  * */
-	#define IR_PWN_ID							PWM0_ID
+	#define IR_PWM_ID							PWM0_ID
 	#define GPIO_IR_OUT            		  		GPIO_PB3
-	#define IR_PWN_FUNC							AS_PWM0_N
-	#define IR_PWM_PIN_CFG						gpio_set_func(GPIO_IR_OUT,IR_PWN_FUNC)
+	#define GPIO_IR_CTRL            		 	GPIO_PA1
+	#define GPIO_IR_LEARN_IN					GPIO_PA2
+
+	#define IR_PWM_FUNC							AS_PWM0_N
+	#define IR_PWM_PIN_CFG						gpio_set_func(GPIO_IR_OUT,IR_PWM_FUNC)
+	#define IR_CTRL_PIN_CFG						do										\
+												{										\
+												gpio_set_func(GPIO_IR_CTRL, AS_GPIO);	\
+												gpio_set_input_en(GPIO_IR_CTRL, 0);		\
+												gpio_set_output_en(GPIO_IR_CTRL, 1);	\
+												gpio_write(GPIO_IR_CTRL, 1);			\
+												}while(0);
+
+	#define IR_LEARN_PIN_CFG					do											\
+												{											\
+												gpio_set_func(GPIO_IR_LEARN_IN, AS_GPIO);	\
+												gpio_set_input_en(GPIO_IR_LEARN_IN, 1);		\
+												gpio_set_output_en(GPIO_IR_LEARN_IN, 0);	\
+												gpio_write(GPIO_IR_LEARN_IN, 0);			\
+												}while(0);
+
+
+
+
 
 /*
  * GPIO PIN configuration for printf DEBUG

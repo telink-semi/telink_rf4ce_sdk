@@ -96,14 +96,14 @@ enum{
 											}while(0)
 
 /**
- * @brief     This function servers to set pga input volume.
+ * @brief     This function servers to set pga input volume.For user config for input the PGAVOL.
  * @param[in] none.
  * @return    none.
  */
-void set_pga_input_vol(void)
-{
-	analog_write(codec_ana_cfg3,analog_read(codec_ana_cfg3) & 0x00);
-	analog_write(codec_ana_cfg4,(analog_read(codec_ana_cfg4) & 0x00) | PGA_GAIN_VOL_15_0DB);//For user config for input the PGAVOL.
-}
+#define		 set_pga_input_vol()			do{\
+												analog_write(codec_ana_cfg3,analog_read(codec_ana_cfg3) & 0x00);\
+												analog_write(codec_ana_cfg4,(analog_read(codec_ana_cfg4) & 0x00) | PGA_GAIN_VOL_15_0DB);\
+											}while(0)
+
 
 #endif

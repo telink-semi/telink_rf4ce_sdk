@@ -150,7 +150,7 @@ void usb_uart_open(u32 baudrate, uart_recvCb_t cb)
   */
 usbcdc_sts_t usb_uart_write(u8* buf, u8 len)
 {
-	usb_uart_txPendingEvt_t* pEvt;
+//	usb_uart_txPendingEvt_t* pEvt;
 
     /* Check the usb status first. If it is idle, send data dirctly.
     If it is busy, put data to the pending queue and send it after

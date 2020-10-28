@@ -810,6 +810,19 @@ void nwk_startFrequencyAgility(u8 start);
  */
 u8 nwk_profileAudioDataSend(u8 *data, u8 len, u8 profileId);
 
+
+
+/**
+ * @brief      Call this function to filter the packets that format is data
+ * 			   and insecurity and filtering flag is true
+ *
+ * @param[in]   flag - filtering flag, if it is set to ture the packet will be filter
+ * 					   or won't be filter
+ *
+ * @return      none
+ */
+void nwk_setDataPktFilterFlag(bool flag);
+
 /**  @} end of group NWK_FUNCTIONS */
 
 /**  @} end of group NWK_Module */

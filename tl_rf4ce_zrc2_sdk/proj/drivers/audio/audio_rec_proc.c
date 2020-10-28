@@ -66,6 +66,8 @@ static void proc_mic_encoder_826x (void){
 		if (pkts > TL_MIC_PACKET_BUFFER_NUM) {
 			buffer_mic_pkt_rptr++;
 		}
+		if(audio_delay_times>0)
+			audio_delay_times--;
 	}
 }
 
@@ -75,7 +77,7 @@ static void audio_recInit_826x(u32 sampleRate, audio_rec_ntf audioUserhandler){
 	/*
 	 * audio buffer configure
 	 * */
-	audio_config_mic_buf((u16)buffer_mic, TL_MIC_BUFFER_SIZE);
+	audio_config_mic_buf((unsigned short*)buffer_mic, TL_MIC_BUFFER_SIZE);
 
 #if DMIC_ENABLE
     config_dmic (sampleRate);
@@ -158,6 +160,9 @@ static void proc_mic_encoder_82x8 (void)
 		if (pkts > TL_MIC_PACKET_BUFFER_NUM) {
 			buffer_mic_pkt_rptr++;
 		}
+		if(audio_delay_times>0)
+			audio_delay_times--;
+
 	}
 
 }
@@ -215,7 +220,7 @@ static int	*mic_encoder_data_buffer (void){
  *
  * */
 static void proc_sending84(void){
-	if(--audio_delay_times > 0){
+	if(audio_delay_times > 0){
 		return;
 	}
 	if(!GetAudioTxState()){

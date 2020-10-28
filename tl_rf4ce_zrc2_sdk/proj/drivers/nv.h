@@ -29,23 +29,39 @@
 
 #define FLASH_PAGE_SIZE					256
 #define	FLASH_SECTOR_SIZE				4096//4K
+#define	NV_SECTION_SIZE					(FLASH_PAGE_SIZE*FLASH_4K_PAGE_NUM)
+/* Flash address of MAC address. */
+enum{
+	MAC_ADDR_512K_FLASH		= 0x76000,
+	MAC_ADDR_1M_FLASH		= 0xFF000,
+};
+
+/* Flash address of factory pre-configured parameters. */
+enum{
+	CFG_ADDR_512K_FLASH		= 0x77000,
+	CFG_ADDR_1M_FLASH		= 0xFE000,
+};
+
+extern u32 g_u32MacFlashAddr;
+extern u32 g_u32CfgFlashAddr;
 
 /*******************************************************************************************************
  * Following configuration could NOT be changed by customer.
  */
-/* Modules start address  */
+/* NV modules start address */
 #if FLASH_SIZE_1M
-#define MAC_BASE_ADD					0xFF000
-#define FACTORY_CFG_BASE_ADD			0xFE000
 #define NV_BASE_ADDRESS					0x80000
 #define MODULES_START_ADDR(id)			(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
 #else
-#define MAC_BASE_ADD					0x76000
-#define FACTORY_CFG_BASE_ADD			0x77000
 #define	NV_BASE_ADDRESS					0x34000//start from 208K address
-#define	NV_BASE_ADDRESS2				0x7A000//start from 488K address
+#define	NV_BASE_ADDRESS2				0x78000//start from 488K address
 #define MODULES_START_ADDR(id)			((id<6) ? (NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id)) : (NV_BASE_ADDRESS2 + FLASH_SECTOR_SIZE * (2 * (id-6))))
 #endif
+
+
+/* Chipset pre-configured parameters */
+#define MAC_BASE_ADD					(g_u32MacFlashAddr)
+#define FACTORY_CFG_BASE_ADD			(g_u32CfgFlashAddr)
 
 /* 8 bytes for IEEE address */
 #define CFG_MAC_ADDRESS              	(MAC_BASE_ADD)
@@ -144,12 +160,7 @@ typedef enum{
 #define FLASH_FIELD_IDLE				0xFFFF
 #define FLASH_FIELD_IDLE_WORD			0xFFFFFFFF
 
-#define FLASH_FOR_ACTION_MAPPING				 0x7A000 //0x78000
-#define FLASH_FOR_TEMP_ACTION_MAPPING			 0x7B000  //0x79000
-
-
-
-/* sector info(4Bytes) + index info(8Bytes) + index info(8Bytes) + ...*/
+/* sector info(4Bytes) + index info(8Bytes) + index info(8Bytes) + ... */
 typedef struct{
 	u16 usedFlag;
 	u8  idName;
@@ -182,14 +193,13 @@ typedef struct{
  * Store zigbee information in flash.
  * 		Module ID				|			512K Flash				|			1M Flash				|
  * -----------------------------|-----------------------------------|-----------------------------------|
- * NV_MODULE_ZB_INFO			|		0x34000 - 0x36000			|		0x80000 - 0x82000			|
- * NV_MODULE_ADDRESS_TABLE		|		0x36000 - 0x38000			|		0x82000 - 0x84000			|
- * NV_MODULE_APS				|		0x38000 - 0x3a000			|		0x84000 - 0x86000			|
- * NV_MODULE_ZCL				|		0x3a000 - 0x3c000			|		0x86000 - 0x88000			|
- * NV_MODULE_NWK_FRAME_COUNT	|		0x3c000 - 0x3e000			|		0x88000 - 0x8a000			|
- * NV_MODULE_OTA				|		0x3e000 - 0x40000			|		0x8a000 - 0x8c000			|
- * NV_MODULE_APP				|		0x7a000 - 0x7c000			|		0x8c000 - 0x8e000			|
- * NV_MODULE_KEYPAIR			|		0x7c000 - 0x80000			|		0x8e000 - 0x96000			|
+ * DS_MAC_PHY_MODULE			|		0x34000 - 0x36000			|		0x80000 - 0x82000			|
+ * DS_NWK_MODULE				|		0x36000 - 0x38000			|		0x82000 - 0x84000			|
+ * DS_PROFILE_MODULE			|		0x38000 - 0x3a000			|		0x84000 - 0x86000			|
+ * DS_USER_MODULS				|		0x3a000 - 0x3c000			|		0x86000 - 0x88000			|
+ * DS_APP_LAYER					|		0x3c000 - 0x3e000			|		0x88000 - 0x8a000			|
+ * DS_NWK_FRAMECOUNT_MODULE		|		0x3e000 - 0x40000			|		0x8a000 - 0x8c000			|
+ * DS_IR_LEARN_MODULE			|		0x78000 - 0x80000			|		0x8c000 - 0x94000			|
  * 								|	*16K - can store 127 nodes		|	*32K - can store 302 nodes		|
  * NV_MAX_MODULS
  */
@@ -207,6 +217,7 @@ typedef enum {
 #endif
     DS_APP_LAYER = 4,
     DS_NWK_FRAMECOUNT_MODULE = 5,
+    DS_IR_LEARN_MODULE = 6,
     DS_MAX_MODULS,
 } nv_module_t;
 
@@ -223,11 +234,11 @@ typedef enum nv_sts_e {
 } nv_sts_t;
 
 #if FLASH_SIZE_1M
-#define NV_SECTOR_SIZE(id)						((id == NV_MODULE_KEYPAIR) ?  (4 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
-#define MODULE_INFO_SIZE(id)					((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? ((id == NV_MODULE_KEYPAIR) ? (12*FLASH_PAGE_SIZE) : (4*FLASH_PAGE_SIZE)) : (2*FLASH_PAGE_SIZE))
+#define NV_SECTOR_SIZE(id)						((id == DS_IR_LEARN_MODULE) ?  (FLASH_SECTOR_SIZE*4) : (FLASH_SECTOR_SIZE))
+#define MODULE_INFO_SIZE(id)					((id == DS_IR_LEARN_MODULE ) ? (FLASH_PAGE_SIZE*2) : (FLASH_PAGE_SIZE))
 #else
-#define NV_SECTOR_SIZE(id)						((id == DS_MAC_PHY_MODULE) ?  (FLASH_SECTOR_SIZE) : (FLASH_SECTOR_SIZE))
-#define MODULE_INFO_SIZE(id)					((id == DS_ZRC2_ATTR_DB ) ? (FLASH_PAGE_SIZE) : (FLASH_PAGE_SIZE))
+#define NV_SECTOR_SIZE(id)						((id == DS_IR_LEARN_MODULE) ?  (FLASH_SECTOR_SIZE*4) : (FLASH_SECTOR_SIZE))
+#define MODULE_INFO_SIZE(id)					((id == DS_IR_LEARN_MODULE ) ? (FLASH_PAGE_SIZE*2) : (FLASH_PAGE_SIZE))
 #endif
 
 #define MODULE_SECTOR_NUM						(2)
@@ -244,7 +255,7 @@ typedef enum nv_sts_e {
 
 
 
-
+nv_sts_t nv_init(u8 rst);
 nv_sts_t nv_resetAll(void);
 nv_sts_t nv_resetModule(u8 modules);
 nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf);
@@ -256,3 +267,17 @@ nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount);
 nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount);
 nv_sts_t nv_userSaveToFlash(u8 id, u16 len, u8 *buf);
 nv_sts_t nv_userLoadFromFlash(u8 id, u16 len, u8 *buf);
+nv_sts_t nv_read(u8 modules, u8 id, u16 len, u8 *buf);
+nv_sts_t nv_write(u8 modules, u8 id, u16 len, u8 *buf);
+/*********************************************************************
+ * @fn      internalFlashSizeCheck
+ *
+ * @brief   This function is provided to get and update to the correct flash address
+ * 			where are stored the right MAC address and pre-configured parameters.
+ * 			NOTE: It should be called before ZB_RADIO_INIT().
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void internalFlashSizeCheck(void);

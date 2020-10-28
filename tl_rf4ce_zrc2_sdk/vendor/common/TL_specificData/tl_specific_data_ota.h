@@ -136,4 +136,7 @@ int ota_stopRspCb(void *pd);
 int ota_callBackRestore(void *arg);
 s8 ota_dataReqCb(void);
 int ota_dataTryReqCb(void *arg);
+
+
+extern int app_saveInfoPm(void);
 #endif /* TL_AUDIO_H_ */

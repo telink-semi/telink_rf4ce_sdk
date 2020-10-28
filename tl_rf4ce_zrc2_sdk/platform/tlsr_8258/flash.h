@@ -42,6 +42,27 @@ enum{
 	FLASH_GET_JEDEC_ID			=	0x9F,
 
 };
+
+/**
+ * @brief     flash capacity definition
+ * Call flash_read_mid function to get the size of flash capacity.
+ * Example is as follows:
+ * unsigned char temp_buf[4];
+ * flash_read_mid(temp_buf);
+ * The value of temp_buf[2] reflects flash capacity.
+ */
+typedef enum {
+    FLASH_CAP_SIZE_64K     = 0x10,
+    FLASH_CAP_SIZE_128K    = 0x11,
+    FLASH_CAP_SIZE_256K    = 0x12,
+    FLASH_CAP_SIZE_512K    = 0x13,
+    FLASH_CAP_SIZE_1M      = 0x14,
+    FLASH_CAP_SIZE_2M      = 0x15,
+    FLASH_CAP_SIZE_4M      = 0x16,
+    FLASH_CAP_SIZE_8M      = 0x17,
+} Flash_CapacityDef;
+
+
 /**
  * @brief This function serves to erase a sector.
  * @param[in]   addr the start address of the sector needs to erase.

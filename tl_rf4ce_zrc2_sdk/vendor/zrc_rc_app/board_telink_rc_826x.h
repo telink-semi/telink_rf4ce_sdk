@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#define	ZIPIR_ENABLE				0
+
 
 #define	MAXTRIX_GPIO_PULL_UP        PM_PIN_PULLUP_10K
 #define	MAXTRIX_GPIO_PULL_DOWN      PM_PIN_PULLDOWN_100K
@@ -250,9 +250,34 @@ extern "C" {
  * IR PIN configuration
  *
  * */
-	#define GPIO_IR_CTRL            		  	GPIO_PA0
-	#define IR_PWN_ID							PWM0
+	#define IR_PWM_ID							PWM0
+	#define GPIO_IR_OUT            		  		GPIO_PA0
+	#define GPIO_IR_CTRL            		 	GPIO_PA3
+	#define GPIO_IR_LEARN_IN					GPIO_PA4
+
+	#define IR_PWM_FUNC							AS_PWM
 	#define IR_PWM_PIN_CFG						PWM0_CFG_GPIO_A0()
+	#define IR_CTRL_PIN_CFG						do										\
+												{										\
+												gpio_set_func(GPIO_IR_CTRL, AS_GPIO);	\
+												gpio_set_input_en(GPIO_IR_CTRL, 0);		\
+												gpio_set_output_en(GPIO_IR_CTRL, 1);	\
+												gpio_set_data_strength(GPIO_IR_CTRL, 1);\
+												gpio_write(GPIO_IR_CTRL, 1);			\
+												}while(0);
+
+	#define IR_LEARN_PIN_CFG					do											\
+												{											\
+												gpio_set_func(GPIO_IR_LEARN_IN, AS_GPIO);	\
+												gpio_set_input_en(GPIO_IR_LEARN_IN, 1);		\
+												gpio_set_output_en(GPIO_IR_LEARN_IN, 0);	\
+												gpio_write(GPIO_IR_LEARN_IN, 0);			\
+												}while(0);
+
+
+
+
+
 
 /*
  * GPIO PIN configuration for printf DEBUG
@@ -276,16 +301,26 @@ extern "C" {
  * USB PIN configuration(must be pulled up)
  *
  * */
+/*
+ * USB PIN configuration(must be pulled up)
+ *
+ * */
+#if (MODULE_USB_ENABLE)
+	#define	PE2_FUNC				AS_USB
+	#define	PE3_FUNC				AS_USB
+	#define PE2_INPUT_ENABLE		1
+	#define PE3_INPUT_ENABLE		1
 	#define PULL_WAKEUP_SRC_PE2           PM_PIN_PULLUP_1M  //DM
 	#define PULL_WAKEUP_SRC_PE3           PM_PIN_PULLUP_1M  //DP
+#endif
+
 
 /*
  *
  * AMIC pin nconfiguration
  *
  * */
-#define APP_AMIC_PIN_CFG_ON		AMIC_PIN_CFG_ON(GPIO_PC4, GPIO_PC5, GPIO_PC6)
-
+#define APP_AMIC_PIN_CFG_ON			AMIC_PIN_CFG_ON(GPIO_PC4, GPIO_PC5, GPIO_PC6)
 #define APP_AMIC_PIN_CFG_OFF		AMIC_PIN_CFG_OFF(GPIO_PC4, GPIO_PC5, GPIO_PC6)
 
 

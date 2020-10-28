@@ -22,9 +22,19 @@
 
 #include "../../tl_common.h"
 
+#if IR_DMA_FIFO_EN
+#define IR_DMA_SERIES_CNT1		247//(125*2 )
+typedef struct{
+	u32 series_freq;
+	u32 series_tick;
+	u32 series_cnt;
+	u16 series_tm[IR_DMA_SERIES_CNT1]; // the same as length of ir learn
+}ir_dma_serial_t;
+
+u8 Get_CarrierCycleTick(u32 freq);
+#endif
 
 #define DFLT_LARGE_BUF_SIZE 160
-
 
 
 #if(IR_PROTOCOL == IR_PROTOCOL_NEC)
@@ -106,9 +116,13 @@ extern void HalIrGenPachemFormat();
 //extern void ir_send_raw_pachem(u16 *raw, u32 rawLen);
 extern void ir_send_raw_pachem(u16 *raw, u32 rawLen, u16	*raw2, u32 rawLen2);
 
+typedef void (*zrc_ir_dma_callback_t)(void);
+void zrcDMAIrcallback(zrc_ir_dma_callback_t ir_cb);
+void ir_dma_send_serial(u16 *serial, u16 rawLen);
+void rc_ir_irq_prc(void);
 //extern u16 *BitStrem;
 //extern u16	BitRawData[128];
-extern u8 t_IrLength;
+//extern u8 t_IrLength;
 
 
 

@@ -65,7 +65,8 @@ void uart_rxHandler(u8* pData)
 
 	/* Post task to handle the received command */
 	//EV_SCHEDULE_TASK(uart_cbFn, pData);
-	ev_on_timer(uart_cbFn, pData, 1*1000);
+	if(uart_cbFn)
+	ev_on_timer((ev_timer_callback_t)uart_cbFn, pData, 1*1000);
 
 
 #if USB_CDC_ENABLE
@@ -149,7 +150,6 @@ void uart_txFinishCb(u8* pData)
     }
 }
 
-#endif
 static u8 uart_isAvailable(void)
 {
 #if USB_CDC_ENABLE
@@ -159,6 +159,8 @@ static u8 uart_isAvailable(void)
 #endif
 	return NULL;
 }
+#endif
+
 
 
 /**

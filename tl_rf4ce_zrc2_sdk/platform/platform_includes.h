@@ -17,7 +17,7 @@
 #include "./tlsr_826x/includes/bsp_826x.h"
 #include "./tlsr_826x/includes/flash_826x.h"
 #include "./tlsr_826x/includes/audio_826x.h"
-
+#include "./tlsr_826x/includes/spi_826x.h"
 #elif MCU_CORE_8258
 #include "./tlsr_8258/driver_8258.h"
 
