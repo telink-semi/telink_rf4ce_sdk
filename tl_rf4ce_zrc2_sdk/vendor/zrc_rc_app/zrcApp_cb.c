@@ -42,9 +42,9 @@
 #if (MODULE_AUDIO_ENABLE)
 #include "../../proj/drivers/audio/drv_audio.h"
 #include "../../proj/drivers/ir/ir_learn.h"
-#include "../common/TL_specificData/TL_specific_data.h"
-#include "../common/TL_specificData/TL_specific_data_audio.h"
-#include "../common/TL_specificData/TL_specific_data_ota.h"
+#include "../common/TL_specificData/tl_specific_data.h"
+#include "../common/TL_specificData/tl_specific_data_audio.h"
+#include "../common/TL_specificData/tl_specific_data_ota.h"
 #endif
 #include "zrc_const.h"
 #include "zrcApp.h"

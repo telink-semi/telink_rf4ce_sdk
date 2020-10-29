@@ -54,7 +54,7 @@
 #include "qsIR_Tx.h"
 #if (MODULE_AUDIO_ENABLE)
 #include "../../proj/drivers/audio/drv_audio.h"
-#include "../common/TL_specificData/TL_specific_data_audio.h"
+#include "../common/TL_specificData/tl_specific_data_audio.h"
 #endif
 
 /**********************************************************************
