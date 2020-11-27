@@ -36,7 +36,7 @@ typedef struct {
 
 hwTmr_ctrl_t hwTmr_vars;
 
-void hwTmr_reset(u8 tmrIdx){
+_attribute_ram_code_  void hwTmr_reset(u8 tmrIdx){
 	if(tmrIdx < TIMER_NUM){
 		memset((u8*)&hwTmr_vars.timerInfo[tmrIdx], 0x00, sizeof(hwTmr_info_t));
 	}

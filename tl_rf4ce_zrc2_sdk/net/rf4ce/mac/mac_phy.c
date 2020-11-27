@@ -706,10 +706,10 @@ _attribute_ram_code_ /*__attribute__((optimize("-Os")))*/ void rf_tx_irq_handler
 	ZB_RADIO_TX_DONE_CLR;
 #if __PROJECT_ZRC_2_RC__  &&  MODULE_AUDIO_ENABLE
     if(GetAudioTxState()) {
+    	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
     	if(GetAudioTxCnt() < macPib.maxFrameRetries) 	{
     		//timer on
     		/* Must change to RX mode first, otherwise the next ACK may miss */
-    		ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
     		hwTmr_set(TIMER_FOR_USER, 700, AudioTimeOutTxCb, NULL);
     	}else{
     		tl_audioDataSendCnfHandler(FAILURE);

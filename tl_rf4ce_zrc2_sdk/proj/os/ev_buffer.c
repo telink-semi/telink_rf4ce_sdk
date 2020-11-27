@@ -415,7 +415,7 @@ u8* ev_buf_getTail(u8* pd, int offsetToTail)
 
 
 
-u16 ev_buf_getfreeSize(void)
+_attribute_ram_code_ u16 ev_buf_getfreeSize(void)
 {
 	u16 size = 0;
 
