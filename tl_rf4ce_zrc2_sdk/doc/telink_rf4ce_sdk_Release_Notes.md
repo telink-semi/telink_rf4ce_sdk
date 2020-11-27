@@ -8,6 +8,15 @@
 ### BREAKING CHANGES
 * N/A
 
+### Features
+* 8258/8278芯片增加红外DMA模式
+* 增加flash自适应函数
+### Bug Fixes
+* MAC
+  - pull Request超时关闭RF
+### BREAKING CHANGES
+* N/A
+
 ## V2.3.1
 ### Bug Fixs:
 * add macros to enable GPIO UART print
