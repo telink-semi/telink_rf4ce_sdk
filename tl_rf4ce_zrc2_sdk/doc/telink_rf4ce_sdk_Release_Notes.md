@@ -1,6 +1,6 @@
 ## V2.3.2
 ### Features
-* add ir dma mode on 8258/8278 chip
+* add ir dma mode on 8258/8278 chips
 * add Flash adaptive functions
 ### Bug Fixes
 * MAC
