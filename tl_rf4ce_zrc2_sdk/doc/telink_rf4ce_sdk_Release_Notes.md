@@ -25,6 +25,9 @@
 * support 8278 A2 chip
 * optimize the voice data transmission process and resend voice data at 16K sampling rate
 
+### BREAKING CHANGES
+* N/A
+
 ## V2.3.0
 ### Bug Fixs:
 * fix parameter error of queue in USB CDC TX function
@@ -36,7 +39,8 @@
 * change the pairing key of 8278 RCU back to sw5
 * add frequency hopping function when transmitting voice data
 
-
+### BREAKING CHANGES
+* N/A
 
 ## V2.2.0
 ### Bug Fixs:
@@ -45,6 +49,9 @@
 ### Features:
 * support 8278 A0 chip
 * change the 8278 RCU's pairing key to SW23, 8258/826x RCU remain unchanged
+
+### BREAKING CHANGES
+* N/A
 
 ## V2.1.0
 ### Bug Fixs
@@ -57,3 +64,6 @@
 * add callback for all of the command, optimize the discovery procedure
 * change led action for pair, audio issue for 8258
 * add demo for rf4ce/ble switch
+
+### BREAKING CHANGES
+* N/A
