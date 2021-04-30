@@ -1,26 +1,11 @@
 stages:
-  - scc
-  - genLicense
-  - checkLicense
-  - build_tc32
+  - build
   - cov
-  - fossid
-  - plainPW_check
-  - misspellChecking
+  - clean_build
+  - clean_cov
 
-scc:
-  stage: scc
-  script:
-    - echo "Enter scc stage"
-    - scc | tee scc.txt
-    - bash /usr/bin/scc_calc.sh
-    - echo  "The End SCC result:"
-    - cat scc.txt
-  artifacts:
-    paths:
-    - scc.txt
-build_tc32:
-  stage: build_tc32
+build:
+  stage: build
   tags:
     - LINUX
     - TC32
@@ -55,39 +40,27 @@ cov:
     - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import ./tl_rf4ce_zrc2_sdk/  -cleanBuild tl_rf4ce_zrc2_sdk/zrc2_rc_8258    
     - $COV_A COV_$CI_PROJECT_NAME    
     - cov_add_commit_steam_project_2_platform.sh
+  when: manual
         
-fossid:
-  tags:
-    - FOSSID
-  stage: fossid
-  script:
-    - fossid_check.sh
-  artifacts:
-    paths:
-    - fossid*.txt
-  when: manual
-
-plainPW_check:
-  stage: plainPW_check 
-  script:
-    - echo "Enter Plain Password checking stage"
-    - check_plain_weak_password | tee result.txt
-    - ls -l result.txt
-    - echo "Error List:"
-    - cat result.txt
-  artifacts:
-    paths:
-    - result.txt
-  when: manual
-
-misspellChecking:
-  stage: misspellChecking
+clean_build:
+  stage: clean_build
   tags:
     - LINUX
+    - TC32
   script:
-    - echo "--------------- Begin ------------------------"
-    - misspell-check
-    - echo "---------------- End -----------------------"
-  artifacts:
-    paths:
-    - misspell_result.txt
+    - ls -a
+    - rm -r * .git*
+    - ls -a
+  when: always
+
+clean_cov:  
+  stage: clean_cov  
+  tags:    
+    - COV    
+    - LINUX    
+    - TC32    
+  script:    
+    - ls -a    
+    - rm -rf * .git*    
+    - ls -a  
+  when: manual
