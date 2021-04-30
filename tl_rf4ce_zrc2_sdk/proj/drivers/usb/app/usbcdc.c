@@ -16,14 +16,15 @@
 void usbcdc_write32(u32 value);
 void usbcdc_read32(u32* value);
 int usbcdc_recvTimeoutCb(void* arg);
-
+int usbcdc_transmitTimeoutCb(void* arg);
 
 typedef struct {
     u8 *rxBuf;
     usbcdc_txBuf_t *txBuf;
 
 	/* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
-	ev_time_event_t *timer;
+	ev_time_event_t *rx_timer;
+	ev_time_event_t *tx_timer;
 
 	cdc_handlerFn_t rxCb;
     cdc_handlerFn_t txCb;
@@ -170,9 +171,28 @@ int usbcdc_recvTimeoutCb(void* arg)
 	if (cdc_v->rxCb) {
 		cdc_v->rxCb(p);
 	}
-    cdc_v->timer = NULL;
+    cdc_v->rx_timer = NULL;
 	return -1;
 }
+
+int usbcdc_transmitTimeoutCb(void* arg)
+{
+	u8* p;
+
+	cdc_v->lenToSend = 0;
+	cdc_v->lastSendIndex = 0;
+	/* Clear the buffer */
+	p = cdc_v->txBuf;
+	cdc_v->txBuf = NULL;
+
+	/* Callback */
+	if (cdc_v->txCb) {
+		cdc_v->txCb(p);
+	}
+    cdc_v->tx_timer = NULL;
+	return -1;
+}
+
 
 
 void usbcdc_recvData(void)
@@ -187,8 +207,8 @@ void usbcdc_recvData(void)
 		while(1);
 	}
 
-	if (cdc_v->timer) {
-		ev_unon_timer(&cdc_v->timer);
+	if (cdc_v->rx_timer) {
+		ev_unon_timer(&cdc_v->rx_timer);
 	}
 
 	len = reg_usb_ep_ptr(CDC_RX_EPNUM & 0x07);
@@ -211,7 +231,7 @@ void usbcdc_recvData(void)
 			cdc_v->rxCb(p);
 		}
 	} else {
-		cdc_v->timer = ev_on_timer(usbcdc_recvTimeoutCb, NULL, 500);
+		cdc_v->rx_timer = ev_on_timer(usbcdc_recvTimeoutCb, NULL, 500);
 	}
 }
 
@@ -234,7 +254,6 @@ u8 usbcdc_sendBulkData(void)
 	if (len == 0) {
 		return 0;
 	}
-
 
     reg_usb_ep_ptr(CDC_TX_EPNUM) = 0;
 
@@ -277,10 +296,17 @@ usbcdc_sts_t usbcdc_sendData(usbcdc_txBuf_t *buf)
 		return USB_BUSY;
 	}
 
+	if (cdc_v->tx_timer)
+		ev_unon_timer(&cdc_v->tx_timer);
+
 	/* Init the bulk transfer */
     cdc_v->lenToSend = buf->len;
 	cdc_v->txBuf = buf;
 	cdc_v->lastSendIndex = 0;
+
+	u8 fstart  = (cdc_v->lenToSend > CDC_TXRX_EPSIZE) ? 1 : 0;
+	if(fstart)
+		cdc_v->tx_timer =ev_on_timer(usbcdc_transmitTimeoutCb, NULL, 10*1000);
 
     /* Send first bulk */
 	usbcdc_sendBulkData();

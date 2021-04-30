@@ -1,3 +1,24 @@
+## V2.3.3
+### Features
+* support zbit flash
+* calibrate the power supply voltage of zbit on 8258/8278 chips
+* add flash lock functions,the default state of lock is OFF
+### Bug Fixes
+* DRIVER
+  - fix the issue that the USBCDC state can't be restored when USBCDC missing ACK
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 支持zbit flash
+* 8258/8278芯片根据校准值校准zbit的电源电压
+* 增加flash锁功能，锁默认状态是关闭的
+### Bug Fixes
+* DRIVER
+  - 修复USBCDC丢失ACK，状态不恢复问题
+### BREAKING CHANGES
+* N/A
+
 ## V2.3.2
 ### Features
 * add ir dma mode on 8258/8278 chips
