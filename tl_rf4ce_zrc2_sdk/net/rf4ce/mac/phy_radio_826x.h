@@ -121,6 +121,12 @@ static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
 	 return lqi;
 }
 
+ /* clear mask bit to disable tx irq */
+ #define ZB_RADIO_IRQ_MASK_CLR				irq_clr_mask(FLD_IRQ_ZB_RT_EN)
+
+ /* clear mask bit to disable tx irq */
+ #define ZB_RADIO_IRQ_MASK_SET				irq_set_mask(FLD_IRQ_ZB_RT_EN)
+
 /* tx Power 0dBm*/
 #define ZB_RADIO_TX_0DBM	RF_POWER_m0P6dBm
 

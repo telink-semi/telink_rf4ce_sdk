@@ -38,7 +38,7 @@ static void sys_enter_suspend_mode(void){
 	u32 realInterval = sysSuspendTimeInMs;
 
 	if(!firstRun){
-		u32 runTime = (clock_time() - lastWakeupTime) / CLOCK_SYS_CLOCK_1MS;
+		u32 runTime = (clock_time() - lastWakeupTime) / S_TIMER_CLOCK_1MS;
 		if(lastWakeupTime != 0){
 			if((runTime + 4)< sysSuspendTimeInMs){
 				realInterval = sysSuspendTimeInMs - runTime;
@@ -92,8 +92,8 @@ void sys_enter_deepsleep_mode(void){
 	}else{
 		return;
 	}
-
-	platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, PLATFORM_WAKEUP_PAD, 0);
+	platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, PLATFORM_WAKEUP_PAD|PLATFORM_WAKEUP_TIMER, 10000);
+//	platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, PLATFORM_WAKEUP_PAD, 0);
 	app_validLevelForPm(1);
 }
 
@@ -158,7 +158,7 @@ void sys_init(void){
 extern const u8 protect_flash_cmd;
 #endif
 /* the following code must be allocated at RAM!!!!!! */
-_attribute_ram_code_ void sys_reboot(u32 addr, u32 size){
+_attribute_ram_code_ u8 sys_reboot(u32 addr, u32 size){
 	u32 sect_num_total = size / FLASH_SECTOR_SIZE + 1;
 	u32 page_num_total = size / FLASH_PAGE_SIZE + 1;
 	u32 erase_addr = 0;
@@ -168,7 +168,7 @@ recopy_start:
 		wd_clear();
 #endif
 #if (FLASH_PROTECT)
-	if ( FLASH_PROTECT_NONE != flash_write_status(FLASH_PROTECT_NONE) ) {
+	if ( flash_unlock()==FALSE) {
 		goto recopy_start;
 	}
 #endif
@@ -219,7 +219,7 @@ recopy_start:
 	}
 
 #if (FLASH_PROTECT)
-	if ( protect_flash_cmd != flash_write_status(protect_flash_cmd) ) {
+	if (flash_lock()==FALSE) {
 		return NV_ENABLE_PROTECT_ERROR;
 	}
 #endif
@@ -228,4 +228,5 @@ recopy_start:
 	volatile int j;
 	write_reg8(0x80006f,0x20);
 	for(j=0;j<3200;j++);
+	return NV_SUCC;
 }

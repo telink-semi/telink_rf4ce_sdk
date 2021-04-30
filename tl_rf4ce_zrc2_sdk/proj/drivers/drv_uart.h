@@ -27,6 +27,11 @@ typedef void (*uart_irq_callback)(void);
 
 typedef unsigned char (* uart_data_send)(unsigned char *data);
 
+/**
+ *  @brief  Definition of uart message received callback function
+ */
+typedef s32 (*uart_recvCb_t)(u8 *buf);
+
 typedef struct{
 	uart_irq_callback recvCb;
 	uart_data_send send;

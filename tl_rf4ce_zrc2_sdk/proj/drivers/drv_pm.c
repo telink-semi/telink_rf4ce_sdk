@@ -52,7 +52,7 @@ platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_
 	if(src & PLATFORM_WAKEUP_TIMER){
 		srcType |= WAKEUP_SRC_TIMER;
 	}
-	int wakeupSrc = PM_LowPwrEnter (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
+	int wakeupSrc = pm_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
 	if(wakeupSrc & BIT(1)){
 		return PLATFORM_WAKEUP_TIMER;
 	}else{
@@ -75,7 +75,7 @@ platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_
 		srcType |= PM_WAKEUP_TIMER;
 	}
 
-	int wakeupSrc = cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
+	int wakeupSrc = cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*S_TIMER_CLOCK_1US);
 	if(wakeupSrc & BIT(1)){
 		ws = PLATFORM_WAKEUP_TIMER;
 	}else{
@@ -83,7 +83,7 @@ platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_
 	}
 	/* reconfigure some module used */
 	ZB_RADIO_INIT();
-
+	rf_setTxPower(PHY_TX_POWER_MAX);
 #if 0
 	u8 value;
 	u8 len;

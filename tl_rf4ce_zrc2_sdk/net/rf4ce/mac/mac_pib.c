@@ -13,6 +13,7 @@
 #include "mac_task.h"
 #if (MODULE_FLASH_ENABLE)
 #include "../../../proj/drivers/nv.h"
+#include "../../../proj/drivers/drv_flash.h"
 #endif
 
 
@@ -28,7 +29,7 @@
 #define MAC_MAX_FRAME_RESPONSE_MIN  143
 #define MAC_MAX_FRAME_RESPONSE_MAX  25776
 
-#define MAC_IEEE_ADDRESS_IN_FLASH         0x76000
+#define MAC_IEEE_ADDRESS_IN_FLASH         CFG_MAC_ADDRESS
 
 #define MAC_IEEE_ADDRESS_IN_OTP           0x3f00
 
@@ -41,7 +42,7 @@ typedef struct
     u8     max;
 } mac_pibTbl_t;
 
-const u8 startIEEEAddr[] = {0x05, 0xd5, 0xb3, 0x70};
+const u8 startIEEEAddr[] = {0x38, 0xc1, 0xa4};
 
 /**
  *  @brief PIB default values
@@ -207,19 +208,25 @@ _CODE_MAC_ void mac_pibReset(void)
 	
 	/* check the ieee address is valid or not */
 	if (memcmp(invalidIEEEAddr, extAddr, 8) == 0 ) {
-		memcpy(extAddr+4, startIEEEAddr, 4);
-		u8 randomAddr[4];
-    	generateRandomData(randomAddr, 4);
-		randomAddr[3] &= 0x0f;
-        randomAddr[3] |= 0x80;
-		memcpy(extAddr, randomAddr, 4);
+		u8 addr[8];
+		generateRandomData(addr, 5);
+		memcpy(addr+5, startIEEEAddr, 3);
+		flash_write(MAC_IEEE_ADDRESS_IN_FLASH, 6, addr + 2);
+		flash_write(MAC_IEEE_ADDRESS_IN_FLASH + 6, 2, addr);
 	}else{
-		u8 addrL[2] = {0};
-		memcpy(addrL, &extAddr[6], 2);
-		for(u32 i = 7; i > 1; i--){
-			extAddr[i] = extAddr[i - 2];
+		/* MAC address format in TLSR serial chips:
+		 * xx xx xx 38 C1 A4 xx xx
+  	  	 * xx xx xx D1 19 C4 xx xx
+  	  	 * xx xx xx CB 0B D8 xx xx
+		 *
+		 * so, it need to do shift
+		 * */
+		if((extAddr[3] == 0x38 && extAddr[4] == 0xC1 && extAddr[5] == 0xA4) ||
+		   (extAddr[3] == 0xD1 && extAddr[4] == 0x19 && extAddr[5] == 0xC4) ||
+		   (extAddr[3] == 0xCB && extAddr[4] == 0x0B && extAddr[5] == 0xD8)){
+			flash_read(CFG_MAC_ADDRESS, 6, extAddr + 2);
+			flash_read(CFG_MAC_ADDRESS + 6, 2, extAddr);
 		}
-		memcpy(&extAddr[0], addrL, 2);
 	}
 	
     mac_mlmeSetReq(MAC_EXTENDED_ADDRESS, extAddr);

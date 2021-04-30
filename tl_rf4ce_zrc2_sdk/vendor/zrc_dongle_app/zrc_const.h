@@ -34,4 +34,20 @@ enum {
     ZRC_APP_NORMAL_STATE,
 };
 
+static const u16 batteryVoltage[] = {
+		3000,
+		2600,
+		2400,
+		2000,
+};
+
+enum{
+	PWR_LEVEL_FULL = 0,
+	PWR_LEVEL_2P6_UP,
+	PWR_LEVEL_2P4_6,
+	PWR_LEVEL_CUTOFF  // <2.0v
+};
+
+#define 	PWR_THRESHOLD_NORMAL	PWR_LEVEL_2P6_UP
+#define 	PWR_THRESHOLD_RESET		PWR_LEVEL_2P4_6
 

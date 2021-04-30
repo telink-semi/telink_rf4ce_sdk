@@ -182,10 +182,6 @@ static void audio_recInit_82x8(u32 sampleRate, audio_rec_ntf audioUserhandler)
 		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
 		audio_amic_init(AUDIO_16K);
 	}
-#if MCU_CORE_8278
-	audio_codec_and_pga_disable();
-#endif
-
 }
 
 
@@ -258,7 +254,6 @@ void audio_recTaskStart(void){
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 #elif MCU_CORE_8278
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
-		set_pga_input_vol();
 #endif
 		audio_delay_times = 20;
 	}
@@ -328,7 +323,7 @@ extern u8 rf_tx_buf[];
 extern u32 T_Debug_Rx_Time[];
 _attribute_ram_code_ int AudioTimeOutTxCb(void* arg)
 {
-	clock_enable_clock(TIMER_FOR_USER, 0);
+	TIMER_STOP(TIMER_FOR_USER);
 	ZB_RADIO_RX_DONE_CLR;
 	ZB_RADIO_TX_DONE_CLR;
 	rf_setTrxState(RF_STATE_TX);

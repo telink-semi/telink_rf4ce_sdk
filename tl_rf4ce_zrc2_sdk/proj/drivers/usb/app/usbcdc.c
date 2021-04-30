@@ -20,7 +20,7 @@ int usbcdc_recvTimeoutCb(void* arg);
 
 typedef struct {
     u8 *rxBuf;
-	u8 *txBuf;
+    usbcdc_txBuf_t *txBuf;
 
 	/* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
 	ev_time_event_t *timer;
@@ -240,7 +240,7 @@ u8 usbcdc_sendBulkData(void)
 
 	/* Write data to USB fifo */
     foreach (i, len) {
-        reg_usb_ep_dat(CDC_TX_EPNUM) = cdc_v->txBuf[cdc_v->lastSendIndex++];
+        reg_usb_ep_dat(CDC_TX_EPNUM) = cdc_v->txBuf->data[cdc_v->lastSendIndex++];
     }
 
 	/* Write ACK */
@@ -260,8 +260,8 @@ u8 usbcdc_sendBulkData(void)
 
         if (cdc_v->txCb) {
             //EV_SCHEDULE_TASK((ev_task_callback_t)cdc_v->txCb, cdc_v->txBuf);
-        	cdc_v->txCb(cdc_v->txBuf);
-        	//ev_on_timer(cdc_v->txCb,cdc_v->txBuf, 1);
+        	cdc_v->txCb((u8 *)cdc_v->txBuf);
+//        	ev_on_timer(usbcdcTxTimer,cdc_v->txBuf, 1);
         }
 
 		cdc_v->txBuf = NULL;
@@ -271,17 +271,14 @@ u8 usbcdc_sendBulkData(void)
 }
 
 
-
-
-
-usbcdc_sts_t usbcdc_sendData(u8 *buf, u8 len)
+usbcdc_sts_t usbcdc_sendData(usbcdc_txBuf_t *buf)
 {
 	if (cdc_v->txBuf) {
 		return USB_BUSY;
 	}
 
 	/* Init the bulk transfer */
-    cdc_v->lenToSend = len;
+    cdc_v->lenToSend = buf->len;
 	cdc_v->txBuf = buf;
 	cdc_v->lastSendIndex = 0;
 

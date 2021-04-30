@@ -15,5 +15,5 @@ typedef struct{
 #endif
 
 int recvCmdFromTH(u8 *recvBuf, u8 bufLen);
-int sendCmdToTH(u8* buf, u8 len);
+int sendCmdToTH(usbcdc_txBuf_t *buf);
 void TH_trxInit(uart_recvCb_t cb);

@@ -27,24 +27,24 @@ int recvCmdFromTH(u8 *recvBuf, u8 bufLen)
 
 }
 
-int sendCmdToTH(u8* buf, u8 len)
+int sendCmdToTH(usbcdc_txBuf_t *buf)
 {
 #ifdef WIN32
     return simu_sendToTH(buf, len);
 #else
 #if USB_CDC_ENABLE
-    usb_uart_write(buf, len);
+    usb_uart_write(buf);
 #else
     //usb
 	usb_command_t *p_usbCmd = (usb_command_t *)0x808004;
     if(!p_usbCmd->device_cmdID && !p_usbCmd->host_cmdId){
-    	p_usbCmd->len = len - 1;
+    	p_usbCmd->len = buf->len - 1;
     	if(p_usbCmd->len < 8){
-    		p_usbCmd->device_cmdID = buf[1];
+    		p_usbCmd->device_cmdID = buf->data[1];
     		memcpy(&p_usbCmd->param[0], &buf[2], p_usbCmd->len);
     	}    	
     }
-	ev_buf_free(buf);
+	ev_buf_free((u8 *)buf);
 #endif
     return 0;
 #endif

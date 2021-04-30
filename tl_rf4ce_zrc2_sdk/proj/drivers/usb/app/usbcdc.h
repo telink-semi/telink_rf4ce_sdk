@@ -29,7 +29,7 @@ typedef enum usbcdc_sts_e {
 
 void CDC_Device_ProcessControlRequest(u8 bRequest, u16 wValue, u16 wIndex, u16 wLength);
 
-usbcdc_sts_t usbcdc_sendData(u8* buf, u8 len);
+usbcdc_sts_t usbcdc_sendData(usbcdc_txBuf_t *buf);
 u8   usbcdc_sendBulkData(void);
 
 u8   usbcdc_isAvailable(void);

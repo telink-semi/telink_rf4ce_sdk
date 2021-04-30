@@ -1,29 +1,48 @@
 /********************************************************************************************************
- * @file     audio.h
+ * @file	audio.h
  *
- * @brief    This is the Audio driver header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #ifndef audio_H
 #define audio_H
 
@@ -45,8 +64,9 @@ typedef enum{
 	RATE_SIZE
 }AudioRate_Typedef;
 
+
 /**
- * define audio input type.
+ * define audio output type.
  */
 typedef enum{
 	GPIO_PB4_PB5,
@@ -134,6 +154,23 @@ void audio_amic_init(AudioRate_Typedef Audio_Rate);
  */
 void audio_codec_and_pga_disable(void);
 
+
+
+/**
+ * @brief     This function servers to receive data from buffer.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer.
+ * @return    none.
+ */
+void audio_rx_data_from_buff(signed char* buf,unsigned int len);
+
+/**
+ * @brief     This function servers to receive data from sample buffer by 16 bits.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer by short.
+ * @return    none.
+ */
+void audio_rx_data_from_sample_buff(const short *buf, unsigned int len);
 /**
  * 	@brief     audio DMIC init function, config the speed of DMIC and downsample audio data to required speed.         actually audio data is dmic_speed/d_samp.
  * 	@param[in] Audio_Rate - set the DMIC speed. such as 1 indicate 1M and 2 indicate 2M.
@@ -166,6 +203,7 @@ void audio_i2s_init(void);
 
 /**
 *	@brief	   sdm setting function, enable or disable the sdm output, configure SDM output paramaters.
+*	@param[in]  OutPin - SDM Output pin.
 *	@param[in]	InType -	  SDM input type, such as AMIC,DMIC,I2S_IN,USB_IN.
 *	@param[in]	Audio_Rate - audio sampling rate, such as 16K,32k etc.
 *	@param[in]	audio_out_en - audio output enable or disable set, '1' enable audio output; '0' disable output.

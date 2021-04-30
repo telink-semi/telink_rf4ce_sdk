@@ -38,9 +38,9 @@
 	#endif
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#if(CLOCK_SYS_CLOCK_HZ == 32000000)
-		SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
+		SYS_CLK_TypeDef g_sysClk = SYS_CLK_32M_Crystal;
 	#elif(CLOCK_SYS_CLOCK_HZ == 24000000)
-		SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_24M_Crystal;
+		SYS_CLK_TypeDef g_sysClk = SYS_CLK_24M_Crystal;
 	#else
 		#error please config system clock
 	#endif
@@ -54,7 +54,7 @@ enum{
 
 extern void user_init();
 void audio_recTaskRun(void);
-u32 tick_usb_enum=0;
+volatile u32 tick_usb_enum=0;
 /*
  * platform initiation:
  * 		clock_init: 	system clock selection
@@ -72,20 +72,31 @@ static u8 platform_init(void){
 		bss_section_clear(); 		//power on
 		data_section_load();
 #endif
-#if defined(MCU_CORE_8278)
-	blc_pm_select_internal_32k_crystal();
-	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
-#else
+
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 	cpu_wakeup_init();
+#elif defined(MCU_CORE_8278)
+	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
 #endif
+
 	clock_init(g_sysClk);
 
-	gpio_init();
+#if defined(MCU_CORE_8278) || defined(MCU_CORE_8258)
+	if(pm_get_mcu_status()==MCU_STATUS_BOOT)//power on
+	{
+		clock_32k_init(CLK_32K_RC);
+		rc_32k_cal();
+	}
+	pm_select_internal_32k_rc();
+#endif
+
+	gpio_init(TRUE);
 
     ZB_RADIO_INIT();
 
+    /*check internal Flash Size*/
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-		internalFlashSizeCheck();
+	internalFlashSizeCheck();
 #endif
     return ret;
 }
@@ -98,14 +109,14 @@ int main (void) {
 
     ev_buf_init();
 
-    user_init ();
+    user_init();
 
     tick_usb_enum = clock_time ();
 
     irq_enable();
 
 #if (MODULE_WATCHDOG_ENABLE)
-    wd_setintervalms(1000);
+    wd_set_interval_ms(1000);
     wd_start();
 #endif
 
@@ -123,4 +134,3 @@ int main (void) {
 #endif
     }
 }
-

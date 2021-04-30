@@ -52,13 +52,13 @@ extern "C" {
 
 /////////////////// FLASH_PROTECT /////////////////////////////////
 #define FLASH_PROTECT           0
-#define FLASH_PROTECT_CMD_GIGADEVICE  0x6c  //flash of telink evb
-#define FLASH_PROTECT_CMD_ADESTO      0x3c  //flash of customer selection
-
-#define FLASH_PROTECT_CMD       FLASH_PROTECT_CMD_ADESTO
+//#define FLASH_PROTECT_CMD_GIGADEVICE  0x6c  //flash of telink evb
+//#define FLASH_PROTECT_CMD_ADESTO      0x3c  //flash of customer selection
+//
+//#define FLASH_PROTECT_CMD       FLASH_PROTECT_CMD_ADESTO
 
 /////////////////// WATCHDOG  /////////////////////////////
-#define MODULE_WATCHDOG_ENABLE	  1
+#define MODULE_WATCHDOG_ENABLE	  0
 #define MODULE_BUFM_ENABLE        1
 #define MODULE_PRIQ_ENABLE        1
 #define EV_POST_TASK_ENABLE       1
@@ -92,6 +92,15 @@ extern "C" {
 #define CLOCK_SYS_TYPE  		CLOCK_TYPE_PLL	//  CLOCK_TYPE_PLL, CLOCK_TYPE_OSC, CLOCK_TYPE_PAD, CLOCK_TYPE_ADC
 #define CLOCK_SYS_CLOCK_HZ  	32000000		// 32000000//16000000
 
+#if defined(MCU_CORE_826x)
+	#define S_TIMER_CLOCK_1US				tickPerUs
+	#define S_TIMER_CLOCK_1MS				tickPerUs*1000
+	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define S_TIMER_CLOCK_1US				sys_tick_per_us
+	#define S_TIMER_CLOCK_1MS				sys_tick_per_us*1000
+	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#endif
 
 ///////////////////  Mouse  Keyboard //////////////////////////////
 #define MOUSE_HAS_BUTTON		1
@@ -182,4 +191,6 @@ typedef enum{
 #if defined(__cplusplus)
 }
 #endif
+
+
 

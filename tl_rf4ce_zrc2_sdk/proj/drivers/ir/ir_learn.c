@@ -28,7 +28,7 @@
 
 #if (MODULE_IR_LEARN_ENABLE)
 
-#define CLOCK_TICK_TO_US(t)				((t)/CLOCK_SYS_CLOCK_1US)
+#define CLOCK_TICK_TO_US(t)				((t)/S_TIMER_CLOCK_1US)
 
 #define IR_FLASH_PAGE_SIZE 				0x100 //256bytes
 #define IR_CARR_CHECK_CNT				10
@@ -169,7 +169,7 @@ _attribute_ram_code_ void ir_record(u32 tm, u32 pol)
 	}
     if(ir_learn_pattern.ir_int_cnt!=0 ){
     	ir_learn_ctrl.time_interval = ir_learn_ctrl.curr_trigger_tm - ir_learn_ctrl.last_trigger_tm;
-    	if(ir_learn_ctrl.time_interval < 71*CLOCK_SYS_CLOCK_1US)    //记载载波，中断处理时间太长。无法记录载波
+    	if(ir_learn_ctrl.time_interval < 71*S_TIMER_CLOCK_1US)    //记载载波，中断处理时间太长。无法记录载波
 		{
 			ir_learn_pattern.carr_high_temp[ir_learn_pattern.carr_high_cnt]=CLOCK_TICK_TO_US(ir_learn_ctrl.time_interval);
 			ir_learn_pattern.carr_high_cnt++;
@@ -179,7 +179,7 @@ _attribute_ram_code_ void ir_record(u32 tm, u32 pol)
 				ir_learn_pattern.carr_high_tm= calculate_mid(ir_learn_pattern.carr_high_temp[0],ir_learn_pattern.carr_high_temp[1],ir_learn_pattern.carr_high_tm);
 				}
 		}
-    	else if((ir_learn_ctrl.time_interval > 70*CLOCK_SYS_CLOCK_1US)&&(ir_learn_ctrl.time_interval < 200001*CLOCK_SYS_CLOCK_1US))
+    	else if((ir_learn_ctrl.time_interval > 70*S_TIMER_CLOCK_1US)&&(ir_learn_ctrl.time_interval < 200001*S_TIMER_CLOCK_1US))
 		{
     		if(CLOCK_TICK_TO_US(  ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time ))
     		{
@@ -193,7 +193,7 @@ _attribute_ram_code_ void ir_record(u32 tm, u32 pol)
     		}
 			ir_learn_ctrl.record_last_time=ir_learn_ctrl.curr_trigger_tm;
 		}
-        else if(ir_learn_ctrl.time_interval > 200000*CLOCK_SYS_CLOCK_1US)
+        else if(ir_learn_ctrl.time_interval > 200000*S_TIMER_CLOCK_1US)
 		{
     		if(CLOCK_TICK_TO_US( ir_learn_ctrl.last_trigger_tm - ir_learn_ctrl.record_last_time ))
     		{
@@ -228,7 +228,7 @@ void ir_learn_intf_init(int en){
 		gpio_write(GPIO_IR_CTRL,	0);
 	}else{
 		gpio_write(GPIO_IR_CTRL, 1);
-		gpio_set_func(GPIO_IR_OUT, IR_PWM_ID);
+		gpio_set_func(GPIO_IR_OUT, IR_PWM_FUNC);
 	}
 }
 
@@ -249,12 +249,14 @@ void  ir_stop_learn(void){
     if(ir_learn_pattern.series_tm[0] < 200)     //包头小于200us 舍弃
     {
     	memset4(&ir_learn_pattern, 0, sizeof(ir_learn_pattern));
-        if(learnStateCb)
-        	learnStateCb(IR_LEARN_FAILED);
+//        if(learnStateCb)
+//        	learnStateCb(IR_LEARN_FAILED);
+    	ev_on_timer(ir_learn_failed_callback, NULL, 1);
     }else{
-    	nv_ir_write(kb_keyindex_pressed, ir_learn_pattern.carr_high_tm, ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt+1);
-        if(learnStateCb)
-        	learnStateCb(IR_LEARN_SUCCESS);
+//    	nv_ir_write(kb_keyindex_pressed, ir_learn_pattern.carr_high_tm, ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt+1);
+//        if(learnStateCb)
+//        	learnStateCb(IR_LEARN_SUCCESS);
+        ev_on_timer(ir_learn_success_callback, NULL, 1);
     }
     ir_learn_ready = 0;
     ir_learning_flag = 0;
@@ -335,7 +337,7 @@ void ir_learn_send(void)
 #endif
 }
 
-volatile u32 T_Debug_gpio_irq[8] = {0};
+
 u8 ir_learn_send_nv(u8 key)
 {
 	u32 irFreq = 0;
@@ -383,7 +385,7 @@ nv_sts_t nv_ir_write(u8 keycode,u32 freq,  u16 *buf, u16 len)
 {
 	ir_learn_dat.carr_high_tm = freq;
 	ir_learn_dat.series_cnt = len;
-	memset(&ir_learn_dat.series_tm[0],0xff,IR_LEARN_SERIES_CNT1*2);
+	memset(&ir_learn_dat.series_tm[0],0xff,IR_LEARN_SERIES_CNT*2);
 	memcpy(&ir_learn_dat.series_tm[0],buf,len*2);
 	nv_sts_t sta = nv_flashWriteNew(1, DS_IR_LEARN_MODULE, keycode,  sizeof(ir_learn_dat), (u8 *)&ir_learn_dat);
 	return sta;
@@ -401,9 +403,21 @@ nv_sts_t nv_ir_read(u8 keyCode, u32 *freq, u16 *buf, u16 *len)
 	return sta;
 }
 
+int ir_learn_success_callback(void *arg)
+{
+	nv_ir_write(kb_keyindex_pressed, ir_learn_pattern.carr_high_tm, ir_learn_pattern.series_tm, ir_learn_pattern.series_cnt+1);
+    if(learnStateCb)
+    	learnStateCb(IR_LEARN_SUCCESS);
+    return -1;
+}
 
 
-
+int ir_learn_failed_callback(void *arg)
+{
+    if(learnStateCb)
+    	learnStateCb(IR_LEARN_FAILED);
+    return -1;
+}
 
 #endif
 

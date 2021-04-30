@@ -22,18 +22,17 @@
 
 #include "../../proj/tl_common.h"
 #include "../../proj/drivers/audio/drv_audio.h"
+#include "../../proj/drivers/usb/usb_uart.h"
 #include "../../vendor/common/user_config.h"
 #include "../../net/rf4ce/rf4ce_includes.h"
 #include "../../vendor/common/user_trace.h"
 
 #if MCU_CORE_826x
 SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_PLL;
-#elif MCU_CORE_8258
-SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
-#elif MCU_CORE_8278
-SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_Crystal;
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+SYS_CLK_TypeDef g_sysClk = SYS_CLK_32M_Crystal;
 #endif
-
+u32 tick_usb_enum=0;
 extern void user_init();
 static void platform_init(void){
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
@@ -42,8 +41,9 @@ static void platform_init(void){
 	bss_section_clear();
 	data_section_load();
 #endif
+
 #if defined(MCU_CORE_8278)
-	blc_pm_select_internal_32k_crystal();
+	pm_select_internal_32k_rc();
 	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
 #else
 	cpu_wakeup_init();
@@ -51,7 +51,7 @@ static void platform_init(void){
 
 	clock_init(g_sysClk);
 
-	gpio_init();
+	gpio_init(TRUE);
 
 	usb_dp_pullup_en (0);
 
@@ -68,6 +68,8 @@ static void platform_init(void){
 #endif
 }
 
+
+
 int main (void) {
 	platform_init();
 
@@ -80,13 +82,15 @@ int main (void) {
     irq_enable();
 
 #if (MODULE_USB_ENABLE)
-    usb_dp_pullup_en (1);
+    usb_set_pin_en();
 #endif
+    tick_usb_enum = clock_time ();
+
     while (1){
 #if (MODULE_USB_ENABLE)
         usb_handle_irq();
+        usb_uart_loopQ();
 #endif
-
 #if(MODULE_WATCHDOG_ENABLE)
         wd_clear();
 #endif

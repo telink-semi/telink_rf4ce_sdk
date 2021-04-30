@@ -413,9 +413,10 @@ void user_init(void){
 	tl_audioRecInit(PROFILE_ZRC2, &g_audioRecInfo);
 #endif
 
-	drv_adc_init();
     /* Initialize stack */
     stack_init();
+
+	drv_adc_init();
 
 	/* init ADC for battery detection */
 	drv_adc_battery_detect_init();
@@ -423,16 +424,14 @@ void user_init(void){
     /* start battery detection */
     app_batteryDetect();
 
+    checkBatteryPowerOn();
+
     /* Initialize Application layer modules */
     zrcApp_init();
 
     app_loadInfo();
 
 	irq_restore(r);
-
-#if (!FLASH_PROTECT)
-    flash_write_status(FLASH_PROTECT_NONE);
-#endif
 
 	app_validLevelForPm(1);
 
@@ -610,7 +609,7 @@ u32 app_batteryDetect(void){
 	u8 r = irq_disable();
 	u32 i = 0;
 	u32 battery_value1 = 0;
-	u16 battBuf[12] = {0};
+	static u16 battBuf[12] = {0};
 
 	for(i = 0; i < 12; i++){
 		battBuf[i] = drv_get_adc_data();
@@ -702,6 +701,9 @@ void app_loadInfo(void){
 		app_batteryDetect();
 		zrc_appVars.battStaUpload |= 1;
 		zrc_frameCountUpdate(zrc_appInfo.pairingRef, &curPibFrameCnt);
+		foreach(i, 4) {
+			analog_write(reg_nwk_seq_no+i, 0);
+		}
 	}
 	pmInfo.bf.pmDeep = 0;
 	analog_write(reg_mac_channel, (u8)pmInfo.byte);
@@ -765,11 +767,60 @@ void app_idle_handler(void){
  *
  * @param   None
  *
- * @return  battery level
+ * @return  0:battery level is great than or equal to volThreshold
+ * 		    1:battery level is less than volThreshold
  */
 u8 checkBatteryBeforeSaveFlash(u16 volThreshold){
+#if BATTERY_DETECT_ENABLE
+	if(zrc_appVars.battSta>=volThreshold)
+	return 0;
+	else
 	return 1;
+#else
+	return 1;
+#endif
 }
+
+/*********************************************************************
+ * @fn      checkBattery when power on
+ *
+ * @brief   check the battery level when power on
+ *
+ * @param   None
+ *
+ * @return  1:battery level is great than or equal to BAT_LEVEL_CUTOFF
+ * 		    0:battery level is less than BAT_LEVEL_CUTOFF
+ */
+#define BatteryDounceNum      100
+void checkBatteryPowerOn(void){
+#if BATTERY_DETECT_ENABLE
+	u16 i=0;
+	if(!checkBatteryBeforeSaveFlash(BAT_THRESHOLD_FLASH)){
+		if(pm_get_mcu_status()==MCU_STATUS_BOOT)//deep
+		{
+			for(;i<BatteryDounceNum;i++)//dounce
+			{
+				sleep_ms(2);
+				app_batteryDetect();
+				if(checkBatteryBeforeSaveFlash(BAT_THRESHOLD_FLASH))
+					break;
+			}
+
+			if(i==BatteryDounceNum)
+			{
+				zrc_appVars.flags.bf.allowedDeep = 1;
+				//if power on is less than or equal to BAT_LEVEL_CUTOFF,RCU deep sleep at once
+				platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, 0, 0);
+			}
+		}
+	}
+#endif
+#if (!FLASH_PROTECT)
+		flash_unlock();
+#endif
+}
+
+
 
 
 typedef struct{

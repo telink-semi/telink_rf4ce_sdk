@@ -29,7 +29,7 @@ const u8 protect_flash_cmd = FLASH_PROTECT_CMD;
 #endif
 
 
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 u32 g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
 u32 g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
 #else
@@ -50,16 +50,16 @@ u32 g_u32CfgFlashAddr = CFG_ADDR_512K_FLASH;
  */
 void internalFlashSizeCheck(void){
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	u8 mid[4] = {0};
-	flash_read_mid(mid);
+	u32 midid = flash_read_mid();
+	u8 *mid = (u8 *)&midid;
 
-	if( ((mid[2] != FLASH_CAP_SIZE_512K) && (mid[2] != FLASH_CAP_SIZE_1M)) ||
-		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (mid[2] != FLASH_CAP_SIZE_1M)) ){
+	if( (mid[2] < FLASH_SIZE_512K) ||
+		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (mid[2] < FLASH_SIZE_1M)) ){
 		/* Flash space not matched. */
 		while(1);
 	}
 
-	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (mid[2] == FLASH_CAP_SIZE_1M) ){
+	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (mid[2] >= FLASH_SIZE_1M) ){
 		g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
 		g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
 	}
@@ -72,7 +72,17 @@ void internalFlashSizeCheck(void){
 
 nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+#if (FLASH_PROTECT)
+	if ( flash_unlock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)idx);
+#if (FLASH_PROTECT)
+	if ( flash_lock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	return NV_SUCC;
 }
 
@@ -307,7 +317,11 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 			wItemIdx += 1;
 		}
 	}
-
+#if (FLASH_PROTECT)
+	if ( flash_unlock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	u8 oldSect = opSect;
 	if(sectorUpdate){
 		wItemIdx = 0;
@@ -335,6 +349,11 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 					(idxInfo[i].itemId != itemId || ((idxInfo[i].itemId == itemId) && !single))){
 					ret = nv_write_item(id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset);
 					if(ret != NV_SUCC){
+#if (FLASH_PROTECT)
+					if ( flash_lock()==FALSE) {
+						return NV_ENABLE_PROTECT_ERROR;
+					}
+#endif
 						return ret;
 					}
 					sizeusedAddr += idxInfo[i].size;
@@ -348,6 +367,11 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 
 		idxTotalNum = MODULE_IDX_NUM(id);
 		if(wItemIdx == idxTotalNum || (sizeusedAddr + ITEM_TOTAL_LEN(len)) > MODULE_SECT_END(id, opSect)){
+#if (FLASH_PROTECT)
+		if ( flash_lock()==FALSE) {
+			return NV_ENABLE_PROTECT_ERROR;
+		}
+#endif
 			return NV_NOT_ENOUGH_SAPCE;
 		}
 	}
@@ -394,7 +418,11 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 			 }
 		}
 	}
-
+#if (FLASH_PROTECT)
+	if ( flash_lock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	return ret;
 }
 
@@ -505,7 +533,11 @@ nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
 	}else{
 		opSect = sectInfo.opSect;
 	}
-
+#if (FLASH_PROTECT)
+	if ( flash_unlock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	u32 lastFrmCnt;
 	u32 wAddr;
 	u8 oldSect = opSect;
@@ -533,7 +565,11 @@ nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
 			flash_write((u32)MODULE_SECT_START(id, oldSect), sizeof(nv_sect_info_t), (u8 *)&sectInfo);
 		}
 	}
-
+#if (FLASH_PROTECT)
+	if ( flash_lock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	return ret;
 }
 
@@ -564,34 +600,40 @@ nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount){
 nv_sts_t nv_resetModule(u8 modules) {
 	u32 eraseAddr = MODULES_START_ADDR(modules);
 	u8 sectNumber = NV_SECTOR_SIZE(modules)/FLASH_SECTOR_SIZE;
+#if (FLASH_PROTECT)
+	if ( flash_unlock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	for(s32 i = 0; i < MODULE_SECTOR_NUM; i++){
 		for(s32 j = 0; j < sectNumber; j++){
 			flash_erase(eraseAddr);
 			eraseAddr += FLASH_SECTOR_SIZE;
 		}
 	}
+#if (FLASH_PROTECT)
+	if ( flash_lock()==FALSE) {
+		return NV_ENABLE_PROTECT_ERROR;
+	}
+#endif
 	return SUCCESS;
 }
 
 
 nv_sts_t nv_resetAll(void) {
-#if NV_ENABLE
-	foreach(i, NV_MAX_MODULS) {
+	foreach(i, DS_MAX_MODULS) {
 		nv_resetModule(i);
 	}
-#endif
-	return SUCCESS;
+	return NV_SUCC;
 }
 
 
 nv_sts_t nv_resetToFactoryNew(void) {
-#if NV_ENABLE
-	foreach(i, NV_MAX_MODULS) {
-		if(i != NV_MODULE_NWK_FRAME_COUNT){
+	foreach(i, DS_MAX_MODULS) {
+		if(i != DS_NWK_FRAMECOUNT_MODULE){
 			nv_resetModule(i);
 		}
 	}
-#endif
 	return SUCCESS;
 }
 
@@ -625,5 +667,12 @@ nv_sts_t nv_userLoadFromFlash(u8 id, u16 len, u8 *buf)
 {
     return nv_read(DS_USER_MODULS, id, len, buf);
 }
+
+
+
+
+
+
+
 
 

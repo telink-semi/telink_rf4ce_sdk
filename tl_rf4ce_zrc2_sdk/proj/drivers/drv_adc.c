@@ -35,9 +35,7 @@ void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
 
 void drv_adc_enable(bool enable)
 {
-#if defined (MCU_CORE_8258)
-	adc_power_on(enable);
-#elif defined (MCU_CORE_8278)
+#if defined (MCU_CORE_8258)||defined (MCU_CORE_8278)
 	adc_power_on_sar_adc(enable);
 #endif
 }
@@ -176,9 +174,7 @@ unsigned short drv_get_adc_data(void)
 	u32 vol = 3*(1428*(ADC_SampleValueGet() - 128)/(16384 - 256));
 //		      3*(1428*(sum - 128)/(16384 - 256));
 	return vol;
-#elif defined (MCU_CORE_8258)
-	return (unsigned short)adc_set_sample_and_get_result();
-#elif defined (MCU_CORE_8278)
+#elif defined (MCU_CORE_8258)|| defined (MCU_CORE_8278)
 	return (unsigned short)adc_sample_and_get_result();
 #endif
 }

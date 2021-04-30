@@ -7,6 +7,8 @@
 #endif
 
 
+
+
 #define TIMER_SAFE_BOUNDARY_IN_US(v)		(10*v)
 #define TIMER_OVERFLOW_VALUE        		0xFFFFFFFE
 
@@ -98,9 +100,9 @@ _attribute_ram_code_  void hwTmr_setInterval(u8 tmrIdx, u32 t_us){
     ext_clk_t t;
     t.high = 0;
     if(tmrIdx < TIMER_IDX_3){
-    	t.low = t_us * MASTER_CLK_FREQ;
+    	t.low = t_us * H_TIMER_CLOCK_1US;
     }else{
-    	t.low = t_us * CLOCK_SYS_CLOCK_1US;
+    	t.low = t_us * S_TIMER_CLOCK_1US;
     }
     hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
 
@@ -134,7 +136,7 @@ _attribute_ram_code_ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer,
     pTimer->flags.bf.status = pTimer->expireInfo.high ? TIMER_WOF : TIMER_WTO;
 
     /* Safety Check - If time is already past, set timer as Expired */
-    if (!pTimer->expireInfo.high && pTimer->expireInfo.low < TIMER_SAFE_BOUNDARY_IN_US(MASTER_CLK_FREQ)) {
+    if (!pTimer->expireInfo.high && pTimer->expireInfo.low < TIMER_SAFE_BOUNDARY_IN_US(H_TIMER_CLOCK_1US)) {
         irq_restore(r);
         memset(pTimer, 0, sizeof(hwTmr_info_t));
 		if ( func ) {
@@ -152,11 +154,14 @@ _attribute_ram_code_ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer,
     	}else{
 #if defined (MCU_CORE_8278)
     		reg_system_irq_mask |= BIT(2);   										//enable system timer irq
+    		reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
+    		reg_system_tick_irq_level = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
 #else
     		reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
-#endif
     		reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
     		reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+#endif
+
     	}
     }
 
@@ -172,9 +177,9 @@ _attribute_ram_code_ hw_timer_sts_t hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t fun
     ext_clk_t t;
     t.high = 0;
     if(tmrIdx < TIMER_IDX_3){
-    	t.low = t_us * MASTER_CLK_FREQ;
+    	t.low = t_us * H_TIMER_CLOCK_1US;
     }else{
-    	t.low = t_us * CLOCK_SYS_CLOCK_1US;
+    	t.low = t_us * S_TIMER_CLOCK_1US;
     }
     return hwTmr_setAbs(tmrIdx, &t, func, arg);
 }
@@ -190,10 +195,12 @@ _attribute_ram_code_ void timer_irq_handler(u8 tmrIdx)
 		TIMER_STOP(tmrIdx);
 		TIMER_TICK_CLEAR(tmrIdx);
     }else{
-    	reg_system_tick_irq ^= BIT(31);
+
 #if defined (MCU_CORE_8278)
+    	reg_system_tick_irq_level ^= BIT(31);
     	reg_system_irq_mask &= (~BIT(2));   						//disable system timer irq
 #else
+    	reg_system_tick_irq ^= BIT(31);
     	reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
 #endif
     	reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;
@@ -214,27 +221,33 @@ _attribute_ram_code_ void timer_irq_handler(u8 tmrIdx)
 					/* Enable Timer */
 					TIMER_START(tmrIdx);
         		}else{
-					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
-					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
+
 #if defined (MCU_CORE_8278)
+					reg_system_tick_irq_level = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 					reg_system_irq_mask |= BIT(2);   										//enable system timer irq
 #else
+					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
 #endif
         		}
         	}else{
-        		pTimer->expireInfo.low = t * MASTER_CLK_FREQ;
+        		pTimer->expireInfo.low = t * H_TIMER_CLOCK_1US;
 
         		if(tmrIdx < TIMER_IDX_3){
 					TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
 					/* Enable Timer */
 					TIMER_START(tmrIdx);
         		}else{
-					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
-					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
+
 #if defined (MCU_CORE_8278)
+					reg_system_tick_irq_level = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 					reg_system_irq_mask |= BIT(2);   										//enable system timer irq
 #else
+					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
 #endif
         		}
@@ -245,13 +258,22 @@ _attribute_ram_code_ void timer_irq_handler(u8 tmrIdx)
         	if(tmrIdx < TIMER_IDX_3){
         		TIMER_INTERVAL_SET(tmrIdx, TIMER_OVERFLOW_VALUE);
         	}else{
+#if defined (MCU_CORE_8278)
+        		reg_system_tick_irq_level = clock_time() + TIMER_OVERFLOW_VALUE;
+#else
         		reg_system_tick_irq = clock_time() + TIMER_OVERFLOW_VALUE;
+#endif
         	}
         } else {
         	if(tmrIdx < TIMER_IDX_3){
         		TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.low);
         	}else{
+#if defined (MCU_CORE_8278)
+        		reg_system_tick_irq_level = clock_time() + pTimer->expireInfo.low;
+#else
         		reg_system_tick_irq = clock_time() + pTimer->expireInfo.low;
+#endif
+
         	}
             pTimer->flags.bf.status = TIMER_WTO;
         }

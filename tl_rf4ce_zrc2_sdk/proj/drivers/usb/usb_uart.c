@@ -86,24 +86,10 @@ static void usb_uart_rxHandler(u8* pData)
   */
 static void usb_uart_tXFinishCb(u8* pData)
 {
-//	usb_uart_txPendingEvt_t* pEvt;
-    u8 len;
-    u8 *p;
-
     /* Free the TX buffer at first */
     ev_buf_free(pData);
-
-    /* If there is pending data, send it again */
-    if ( usb_uart_txPendingQ.curNum ) {
-        p = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
-//        p = pEvt->txBuf;
-//        len = pEvt->len;
-        len = *(u8 *)p;
-        len+=1;
-        
-        usb_uart_write(p, len);
-    }
 }
+
 
 
 /*********************************************************************
@@ -137,7 +123,6 @@ void usb_uart_open(u32 baudrate, uart_recvCb_t cb)
     ev_queue_init(&usb_uart_txPendingQ, NULL);
 }
 
-
 /*********************************************************************
   * @fn      usb_uart_write
   *
@@ -148,23 +133,65 @@ void usb_uart_open(u32 baudrate, uart_recvCb_t cb)
   *
   * @return  status
   */
-usbcdc_sts_t usb_uart_write(u8* buf, u8 len)
+usbcdc_sts_t usb_uart_write(usbcdc_txBuf_t *pTxBuf)
 {
-//	usb_uart_txPendingEvt_t* pEvt;
-
     /* Check the usb status first. If it is idle, send data dirctly.
     If it is busy, put data to the pending queue and send it after
     current operation done. */
     if (usbcdc_isAvailable()) {
-        return usbcdc_sendData(buf, len);
+        return usbcdc_sendData(pTxBuf);
     } else {
-//        pEvt = &usb_uart_txPendingEvt_v;
-//        pEvt->len = len;
-//        pEvt->txBuf = buf;
-        ev_queue_push(&usb_uart_txPendingQ, (u8*)buf);
+    	if(usb_uart_txPendingQ.curNum>=3)//limit the audio occupies 3 buffers
+    	{
+			u8 *pData = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
+			ev_buf_free(pData);
+    	}
+        ev_queue_push(&usb_uart_txPendingQ, (u8*)pTxBuf);
         return USB_MULTIBLOCK;
     }
 }
+
+/*********************************************************************
+  * @fn      usb_uart_clearQ
+  *
+  * @brief   clear the queue of usb cdc
+  *
+  * @param   none
+  *
+  * @return  none
+  */
+void usb_uart_clearQ(void)
+{
+	u8 size = usb_uart_txPendingQ.curNum;
+	if(size)
+	{
+		for(u32 i=0;i<size;i++)
+		{
+		        u8 *pData = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
+			    ev_buf_free(pData);
+		}
+	}
+}
+
+/*********************************************************************
+  * @fn      usb_uart_loopQ
+  *
+  * @brief   transmit the data of usbcdc queue when usbcdc is idle
+  *
+  * @param   none
+  *
+  * @return  none
+  */
+void usb_uart_loopQ(void)
+{
+    /* If there is pending data, send it again */
+    if(usb_uart_txPendingQ.curNum && usbcdc_isAvailable()) {
+        u8 *p = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
+        usb_uart_write((usbcdc_txBuf_t *)p);
+    }
+}
+
+
 
 
 #endif  /* USB_CDC_ENABLE */

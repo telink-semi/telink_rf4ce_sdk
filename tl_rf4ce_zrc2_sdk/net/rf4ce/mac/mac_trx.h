@@ -7,7 +7,7 @@
 
 #if (!HOST_ROLE)
 #pragma once
-
+//#include "mac_internal.h"
 
 typedef enum {
     MAC_TX_IDLE,

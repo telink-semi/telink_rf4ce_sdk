@@ -45,8 +45,8 @@ void drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart
 	uart_recbuff_init( rxBuf, rxBufLen);
 	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
-#if	defined(MCU_CORE_8278)
-	uart_init_baudrate(baudrate, (MASTER_CLK_FREQ*1000*1000), PARITY_NONE, STOP_BIT_ONE);//CLOCK_SYS_CLOCK_HZ
+#if	defined(MCU_CORE_8278) ||defined(MCU_CORE_8258)
+	uart_init_baudrate(baudrate, (H_TIMER_CLOCK_1US*1000*1000), PARITY_NONE, STOP_BIT_ONE);//CLOCK_SYS_CLOCK_HZ
 #else
 	uart_init(baudrate, PARITY_NONE, STOP_BIT_ONE);
 #endif

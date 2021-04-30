@@ -89,15 +89,19 @@ u8 mcuBootAddrGet(void)
 	return ((flashInfo == 0x4b) ? 0 : 1);
 }
 
+
+
 void ota_mcuReboot(void)
 {
 	u32 baseAddr = 0;
 	u32 newAddr = FLASH_OTA_NEWIMAGE_ADDR;
 	u8 flashInfo = 0x4b;
+
 	if(mcuBootAddr){
 		baseAddr = FLASH_OTA_NEWIMAGE_ADDR;
 		newAddr = 0;
 	}
+
 	flash_write((newAddr + 8),1,&flashInfo);//enable boot-up flag
 	flashInfo = 0;
 	flash_write((baseAddr + 8),1,&flashInfo);//disable boot-up flag
@@ -192,10 +196,6 @@ void ota_startRspHandler(u8 *pd)
 {
 	ota_preamble_t *pHdr = (ota_preamble_t *)pd;
 
-//	T_OTA_Debug[3] = pHdr->manufaurerCode;
-//	T_OTA_Debug[4] = pHdr->imageType;
-//	T_OTA_Debug[5] = pHdr->fileVer;
-//	T_OTA_Debug[6] = pHdr;
 	if((pHdr->manufaurerCode==TELINK_MANUFACTURER_CODE)&&
 	   (pHdr->chipType==CHIP_ID)&&
 	   (pHdr->fileVer>firmwareVersion))
@@ -226,18 +226,14 @@ void ota_startRspHandler(u8 *pd)
 				ev_unon_timer(&autoPollingCb);
 			ev_on_timer(ota_callBackRestore, 0, 500*1000);
 		}
-//		ota_RetryCnt = DATAREQ_RETRYCNT;
-//		autoPollingCb = ev_on_timer(ota_dataReqCb, 0, DATAREQ_TIME_MS*1000);
 	}
 	else
 	{
-//		T_OTA_Debug[7] += 1;
 		ota_state = OTA_STA_FAILED;
 		ota_RetryCnt = 0;
 		if(autoPollingCb)
 			ev_unon_timer(&autoPollingCb);
 		ev_on_timer(ota_callBackRestore, 0, 500*1000);
-//		otaCb(ota_state);
 	}
 }
 
@@ -422,8 +418,7 @@ void ota_dataRspHandler(u8 *pd)
 			u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
 			u32 crcBin=0;
 			flash_read(baseAddr + rc_otaInfo.imageSize-ota_headersize-4-6, 4, (u8 *)&crcBin);
-//			T_OTA_Debug[4] = crcBin;
-//			T_OTA_Debug[5] = crcValue;
+
 			if(crcBin==crcValue)
 			{
 				ota_state = OTA_STA_SUCCESS;
@@ -439,8 +434,7 @@ void ota_dataRspHandler(u8 *pd)
 		else
 		{
 			ota_dataReqCb();
-//			ota_RetryCnt = DATAREQ_RETRYCNT;
-//			autoPollingCb = ev_on_timer(ota_dataReqCb, 0, DATAREQ_TIME_MS*1000);
+
 		}
 	}
 }

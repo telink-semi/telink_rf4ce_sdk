@@ -18,6 +18,7 @@
 
 #include "../platform/platform_includes.h"
 #include "drivers/nv.h"
+
 #include "../vendor/common/user_config.h"
 #include "../vendor/common/user_trace.h"
 

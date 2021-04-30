@@ -25,7 +25,8 @@ const u8 volumnDown[] = {
 		0x0,0x20,0x1,0x1,0x3,0x0,0xc,0x0
 		,0x2,0x3,0x0,0x0,0x5,0x0,0x6d,0x3d,0x5,0x0
 		,0x60,0x7,0x5,0x0,0xea,0x4,0x22,0x22,0x22
-		,0x22,0x12,0x20,0x00,0x21,0x12,0x11};
+		,0x22,0x12,0x20,0x00,0x21,0x12,0x11
+};
 
 //const  u8 volumnDown[]={
 //	0x00,0x23,0x03,0x02,0x04,0x00,0x11,0x00,
@@ -269,9 +270,9 @@ s8 qs_getIrData(u8 frametype)
 					Timing[i][1] = (*(u16 *)(frameptr + i*4+2));//space
 #if IR_DMA_FIFO_EN
 					if(Timing[i][0])
-					Timing[i][0] = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, Timing[i][0] * MASTER_CLK_FREQ*4/carrier_cycle_tick);//mark
+					Timing[i][0] = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, Timing[i][0] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//mark
 					if(Timing[i][1])
-					Timing[i][1] = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, Timing[i][1] * MASTER_CLK_FREQ*4/carrier_cycle_tick);//space
+					Timing[i][1] = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, Timing[i][1] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//space
 #endif
 				}
 			}

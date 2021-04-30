@@ -191,12 +191,13 @@ void tl_audioDataNotify(u8 *pld, u8 len){
 		memcpy(mic_buf, pld+sizeof(tl_appFrameHdr_t), len - sizeof(tl_appFrameHdr_t));
 		abuf_mic_add ((u32 *)mic_buf); // 128 bytes 62 samples 1 frame
 #elif(MODULE_AUDIO_ENABLE && MODULE_USB_ENABLE && USB_CDC_AUDIO)
-		u8 *uartBuf = ev_buf_allocate(LARGE_BUFFER);
+		usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(LARGE_BUFFER);
 		if (!uartBuf) {
 			while(1);
 		}
-		memcpy(uartBuf, pld, len);
-		sendCmdToTH(uartBuf, len);
+		memcpy(uartBuf->data, pld, len);
+		uartBuf->len = len;
+		sendCmdToTH(uartBuf);
 #endif
 }
 

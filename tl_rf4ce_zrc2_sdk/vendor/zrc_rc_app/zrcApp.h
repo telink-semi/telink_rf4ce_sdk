@@ -153,6 +153,7 @@ u8 zrc_isNormalState(void);
 void zrc_boundInfoSave(void);
 u8 get_batterySatus (u8 chn);
 u8 checkBatteryBeforeSaveFlash(u16 volThreshold);
+void checkBatteryPowerOn(void);
 u8 get_avgBattery(u8 chn);
 void zrc_resetAll(void* arg);
 void zrc_saveStackInfo(void *arg);

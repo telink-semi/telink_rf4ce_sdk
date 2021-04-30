@@ -379,11 +379,11 @@ void usb_handle_in_class_intf_req() {
 }
 
 void usb_handle_in_class_endp_req() {
-	u8 property = control_request.bRequest;
-	u8 ep_ctrl = control_request.wValue >> 8;
+
 #if (USB_MIC_ENABLE || USB_SPEAKER_ENABLE)
 	//u8 addr = (control_request.wIndex >> 8);
-
+	u8 property = control_request.bRequest;
+	u8 ep_ctrl = control_request.wValue >> 8;
 	if(ep_ctrl == AUDIO_EPCONTROL_SamplingFreq){
 		switch(property){
 		case AUDIO_REQ_GetCurrent:

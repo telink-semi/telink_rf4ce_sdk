@@ -31,7 +31,7 @@
 #define ZB_RADIO_TRX_SWITCH(mode ,chn) 		rf_trx_state_set(mode, chn)
 
 /* set tx power */
-#define ZB_RADIO_TX_POWER_SET(level)		rf_set_power_level_index_zgb(level)
+#define ZB_RADIO_TX_POWER_SET(level)		rf_set_power_level_index(level)
 
 /* set rx gain mode: max gain: only use auto gain mode */
 #define ZB_RADIO_MODE_MAX_GAIN()
@@ -40,7 +40,7 @@
 #define ZB_RADIO_MODE_AUTO_GAIN()
 
 /* get RSSI */
-#define ZB_RADIO_RSSI_GET()					rf_ed_detect_154()
+#define ZB_RADIO_RSSI_GET()					rf_rssi_get_154()
 
 /* start sending a packet */
 #define ZB_RADIO_TX_START(txBuf)			rf_tx_pkt(txBuf)
@@ -103,6 +103,12 @@
 #define ZB_RADIO_TIMESTAMP_GET(p)		RF_ZIGBEE_PACKET_TIMESTAMP_GET(p)
 
 #define ZB_RADION_PKT_RSSI_GET(p)		RF_ZIGBEE_PACKET_RSSI_GET(p)
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_CLR				irq_clr_mask(FLD_IRQ_ZB_RT_EN)
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_SET				irq_set_mask(FLD_IRQ_ZB_RT_EN)
 
 
 /* tx Power 0dBm*/

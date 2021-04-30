@@ -1,53 +1,54 @@
 /********************************************************************************************************
- * @file     pga.h
+ * @file	pga.h
  *
- * @brief    gain adjust configuration interface for tlsr8258
+ * @brief	This is the header file for B85
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef		pga_H
 #define		pga_H
 
 #include "bsp.h"
+#include "analog.h"
 
-enum PREAMPValue{
-	DB26,
-	DB46,
-};
-
-enum POSTAMPValue{
-	DB_N10= 0x00,
-	DB_N5 = 0x0a,
-	DB_0  = 0x14,
-	DB_5  = 0x1d,
-	DB_10 = 0x28,
-	DB_14 = 0x30,
-};
-
-typedef enum{
-	PGA_LEFT_CHN  = BIT(6),
-	PGA_RIGHT_CHN = BIT(7)
-}PGA_CHN_Typdef;
-
-#define		SET_PGA_CHN_ON(v)				do{\
-												unsigned char val=ReadAnalogReg(0x80+124);\
-												val &= (~(v));\
-												WriteAnalogReg(0x80+124,val);\
-											}while(0)
 enum{
 	PGA_AIN_C0,
 	PGA_AIN_C1,
@@ -55,45 +56,13 @@ enum{
 	PGA_AIN_C3,
 };
 
-#define		SET_PGA_LEFT_P_AIN(v)			do{\
-												unsigned char val=ReadAnalogReg(0x80+125);\
-												val &= 0xfc;\
-												val |= (((unsigned char)(v))&0x03);\
-												WriteAnalogReg(0x80+125,val);\
-											}while(0)
 
-#define		SET_PGA_LEFT_N_AIN(v)			do{\
-												unsigned char val=ReadAnalogReg(0x80+125);\
-												val &= 0xf3;\
-												val |= (((unsigned char)(v)<<2)&0x0c);\
-												WriteAnalogReg(0x80+125,val);\
-											}while(0)
+//set FLD_PGA_PRE_AMPLIFIER_GAIN of reg_pga_fix_value (0xb63<6>) 26dB OR 46dB
 
-#define		SET_PGA_RIGHT_P_AIN(v)			do{\
-												unsigned char val=ReadAnalogReg(0x80+125);\
-												val &= 0xcf;\
-												val |= (((unsigned char)(v)<<4)&0x30);\
-												WriteAnalogReg(0x80+125,val);\
-											}while(0)
-
-#define		SET_PGA_RIGHT_N_AIN(v)			do{\
-												unsigned char val=ReadAnalogReg(0x80+125);\
-												val &= 0x3f;\
-												val |= (((unsigned char)(v)<<6)&0xc0);\
-												WriteAnalogReg(0x80+125,val);\
-											}while(0)
-
-#define		SET_PGA_GAIN_FIX_VALUE(v)		do{\
-												unsigned char val=0;\
-												val |= (((unsigned char)(v))&0x7f);\
-												write_reg8(0xb63,val|0x80);\
-											}while(0)
-
-enum{
-	PGA_POST_GAIN		= BIT_RNG(0,5),
-	PGA_PRE_GAIN_26DB	= BIT(6)
-};
-#define		REG_PGA_GAIN				READ_REG8(0xb63)
+typedef enum{
+	PGA_PRE_GAIN_18DB = 0,		//26dB  18dB
+	PGA_PRE_GAIN_38DB = 1,		//46dB   38dB
+}PGA_PreAmplifierTypeDef;
 
 
 ///set FLD_PGA_POST_AMPLIFIER_GAIN of reg_pga_fix_value (0xb63<0:5>) range -10~14dB
@@ -150,42 +119,44 @@ typedef enum{
 }PGA_PostAmplifierTypeDef;
 
 
+#define		SET_PGA_CHN_ON(v)				do{\
+												unsigned char val=analog_read(0x80+124);\
+												val &= (~(v));\
+												analog_write(0x80+124,val);\
+											}while(0)
+#define		SET_PGA_LEFT_P_AIN(v)			do{\
+												unsigned char val=ReadAnalogReg(0x80+125);\
+												val &= 0xfc;\
+												val |= (((unsigned char)(v))&0x03);\
+												WriteAnalogReg(0x80+125,val);\
+											}while(0)
 
+#define		SET_PGA_LEFT_N_AIN(v)			do{\
+												unsigned char val=ReadAnalogReg(0x80+125);\
+												val &= 0xf3;\
+												val |= (((unsigned char)(v)<<2)&0x0c);\
+												WriteAnalogReg(0x80+125,val);\
+											}while(0)
 
+#define		SET_PGA_RIGHT_P_AIN(v)			do{\
+												unsigned char val=ReadAnalogReg(0x80+125);\
+												val &= 0xcf;\
+												val |= (((unsigned char)(v)<<4)&0x30);\
+												WriteAnalogReg(0x80+125,val);\
+											}while(0)
 
-/**************************************************************
-*
-*	@brief	pga initiate function, call this function to enable the PGA module
-*			the input channel deafult set to ANA_C<3> and ANA_C<2>
-*
-*	@para	chn - select PGA_LEFT_CHN or PGA_RIGHT_CHN to initiate the PGA
-*
-*	@return	None
-*
-*/
-extern void pgaInit(unsigned char chn);
+#define		SET_PGA_RIGHT_N_AIN(v)			do{\
+												unsigned char val=ReadAnalogReg(0x80+125);\
+												val &= 0x3f;\
+												val |= (((unsigned char)(v)<<6)&0xc0);\
+												WriteAnalogReg(0x80+125,val);\
+											}while(0)
 
-/**************************************************************
-*
-*	@brief	adjust pre-amplifier gain value
-*
-*	@para	preGV - enum var of PREAMPValue, 0DB or 20DB
-*
-*	@return	'1' adjusted; '0' adjust error
-*
-*/
-unsigned char preGainAdjust(enum PREAMPValue preGV);
-
-/**************************************************************
-*
-*	@brief	adjust post-amplifier gain value
-*
-*	@para	posGV - enum var of POSTAMPValue, 0,3,6 or 9dB
-*
-*	@return	'1' adjusted; '0' adjust error
-*
-*/
-unsigned char postGainAdjust(enum POSTAMPValue posGV);
+#define		SET_PGA_GAIN_FIX_VALUE(v)		do{\
+												unsigned char val=0;\
+												val |= (((unsigned char)(v))&0x7f);\
+												write_reg8(0xb63,val|0x80);\
+											}while(0)
 
 
 #endif

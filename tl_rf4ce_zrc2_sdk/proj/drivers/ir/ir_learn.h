@@ -22,8 +22,7 @@
 #pragma once
 
 #define IR_STORED_SERIES_ADDRESS 	(0xa000)
-#define IR_LEARN_SERIES_CNT1		247//(125*2 )
-#define IR_LEARN_SERIES_CNT     	160
+#define IR_LEARN_SERIES_CNT     	247
 typedef void (*learnSetStateCb)(u8 sta);
 
 enum{
@@ -34,7 +33,7 @@ enum{
 };
 
 enum{
-	IR_LEARN_START,
+	IR_LEARN_START=1,
 	IR_LEARN_SUCCESS,
 	IR_LEARN_FAILED,
 };
@@ -50,7 +49,7 @@ typedef struct{
 	u8 carr_high_cnt;
 	u8 carr_low_cnt;
 	u16 carr_high_temp[3];
-	u16 series_tm[IR_LEARN_SERIES_CNT1]; // 时间精度 us， 所以最长的 pulse  是65 ms
+	u16 series_tm[IR_LEARN_SERIES_CNT]; // 时间精度 us， 所以最长的 pulse  是65 ms
 }ir_learn_pattern_t;
 
 typedef struct{
@@ -76,7 +75,7 @@ typedef struct{
 typedef struct{
 	u32 carr_high_tm;
 	u16 series_cnt;
-	u16 series_tm[IR_LEARN_SERIES_CNT1]; // 时间精度 us， 所以最长的 pulse  是65 ms
+	u16 series_tm[IR_LEARN_SERIES_CNT]; // 时间精度 us， 所以最长的 pulse  是65 ms
 }ir_learn_save_t;
 
 void ir_start_learn(u8 keyCode);
@@ -87,3 +86,5 @@ u8 ir_learn_send_nv(u8 key);
 void setlearningState(learnSetStateCb cb);
 nv_sts_t nv_ir_write(u8 keycode,u32 freq,  u16 *buf, u16 len);
 nv_sts_t nv_ir_read(u8 keyCode, u32 *freq, u16 *buf, u16 *len);
+int ir_learn_failed_callback(void *arg);
+int ir_learn_success_callback(void *arg);

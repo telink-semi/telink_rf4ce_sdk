@@ -49,7 +49,7 @@ extern u32 g_u32CfgFlashAddr;
  * Following configuration could NOT be changed by customer.
  */
 /* NV modules start address */
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 #define NV_BASE_ADDRESS					0x80000
 #define MODULES_START_ADDR(id)			(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
 #else
@@ -87,49 +87,6 @@ extern u32 g_u32CfgFlashAddr;
 #define CFG_T_SENSOR_CALIBRATION     	(FACTORY_CFG_BASE_ADD + 0x140)
 /*UID-based Firmware Encryption data(16 bytes), 0x77180 ~ 0x7718F*/
 #define CFG_FIRMWARE_ENCRYPTION			(FACTORY_CFG_BASE_ADD + 0x180)
-
-/*******************************************************************************************************
- * Following configuration could be changed by customer.
- */
-#if FLASH_SIZE_1M
-/* pre-install key
-	0x77050:	preCnfLinkKey;	 		pre-configure link key for central network(global: ZC/ZR/ZED; unique: only for ZR/ZED)
-	0x77061:	distributeLinkKey;		distribute link key for distribute network
-	0x77072:	preCnfTouchlinkLinkKey;	 touch-link key for distribute network
- */
-#define CFG_PRE_INSTALL_CODE			(0xFD000)
-
-/* One sector for factory reset by power up/down N times */
-#define CFG_FACTORY_RST_CNT			  	(0xFC000)
-#else
-/* pre-install key
-	0x77050:	preCnfLinkKey;	 		pre-configure link key for central network(global: ZC/ZR/ZED; unique: only for ZR/ZED)
-	0x77061:	distributeLinkKey;		distribute link key for distribute network
-	0x77072:	preCnfTouchlinkLinkKey;	 touch-link key for distribute network
- */
-#define CFG_PRE_INSTALL_CODE			(0x78000)
-
-/* One sector for factory reset by power up/down N times */
-#define CFG_FACTORY_RST_CNT			  	(0x79000)
-
-#if DUAL_MODE
-//NOTE: firmware must less then 192K if UDAL_MODE used
-typedef enum{
-	TYPE_TLK_MESH  						= 0x000000A3,// don't change, must same with telink mesh SDK
-	TYPE_SIG_MESH  						= 0x0000003A,// don't change, must same with telink mesh SDK
-	TYPE_TLK_BLE_SDK 					= 0x000000C3,// don't change, must same with telink mesh SDK
-	TYPE_TLK_ZIGBEE  					= 0x0000003C,// don't change, must same with telink mesh SDK
-	TYPE_DUAL_MODE_STANDBY				= 0x00000065,// dual mode state was standby to be selected
-	TYPE_DUAL_MODE_RECOVER 				= 0x00000056,// don't change, must same with telink mesh SDK, recover for mesh
-}telink_sdk_type_t;
-
-#define CFG_TELINK_SDK_TYPE				(0x73000)
-#define CFG_TELINK_SIG_MESH_CRC			(0x73040)
-#define CFG_TELINK_SIG_MESH_CODE_4K		(0x75000)
-#define CFG_TELINK_DUAL_MODE_ENABLE		(0x76080)
-#endif	/* DUAL_MODE */
-
-#endif
 
 /******************************************** END ***********************************************************/
 

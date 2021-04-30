@@ -83,8 +83,8 @@ extern "C" {
 #define VK_SEARCH       ZRCmdRC_F1
 //#define VK_OPTIONS      0xea
 
-#define VK_XING      0xea
-#define VK_JING 	 0xe6
+#define VK_XING      	0xea
+#define VK_JING 	 	0xe6
 
 #define VK_NONE_KEY     0x00//VK_NONE
 
@@ -243,7 +243,6 @@ extern "C" {
  *
  * */
 	#define ZRC_APP_ADC_PIN                  GPIO_PB7
-
 
 
 /*

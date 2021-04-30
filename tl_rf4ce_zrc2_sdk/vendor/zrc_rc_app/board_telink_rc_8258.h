@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #define	IR_DMA_FIFO_EN				1
-#define FLASH_SIZE_1M				0
+#define FLASH_CAP_SIZE_1M			0
 
 
 #define	MAXTRIX_GPIO_PULL_UP        PM_PIN_PULLUP_10K
@@ -232,8 +232,8 @@ extern "C" {
 
 #define  KB_DRIVE_PINS  {GPIO_PD5, GPIO_PD2, GPIO_PD4, GPIO_PD6, GPIO_PD7}
 #define  KB_SCAN_PINS   {GPIO_PC5, GPIO_PA0, GPIO_PB2, GPIO_PA4, GPIO_PA3, GPIO_PD3}
-#define KB_ARRAY_ROW	5
-#define KB_ARRAY_COL	6
+#define  KB_ARRAY_ROW	5
+#define  KB_ARRAY_COL	6
 
 
 
@@ -299,6 +299,8 @@ extern "C" {
 	#define PB4_OUTPUT_ENABLE		1
 	#define PB4_INPUT_ENABLE		0
 #endif
+
+
 /*
  *
  * AMIC pin nconfiguration

@@ -8,7 +8,7 @@
 ev_time_event_t timer_list[10] = {{0}};
 int timer_current_pos = 0;
 static int inline ev_is_timer_expired(ev_time_event_t *e, u32 now){
-    return ((u32)(now - e->t) < (EV_TIMER_SAFE_MARGIN_US * CLOCK_SYS_CLOCK_1US));
+    return ((u32)(now - e->t) < (EV_TIMER_SAFE_MARGIN_US * S_TIMER_CLOCK_1US));
 }
 
 
@@ -56,7 +56,7 @@ ev_time_event_t *ev_on_timer(ev_timer_callback_t cb, void *data, u32 t_us){
     if ( e == NULL ) {
         while(1);
     }
-    e->interval = t_us * CLOCK_SYS_CLOCK_1US;
+    e->interval = t_us * S_TIMER_CLOCK_1US;
     e->cb = cb;
     e->data = data;
     ev_start_timer(e);
@@ -102,7 +102,7 @@ void ev_process_timer(){
             }else if(0 == t){
                 te->t = now + te->interval;    // becare of overflow
             }else{
-                te->interval = t * CLOCK_SYS_CLOCK_1US;
+                te->interval = t * S_TIMER_CLOCK_1US;
                 te->t = now + te->interval;    // becare of overflow
             }
             

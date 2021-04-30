@@ -54,7 +54,7 @@
 #define PHY_TX_POWER_N_37DB        10
 #define PHY_TX_POWER_MIN           100
 
-#define CCA_THRESHOLD       		-50
+#define CCA_THRESHOLD       		-60
 #define RSSI_PASS_THRESHOLD			-30
 
 

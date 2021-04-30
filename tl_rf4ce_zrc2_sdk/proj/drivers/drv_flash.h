@@ -18,5 +18,5 @@ typedef struct{
 void flash_write(u32 addr, u32 len, u8 *buf);
 void flash_read(u32 addr, u32 len, u8 *buf);
 void flash_erase(u32 addr);
-
-
+bool flash_lock(void);
+bool flash_unlock(void);

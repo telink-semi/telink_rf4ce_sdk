@@ -48,6 +48,12 @@
 #endif
 
 
+#include "../../proj/drivers/drv_flash.h"
+#if POWER_DETECT_ENABLE
+#include "../../proj/drivers/drv_adc.h"
+#endif
+
+
 /**********************************************************************
  * LOCAL CONSTANTS
  */
@@ -78,6 +84,10 @@ void zrc_bindCnf(u8 pairingRef, u8 status);
 void zrc_validationKeyCb(u8 pairingRef, u16 vendorId, u8 lqi, u8 actionNum, zrc_actionRecord_t *action);
 
 void gdp_pushIndCb(u8 pairingRef, u8 attrId, u8 *pData);
+u32 app_powerDetect(void);
+void checkWhenPowerOn(void);
+void checkPowerDounce(void);
+u8 checkPowerServiceLoop(u8 volThreshold);
 /**********************************************************************
  * GLOBAL VARIABLES
  */
@@ -160,17 +170,17 @@ u8 zrc_ckValiReq(u8 pairingRef){
 		validationCode[2] = rand() % 10;
 
 
-		u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
+		usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
 		if (!uartBuf) {
 			while(1);
 		}
-		uartBuf[0] = 4;   //length
-		uartBuf[1] = ZRC_APP_ID_PARING_KEYCODE; //MSO_APP_VALIDATION_CODE_IND;//msoCode;
-		uartBuf[2] = validationCode[0];
-		uartBuf[3] = validationCode[1];
-		uartBuf[4] = validationCode[2];
-
-		sendCmdToTH(uartBuf, uartBuf[0] + 1);
+		uartBuf->data[0] = 4;   //length
+		uartBuf->data[1] = ZRC_APP_ID_PARING_KEYCODE; //MSO_APP_VALIDATION_CODE_IND;//msoCode;
+		uartBuf->data[2] = validationCode[0];
+		uartBuf->data[3] = validationCode[1];
+		uartBuf->data[4] = validationCode[2];
+		uartBuf->len = uartBuf->data[0] + 1;
+		sendCmdToTH(uartBuf);
 
 		zrcApp_state = ZRC_APP_VALIDATING_STATE;
 		validationIndex = 0;
@@ -223,14 +233,7 @@ void zrc_bindCnf(u8 pairingRef, u8 status)
 	}
 
     ev_on_timer(zrc_doPair, 0, 100*1000);
-   /* u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
-	uartBuf[0] = 4;// Pair OK;
-	uartBuf[1] = ZRC_APP_VALIDATION_SUCC_IND;// Pair OK;
-	uartBuf[2] = pairingRef;
-	uartBuf[3] = status;
-	uartBuf[4] = 0x00;
 
-	sendCmdToTH(uartBuf, 4);*/
 }
 
 /*********************************************************************
@@ -308,19 +311,20 @@ void zrc_validationKeyCb(u8 pairingRef, u16 vendorId, u8 lqi, u8 actionNum, zrc_
 	}
 
 
-	u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
+	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
 	if (!uartBuf) {
 		while(1);
 	}
 
-	uartBuf[0] = 6;
-	uartBuf[1] = ZRC_APP_ID_NORMAL_KEY;
-	uartBuf[2] = ZRC_APP_CMD_CODE_IND;
-	uartBuf[3] = cmdCode;
-	uartBuf[4] = cmdCode - ZRCmdRC_Numpad0_or_10;
-	uartBuf[5] = 1;
-	uartBuf[6] = lqi;
-	sendCmdToTH(uartBuf, uartBuf[0] + 1);
+	uartBuf->data[0] = 6;
+	uartBuf->data[1] = ZRC_APP_ID_NORMAL_KEY;
+	uartBuf->data[2] = ZRC_APP_CMD_CODE_IND;
+	uartBuf->data[3] = cmdCode;
+	uartBuf->data[4] = cmdCode - ZRCmdRC_Numpad0_or_10;
+	uartBuf->data[5] = 1;
+	uartBuf->data[6] = lqi;
+	uartBuf->len = uartBuf->data[0] + 1;
+	sendCmdToTH(uartBuf);
 }
 
 
@@ -357,20 +361,20 @@ void zrc_cmdRecvedCb(u8 pairingRef, u16 vendorId, u8 lqi, u8 actionNum, zrc_acti
 	T_zrc_cmdRecvedCbCnt++;
 
 #if USB_CDC_ENABLE
-	//return;
-	u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
+	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
 	if (!uartBuf) {
 		while(1);
 	}
 
-	uartBuf[0] = len;//msoCode;
-	uartBuf[1] = ZRC_APP_ID_NORMAL_KEY;
-	uartBuf[2] = ZRC_APP_CMD_CODE_IND;//msoCode;
-	uartBuf[3] = action->actionCode;
-	uartBuf[4] = action->actionCode;
-	uartBuf[5] = 1;
-	uartBuf[6] = lqi;
-	sendCmdToTH(uartBuf, uartBuf[0] + 1);
+	uartBuf->data[0] = len;//msoCode;
+	uartBuf->data[1] = ZRC_APP_ID_NORMAL_KEY;
+	uartBuf->data[2] = ZRC_APP_CMD_CODE_IND;//msoCode;
+	uartBuf->data[3] = action->actionCode;
+	uartBuf->data[4] = action->actionCode;
+	uartBuf->data[5] = 1;
+	uartBuf->data[6] = lqi;
+	uartBuf->len = uartBuf->data[0] + 1;
+	sendCmdToTH(uartBuf);
 #elif USB_KEYBOARD_ENABLE
 	kb_data_t keyData;
 	keyData.cnt = 1;
@@ -406,26 +410,26 @@ void zrc_cmdRecvedCb(u8 pairingRef, u16 vendorId, u8 lqi, u8 actionNum, zrc_acti
  */
 void zrc_unPairIndCb(u8 pairingRef)
 {
-    /*u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
-	uartBuf[0] = 2;// un-Pair OK;
-	uartBuf[1] = ZRC_APP_UNPIAR_IND;// un-Pair OK;
-	uartBuf[2] = pairingRef;
-
-
-	sendCmdToTH(uartBuf, uartBuf[0] + 1);*/
-	u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
+    /*usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+	uartBuf->data[0] = 2;// un-Pair OK;
+	uartBuf->data[1] = ZRC_APP_UNPIAR_IND;// un-Pair OK;
+	uartBuf->data[2] = pairingRef;
+	uartBuf->len = uartBuf->data[0] + 1;
+	sendCmdToTH(uartBuf);*/
+	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
 	if (!uartBuf) {
 		while(1);
 	}
 
-	uartBuf[0] = 6;//msoCode;
-	uartBuf[1] = ZRC_APP_ID_NORMAL_KEY;
-	uartBuf[2] = ZRC_APP_CMD_CODE_IND;//msoCode;
-	uartBuf[3] = 0xff;
-	uartBuf[4] = 0xff;
-	uartBuf[5] = 1;
-	uartBuf[6] = 0x00;
-	sendCmdToTH(uartBuf, uartBuf[0] + 1);
+	uartBuf->data[0] = 6;//msoCode;
+	uartBuf->data[1] = ZRC_APP_ID_NORMAL_KEY;
+	uartBuf->data[2] = ZRC_APP_CMD_CODE_IND;//msoCode;
+	uartBuf->data[3] = 0xff;
+	uartBuf->data[4] = 0xff;
+	uartBuf->data[5] = 1;
+	uartBuf->data[6] = 0x00;
+	uartBuf->len = uartBuf->data[0] + 1;
+	sendCmdToTH(uartBuf);
 	ev_on_timer(zrc_doPair, 0, 100*1000);
 }
 
@@ -547,8 +551,9 @@ s32 zrcApp_uartRecvCb(u8 *pdata){
 
 	/*u32 *p_sent = (u32 *)aaa_uart_buf;
 	*p_sent = aaa_uart_recv_num++;
-	u8* p = ev_buf_allocate(LARGE_BUFFER);
-	memcpy(p, aaa_uart_buf, 64);
+	usbcdc_txBuf_t* p = (usbcdc_txBuf_t *)ev_buf_allocate(LARGE_BUFFER);
+	memcpy(p->data, aaa_uart_buf, 64);
+	p->len = 64;
 	//sendCmdToTH(p, 64);
 	extern void ota_cmd_parsing(u8 *p_ota);*/
 	return -1;
@@ -587,7 +592,18 @@ void user_init(void){
 	audio_decInit();
 #endif
 
-    /* Initialize stack */
+#if (POWER_DETECT_ENABLE)
+	drv_adc_init();
+
+	/* init ADC for battery detection */
+	drv_adc_battery_detect_init();
+
+    /* start battery detection */
+    app_powerDetect();
+
+    checkWhenPowerOn();
+#endif
+	/* Initialize stack */
     profile_init();
 
     /* Initialize mso app */
@@ -604,13 +620,23 @@ void user_init(void){
     profile_startNwk();
 
 }
-
+extern u32 tick_usb_enum;
 void app_idle_handler(void)
 {
 #if USB_KEYBOARD_ENABLE
 	extern void usbkb_release_check(void);
 	usbkb_release_check();
 #endif
+
+#if POWER_DETECT_ENABLE
+	if(ev_isTaskDone()&&(clock_time_exceed(tick_usb_enum,500*1000)))
+	{
+		tick_usb_enum = clock_time ();
+		app_powerDetect();
+		checkPowerDounce();
+	}
+#endif
+
 }
 
 void gpio_user_irq_handler(void){
@@ -618,19 +644,139 @@ void gpio_user_irq_handler(void){
 }
 
 void gdp_pushIndCb(u8 pairingRef, u8 attrId, u8 *pData){
-	u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
+	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
 	if (!uartBuf) {
 		while(1);
 	}
 
-	uartBuf[0] = 6;
-	uartBuf[1] = ZRC_APP_ID_NORMAL_KEY;
-	uartBuf[2] = ZRC_APP_CMD_CODE_IND;
-	uartBuf[3] = 0xff;
-	uartBuf[4] = 0xff;
-	uartBuf[5] = attrId;
-	uartBuf[6] = pData[0];
-	sendCmdToTH(uartBuf, uartBuf[0] + 1);
+	uartBuf->data[0] = 6;
+	uartBuf->data[1] = ZRC_APP_ID_NORMAL_KEY;
+	uartBuf->data[2] = ZRC_APP_CMD_CODE_IND;
+	uartBuf->data[3] = 0xff;
+	uartBuf->data[4] = 0xff;
+	uartBuf->data[5] = attrId;
+	uartBuf->data[6] = pData[0];
+	uartBuf->len = uartBuf->data[0] + 1;
+	sendCmdToTH(uartBuf);
 }
+
+
+void insert(u16 *a,int n){
+	int i,j,temp;
+	for(i = 1; i < n; i++) {
+		temp = a[i];
+		j = i - 1;
+
+		while(j >= 0 && temp < a[j]) {
+			a[j+1] = a[j];
+			j--;
+		}
+		a[j+1] = temp;
+	}
+}
+
+u8 battSta = 0;
+u32 app_powerDetect(void){
+	u32 ret = 0;
+
+#if POWER_DETECT_ENABLE
+	u32 battMatrix = sizeof(batteryVoltage)/sizeof(u16);
+	u16 battThres[5] = {0};
+	u8 r = irq_disable();
+	u32 i = 0;
+	u32 battery_value1 = 0;
+	static u16 battBuf[12] = {0};
+
+	for(i = 0; i < 12; i++){
+		battBuf[i] = drv_get_adc_data();
+		WaitUs(5);
+	}
+	insert(battBuf, 12);
+
+	battery_value1 += battBuf[4];
+	for(i = 5; i < 8; i++){
+		if(abs(battBuf[i] - battBuf[i-1]) > 30){
+			irq_restore(r);
+			return 0;
+		}
+		battery_value1 += battBuf[i];
+	}
+	battery_value1 /= 4;
+
+	for (i=0; i<battMatrix; i++ ) {
+		if ( battery_value1 > (batteryVoltage[i] + battThres[i]) ) {
+			break;
+		}
+	}
+
+	battSta = i;
+	irq_restore(r);
+#endif
+	return ret;
+}
+
+
+/*********************************************************************
+ * @fn      checkBatteryBeforeSaveFlash
+ *
+ * @brief   check the battery level
+ *
+ * @param   None
+ *
+ * @return  1:battery level is great than or equal to volThreshold
+ * 		    0:battery level is less than volThreshold
+ */
+u8 checkPowerServiceLoop(u8 volThreshold){
+#if POWER_DETECT_ENABLE
+	if(battSta>=volThreshold)
+	return 0;
+	else
+	return 1;
+#else
+	return 1;
+#endif
+}
+
+
+/*********************************************************************
+ * @fn      check power  when power on
+ *
+ * @brief   check the power level when power on
+ *
+ * @param   None
+ *
+ * @return  1:power level is great than or equal to BAT_LEVEL_CUTOFF
+ * 		    0:power level is less than BAT_LEVEL_CUTOFF
+ */
+void checkWhenPowerOn(void){
+#if POWER_DETECT_ENABLE
+	checkPowerDounce();
+#endif
+#if (!FLASH_PROTECT)
+	flash_unlock();
+#endif
+}
+
+#define PowerDounceNum      100
+void checkPowerDounce(void)
+{
+	if(!checkPowerServiceLoop(PWR_THRESHOLD_RESET))
+	{
+		u16 i=0;
+		for(;i<PowerDounceNum;i++)//dounce
+		{
+			app_powerDetect();
+			if(checkPowerServiceLoop(PWR_THRESHOLD_RESET))
+				break;
+		}
+		if(i==PowerDounceNum)
+		{
+			mcu_reset();
+		}
+	}
+}
+
+
+
 
 #endif  /* __PROJECT_MSO_ADAPTOR_APP__ */

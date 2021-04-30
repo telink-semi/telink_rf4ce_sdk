@@ -71,9 +71,15 @@ extern "C" {
 
 /////////////////// Clock  /////////////////////////////////
 #define CLOCK_SYS_TYPE  		CLOCK_TYPE_PLL	//  one of the following:  CLOCK_TYPE_PLL, CLOCK_TYPE_OSC, CLOCK_TYPE_PAD, CLOCK_TYPE_ADC
-//#define CLOCK_SYS_TYPE  		CLOCK_TYPE_OSC	//  one of the following:  CLOCK_TYPE_PLL, CLOCK_TYPE_OSC, CLOCK_TYPE_PAD, CLOCK_TYPE_ADC
 #define CLOCK_SYS_CLOCK_HZ  	32000000
-
+#if defined(MCU_CORE_826x)
+	#define S_TIMER_CLOCK_1US				tickPerUs
+	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define S_TIMER_CLOCK_1US				sys_tick_per_us
+	#define S_TIMER_CLOCK_1MS				sys_tick_per_us*1000
+	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#endif
 ///////////////////  ADC  /////////////////////////////////
 #define MODULE_MOUSE_ENABLE       0
 
@@ -85,7 +91,8 @@ extern "C" {
 #define MODULE_KEYBOARD_ENABLE    	0
 #endif
 
-
+/////////////////// FLASH_PROTECT /////////////////////////////////
+#define FLASH_PROTECT           	  0
 ///////////////////  battery  /////////////////////////////////
 
 
@@ -100,7 +107,7 @@ extern "C" {
 #define MOUSE_HAS_WHEEL			0
 #define MOUSE_HAS_BUTTON		1
 
-
+#define	POWER_DETECT_ENABLE		1
 ///////////////////  MIC  /////////////////////////////////
 #define MIC_RESOLUTION_BIT		16
 #define MIC_SAMPLE_RATE			16000

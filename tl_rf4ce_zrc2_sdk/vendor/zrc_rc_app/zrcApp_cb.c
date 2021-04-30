@@ -419,7 +419,7 @@ void zrc_appAudioCb(u8 state, u8 status){
 	}else if(state == AUDIO_IDLE){
 		zrc_restoreAppState();
 		zrc_ledOff(1);
-		clock_enable_clock(TIMER_FOR_USER, 0);
+		TIMER_STOP(TIMER_FOR_USER);
 		SetAudioTxState(0);
 		T_DBG_appAudioCb[2]++;
 	}
@@ -490,7 +490,7 @@ void zrc_otaCb(u8 status){
 
 void zrc_doOta(void){
 	if ( (zrc_appInfo.pairingRef != RF4CE_INVALID_PAIR_REF) &&
-		(zrc_getTxStatus() == 0)) {
+		(zrc_getTxStatus() == 0)&&(checkBatteryBeforeSaveFlash(BAT_THRESHOLD_OTA))) {
 //		if(ota_reqeustCmd(zrc_appInfo.pairingRef)){
 //			zrc_appVars.flags.bf.allowedDeep = 1;
 //			zrc_restoreAppState();
@@ -633,7 +633,7 @@ void press_key_handler(u8 keyCode, u8 validKey){
 		if(keyCode==ZRCmdRC_SetupMenu)//sw38
 		{
 			setlearningState(LearningStaCallBack);
-			ir_start_learn(ZRCmdRC_Mute);//sw35
+			ir_start_learn(ZRCmdRC_Mute);
 			return;
 		}
 
@@ -641,7 +641,7 @@ void press_key_handler(u8 keyCode, u8 validKey){
 		{
 			zrc_setAppState(ZRC_SENDING_IR_STATE);
 			if(ir_learn_send_nv(keyCode)==SUCCESS)
-			return;
+					return;
 		}
 #endif
 		zrc_sendIRData(ZRC_KEY_FOR_DTA, keyCode, 0);
@@ -915,6 +915,8 @@ void gdp_afterBindingCb(u8 pairingRef, u8 status){
 		ev_on_timer(zrc_userHandlerAfterBound, NULL, 150 * 1000);
 	}
 }
+
+
 
 
 #endif

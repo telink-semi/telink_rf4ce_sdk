@@ -331,7 +331,6 @@ _attribute_ram_code_ void rf_tx(u8* buf, u8 len)
 {
 	/* Fill the telink RF header */
 	rf_setTrxState(RF_STATE_TX);
-
 	rf_tx_buf[0] = len+1;
 	rf_tx_buf[1] = 0;
 	rf_tx_buf[2] = 0;
@@ -340,7 +339,6 @@ _attribute_ram_code_ void rf_tx(u8* buf, u8 len)
 	rf_tx_buf[4] = len+2;
 	// Payload
 	memcpy(rf_tx_buf+5, buf, len);
-
 	//reg_rf_irq_status = (FLD_RF_IRQ_RX | FLD_RF_IRQ_TX);
 	ZB_RADIO_TX_DONE_CLR;
 	ZB_RADIO_RX_DONE_CLR;
@@ -427,22 +425,26 @@ _CODE_MAC_ void rf_edDetect(void)
  	return ZB_RADIO_RSSI_TO_LQI(mode, inRssi);
  }
 
-_CODE_MAC_ u8 rf_performCCA(void)
-{
-   s8 rssi_peak = -110;
-   s32 rssi_total = 0;
+ _CODE_MAC_ u8 rf_performCCA(void)
+ {
+ 	u32 t1 = clock_time();
+ 	s8 rssi_peak = -110;
+ 	s8 rssi_cur = -110;
+ 	s32 rssiSum = 0;
+ 	s32 cnt = 1;
 
-   return PHY_CCA_IDLE;
+	rssi_cur = ZB_RADIO_RSSI_GET();
+	rssiSum += rssi_cur;
+	while(!clock_time_exceed(t1,128)){
+		rssi_cur = ZB_RADIO_RSSI_GET();
+		rssiSum += rssi_cur;
+		cnt++;
+	}
+	rssi_peak = rssiSum/cnt;
 
-   for(int i = 0; i < 16; i++){
-   	WaitUs(3);
-   	rssi_total += ZB_RADIO_RSSI_GET();
-   }
-   rssi_peak = (rssi_total >> 4);
-
-   if (rssi_peak > CCA_THRESHOLD) {
+	if(rssi_peak > CCA_THRESHOLD || (rf_busyFlag & TX_BUSY)){//Return if currently in TX state
 		return PHY_CCA_BUSY;
-	} else {
+	}else{
 		return PHY_CCA_IDLE;
 	}
 }
@@ -569,7 +571,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
         if(len==5&&(fcf1 & MAC_FCF_FRAME_TYPE) == 0x02)
         {
         	hwTmr_reset(TIMER_FOR_USER);
-        	clock_enable_clock(TIMER_FOR_USER, 0);
+        	TIMER_STOP(TIMER_FOR_USER);
         	tl_audioDataSendCnfHandler(SUCCESS);
         	reg_tmr_sta = (1 << TIMER_FOR_USER);
 			*((u32*)rf_rxBuf) = 0;

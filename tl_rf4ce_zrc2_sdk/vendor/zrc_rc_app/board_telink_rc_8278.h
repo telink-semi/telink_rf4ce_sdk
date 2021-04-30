@@ -27,7 +27,8 @@
 extern "C" {
 #endif
 #define	IR_DMA_FIFO_EN				1
-#define FLASH_SIZE_1M				1
+//8278 FLSAH:1M    8273 FLASH:512K
+#define FLASH_CAP_SIZE_1M			1
 
 #define	MAXTRIX_GPIO_PULL_UP        PM_PIN_PULLUP_10K
 #define	MAXTRIX_GPIO_PULL_DOWN      PM_PIN_PULLDOWN_100K
@@ -305,13 +306,14 @@ extern "C" {
 	#define PB4_OUTPUT_ENABLE		1
 	#define PB4_INPUT_ENABLE		0
 #endif
+
+
 /*
  *
  * AMIC pin nconfiguration
  *
  * */
 #define APP_AMIC_PIN_CFG_OFF	AMIC_PIN_CFG_OFF(GPIO_PC1,NULL,GPIO_PC0);
-
 #define APP_AMIC_PIN_CFG_ON		AMIC_PIN_CFG_ON(GPIO_PC1,NULL,GPIO_PC0);
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

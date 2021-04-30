@@ -34,6 +34,6 @@ void sys_init(void);
 void sys_enter_host_suspend_mode();
 void sys_exit_host_suspend_mode();
 void sys_suspendTimerSet(u32 ms);
-_attribute_ram_code_ void sys_reboot(u32 addr, u32 size);
+_attribute_ram_code_ u8 sys_reboot(u32 addr, u32 size);
 
 
