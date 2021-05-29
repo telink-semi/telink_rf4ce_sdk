@@ -182,7 +182,7 @@ int usbcdc_transmitTimeoutCb(void* arg)
 	cdc_v->lenToSend = 0;
 	cdc_v->lastSendIndex = 0;
 	/* Clear the buffer */
-	p = cdc_v->txBuf;
+	p = (u8 *)cdc_v->txBuf;
 	cdc_v->txBuf = NULL;
 
 	/* Callback */

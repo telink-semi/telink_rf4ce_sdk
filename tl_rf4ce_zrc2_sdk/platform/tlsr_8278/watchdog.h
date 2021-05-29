@@ -51,10 +51,17 @@
 /**
  * @brief     This function set the seconds period.It is likely with WD_SetInterval.
  *            Just this function calculate the value to set the register automatically .
- * @param[in] period_s - The seconds to set. unit is second
+ * @param[in] period_s - The seconds to set. unit is ms
  * @return    none
  */
-extern void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per_ms);
+static inline void wd_set_interval_ms(unsigned int period_ms)
+{
+	static unsigned short tmp_period_ms = 0;
+	tmp_period_ms = (period_ms*1000*system_clk_mHz>>18);
+	reg_tmr2_tick = 0x00000000;    //reset tick register
+	reg_tmr_ctrl &= (~FLD_TMR_WD_CAPT);
+	reg_tmr_ctrl |= (tmp_period_ms<<9); //set the capture register
+}
 
 /**
  * @brief     start watchdog. ie enable watchdog

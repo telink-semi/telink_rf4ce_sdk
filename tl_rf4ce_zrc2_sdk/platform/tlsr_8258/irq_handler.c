@@ -33,7 +33,7 @@ void timer_irq2_handler(void);
 // called by irq in cstartup.s
 
 #if (MODULE_UART_ENABLE)
-#include "../drivers/drv_uart.h"
+#include "../proj/drivers/drv_uart.h"
 #endif
 
 _attribute_ram_code_ void  usb_endpoints_irq_handler (void) {
