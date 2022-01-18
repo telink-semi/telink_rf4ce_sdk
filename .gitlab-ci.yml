@@ -12,17 +12,17 @@ build:
   before_script:
   script:
     - which tc32-elf-gcc
-    - chmod +x tl_rf4ce_zrc2_sdk/*.sh
+    - chmod +x tl_rf4ce_sdk/*.sh
     - date
-    - ls ./tl_rf4ce_zrc2_sdk/
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import ./tl_rf4ce_zrc2_sdk/ -cleanBuild tl_rf4ce_zrc2_sdk/zrc2_rc_8258
+    - ls ./tl_rf4ce_sdk/
+    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import ./tl_rf4ce_sdk/ -cleanBuild tl_rf4ce_sdk/zrc2_rc_8258
     - date
 
   artifacts:
     paths:
-    - "tl_rf4ce_zrc2_sdk/zrc2_rc_8258/*.bin"
-    - "tl_rf4ce_zrc2_sdk/zrc2_rc_8258/*.lst"
-    - "tl_rf4ce_zrc2_sdk/zrc2_rc_8258/*.elf"
+    - "tl_rf4ce_sdk/zrc2_rc_8258/*.bin"
+    - "tl_rf4ce_sdk/zrc2_rc_8258/*.lst"
+    - "tl_rf4ce_sdk/zrc2_rc_8258/*.elf"
     
 # The cov job definition
 cov:
@@ -36,8 +36,8 @@ cov:
     - TC32
   before_script:  
   script:    
-    - chmod +x tl_rf4ce_zrc2_sdk/*.sh  
-    - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import ./tl_rf4ce_zrc2_sdk/  -cleanBuild tl_rf4ce_zrc2_sdk/zrc2_rc_8258    
+    - chmod +x tl_rf4ce_sdk/*.sh  
+    - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import ./tl_rf4ce_sdk/  -cleanBuild tl_rf4ce_sdk/zrc2_rc_8258    
     - $COV_A COV_$CI_PROJECT_NAME    
     - cov_add_commit_steam_project_2_platform.sh
   when: manual
