@@ -1,3 +1,25 @@
+## V2.4.0.0(Public release)
+### Features
+* Support mso profile.([ab6f52ff](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/ab6f52ff4981bcffa095c95af81eb90af5b77bb5))
+* Replace Telink BSD license with Apache 2.0 License.([0b01472f](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/0b01472faacd619581461e0d041a7712f1ae4285))
+### Bug Fixes
+* DRIVER
+  - Fixed 8278 watchdog API and driver abstraction layer mismatch([61c9ef92](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/61c9ef927e72b5114d654ae8dd779d6ceab724d6))
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 支持mso profile.([ab6f52ff](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/ab6f52ff4981bcffa095c95af81eb90af5b77bb5))
+* license由Telink BSD更新为Apache 2.0.([0b01472f](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/0b01472faacd619581461e0d041a7712f1ae4285))
+### Bug Fixes
+* DRIVER
+  - 修复8278 watchdog API 和 驱动抽象层不匹配问题([61c9ef92](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/61c9ef927e72b5114d654ae8dd779d6ceab724d6))
+### BREAKING CHANGES
+* N/A
+
+
+
+
 ## V2.3.3
 ### Features
 * support zbit flash
