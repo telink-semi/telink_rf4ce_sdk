@@ -172,13 +172,27 @@ static void audio_recInit_82x8(u32 sampleRate, audio_rec_ntf audioUserhandler)
 	{
 		/* set fifo0 as input */
 		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
+#if (MCU_CORE_8258)
 		audio_amic_init(AUDIO_8K);
+#elif  (MCU_CORE_8278)
+		audio_set_mute_pga(0);
+		audio_amic_init(AUDIO_8K);
+		sleep_ms(17);
+		audio_set_mute_pga(1);
+#endif
 	}
 	else if(sampleRate==AUDIO_SAMPLE_RATE_16K)
 	{
 		/* set fifo0 as input */
 		audio_config_mic_buf((unsigned short*)buffer_mic,TL_MIC_BUFFER_SIZE);
+#if (MCU_CORE_8258)
 		audio_amic_init(AUDIO_16K);
+#elif  (MCU_CORE_8278)
+		audio_set_mute_pga(0);
+		audio_amic_init(AUDIO_16K);
+		sleep_ms(17);
+		audio_set_mute_pga(1);
+#endif
 	}
 }
 
@@ -254,6 +268,7 @@ void audio_recTaskStart(void){
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 #endif
 		audio_delay_times = 20;
+
 	}
 }
 
@@ -264,13 +279,14 @@ void audio_recTaskStop(void){
     BIT_CLR(reg_dfifo_ana_in,4); //enable difofo
 	BIT_CLR(reg_dfifo_ana_in,5); //enable difofo
 	AUDIO2ADC();
+	drv_adc_battery_detect_init();
 #elif MCU_CORE_8258
 	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
+	drv_adc_battery_detect_init();
 #elif  MCU_CORE_8278
 	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
 	audio_codec_and_pga_disable();
 #endif
-	drv_adc_battery_detect_init();
 }
 
 

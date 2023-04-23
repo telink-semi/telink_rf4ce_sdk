@@ -29,7 +29,7 @@ extern "C" {
 #endif
 #define	IR_DMA_FIFO_EN				1
 //8278 FLSAH:1M    8273 FLASH:512K
-#define FLASH_CAP_SIZE_1M			1
+#define FLASH_CAP_SIZE_1M			0
 
 #define	MAXTRIX_GPIO_PULL_UP        PM_PIN_PULLUP_10K
 #define	MAXTRIX_GPIO_PULL_DOWN      PM_PIN_PULLDOWN_100K

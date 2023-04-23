@@ -3,10 +3,11 @@
  *
  * @brief   This is the source file for B87
  *
- * @author	Zigbee GROUP
+ * @author  Driver & Zigbee Group
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,6 +27,13 @@
 #include "irq.h"
 #include "timer.h"
 #include "string.h"
+#include "analog.h"
+#include "adc.h"
+
+#define FLASH_ZBIT_SAFE_VOL			2200  //mv
+#define FLASH_ZBIT_SAFE_VOLFLUCT    500   //mv
+static char g_flashIsZbit = 0;
+static unsigned short g_flashWorkVol = FLASH_ZBIT_SAFE_VOL;
 
 /*******************************************************************************************************************
  *												Primary interface
@@ -35,7 +43,7 @@
  * @brief		This function to determine whether the flash is busy..
  * @return		1:Indicates that the flash is busy. 0:Indicates that the flash is free
  */
-_attribute_ram_code_sec_ static inline int flash_is_busy(){
+_attribute_ram_code_sec_ static inline int flash_is_busy(void){
 	return mspi_read() & 0x01;		//the busy bit, pls check flash spec
 }
 
@@ -140,7 +148,17 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, u
 	flash_send_cmd(cmd);
 	if(addr_en)
 	{
-		flash_send_addr(addr);
+		if(g_flashIsZbit){
+			unsigned int volF;
+			unsigned int vol = adc_get_result_with_fluct(&volF);
+			if(vol > g_flashWorkVol && volF < FLASH_ZBIT_SAFE_VOLFLUCT){
+				flash_send_addr(addr);
+			}else{
+				data_len = 0;
+			}
+		}else{
+			flash_send_addr(addr);
+		}
 	}
 	for(int i = 0; i < data_len; ++i)
 	{
@@ -394,9 +412,22 @@ unsigned char flash_is_zb(void)
 	unsigned int flash_mid  = flash_read_mid();
 	if((flash_mid == 0x13325E)||(flash_mid == 0x14325E)||(flash_mid == 0x11325E)||(flash_mid == 0x12325E))
 	{
+		g_flashIsZbit = 1;
 		return 1;
 	}
+
+	g_flashIsZbit = 0;
 	return 0;
+}
+
+/**
+ * @brief		This function is to config the flash operation voltage threshold
+ * @param[in]	vol.
+ * @return		none.
+ */
+void flash_safe_voltage_set(unsigned short vol)
+{
+	g_flashWorkVol = vol;
 }
 
 /**

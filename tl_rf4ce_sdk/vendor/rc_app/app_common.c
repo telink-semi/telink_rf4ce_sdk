@@ -484,7 +484,7 @@ int app_saveInfoPm(void){
     /* save current paired target's channel */
     pairTable_t *pEntry = getPairingEntryByIndex(rcu_appInfo.pairingRef);
     if ( pEntry ) {
-        pmInfo.bf.ch = pEntry->destChannel / 5 - 2;
+        pmInfo.bf.ch = RF4CE_Channel2Idx(pEntry->destChannel);
     }
 	pmInfo.bf.pmDeep = 1;
 
@@ -498,7 +498,7 @@ int app_saveInfoPm(void){
     foreach(i, 4) {
         analog_write(reg_nwk_seq_no+i, nwk_frameCnt[i]);
     }
-    if(rcu_appVars.battSta >= BAT_LEVEL_CUTOFF){
+    if(rcu_appVars.battSta > BAT_LEVEL_CUTOFF){
     	ret = 0;
     	return ret;
     }
@@ -557,7 +557,7 @@ void app_loadInfo(void){
 	/* recover from deep sleep or real power on*/
 	if(pmInfo.bf.pmDeep){  /* from deep sleep */
 		if ( pmInfo.bf.ch != 0 && pEntry ) {
-			pEntry->destChannel = 5 * (pmInfo.bf.ch + 2);
+			pEntry->destChannel = RF4CE_Idx2Channel(pmInfo.bf.ch);
 		}
 		rcu_appVars.battSta = pmInfo.bf.battSta;
 
@@ -619,18 +619,27 @@ void app_idle_handler(void){
 	if((APP_READY_STATE == app_getState())
 	   ||(APP_OTA_STATE == app_getState())
 	   ||(APP_AUDIO_STATE == app_getState())
-	   ) {
+	   )
+	{
 		u32 nwk_frameCnt;
 		static u32 nwk_frameCntInFlash = 0;
 		nwk_nlmeGetReq(NWK_FRAME_COUNTER, 0, (u8*)&nwk_frameCnt);
-		if(nwk_frameCntInFlash == 0 || nwk_frameCntInFlash + NWK_ADD_FRAME_COUNTER < nwk_frameCnt){
+
+		if(nwk_frameCntInFlash == 0)
+		{
 			nwk_loadPibFrameCountFromFlash(&nwk_frameCntInFlash);
-			nwk_savePibFrameCountToFlash();
 		}
+
+		if( (nwk_frameCntInFlash + NWK_ADD_FRAME_COUNTER) < nwk_frameCnt)
+		{
+			nwk_savePibFrameCountToFlash();
+			nwk_loadPibFrameCountFromFlash(&nwk_frameCntInFlash);
+		}
+
 	}
 #if POWER_DETECT_ENABLE
 	extern u32 tick_usb_enum;
-	if((!audio_recTaskStatusGet())&&(clock_time_exceed(tick_usb_enum,10*1000)))
+	if((clock_time_exceed(tick_usb_enum,10*1000)))
 	{
 		tick_usb_enum = clock_time ();
 		voltage_detect();
@@ -742,10 +751,12 @@ void checkBatteryPowerOn(void){
 void voltage_detect(void)
 {
 #if POWER_DETECT_ENABLE
-	//TLSR8 series has only one ADC.
+	//TLSR825x 826x series has only one ADC.
 	//so the battery voltage cannot be detected when other ADC channel are running.
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_826x)
 	if(audio_recTaskStatusGet())
 		return;
+#endif
 	u16 voltage = 0;
 	u32 curTick = clock_time();
 	u32 battMatrix =  sizeof(batteryVoltage)/sizeof(u16);
@@ -760,7 +771,7 @@ void voltage_detect(void)
 			}
 		}
 
-		if(i<=BAT_THRESHOLD_FLASH)
+		if(i<=BAT_LEVEL_CUTOFF)
 			break;
 
 		if(clock_time_exceed(curTick, 1000 * 1000))
@@ -982,7 +993,7 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt){
 	u8 keyCode = kbEvt->keycode[0];
 	static u8 lastKeyCode = 0xff;
 
-	if(rcu_appVars.battSta >= BAT_LEVEL_CUTOFF){
+	if(rcu_appVars.battSta > BAT_LEVEL_CUTOFF){
 		rcu_appVars.flags.bf.allowedDeep = 1;
 		return;
 	}

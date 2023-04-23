@@ -38,5 +38,7 @@
 
 extern const u8 ZRC2_APP_VENDOR_STRING[];
 extern const u8 ZRC2_APP_USER_STRING[];
-
+u8 RF4CE_Channel2Idx(u8 chn);
+u8 RF4CE_Idx2Channel(u8 idx);
+u8 RF4CENextChannel(u8 ch);
 #endif

@@ -24,6 +24,7 @@
 #pragma once
 
 #include "../../proj/common/bit.h"
+#include "../../proj/common/compiler.h"
 #include "analog.h"
 #include "register.h"
 #include "gpio.h"
@@ -692,3 +693,18 @@ unsigned short adc_sample_and_get_result_manual_mode(void);
  */
 signed short adc_temp_result(void);
 
+
+
+/**
+ * @brief This function serves to set adc sampling and get results.
+ * @param[in]  none.
+ * @return the result of sampling.
+ */
+unsigned int adc_sample_and_get_result(void);
+
+/**
+ * @brief This function serves to set adc sampling, get results and the voltage fluctuation.
+ * @param[in]  none.
+ * @return the result of sampling.
+ */
+_attribute_ram_code_ unsigned int adc_get_result_with_fluct(unsigned int *v);

@@ -181,6 +181,9 @@ unsigned short drv_get_adc_data(void)
 #endif
 }
 
+
+#define BATTERY_SAFETY_THRESHOLD	2200//2.2v
+
 void drv_adc_battery_detect_init(void){
 #if	defined (MCU_CORE_826x)
 	ADC_BatteryCheckInit(Battery_Chn_VCC);//drv_ADC_ParamSetting(Drv_ADC_MISC_CHN,Drv_SINGLE_ENDED_MODE,B4,B4,S_3,RV_AVDD,RES14);
@@ -188,8 +191,10 @@ void drv_adc_battery_detect_init(void){
 #elif  defined(MCU_CORE_8258)
 	drv_adc_mode_pin_set(Drv_ADC_VBAT_MODE, GPIO_PB7);
 	drv_adc_enable(1);
+	flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
 #elif  defined(MCU_CORE_8278)
 	adc_vbat_init(GPIO_PB7);
 	drv_adc_enable(1);
+	flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
 #endif
 }

@@ -52,6 +52,9 @@ ev_time_event_t otaTimer;
 #define   OTA_UPGRADE_FILE_ID						0x0BEEF11E
 
 
+//firmware info
+#define   FIRMWARE_LENGTH_ADDR						0x18
+#define   FIRMWARECRC_LENGTH						4
 
 
 //flash address
@@ -77,9 +80,10 @@ u32 targetDataCount=0;
 
 ev_time_event_t *autoPollingCb;
 ev_time_event_t *tryPollingCb;
-//for Debug
-//u32 	T_OTA_Debug[40]={0};
-//u8 		T_OTA_Data[64]={0};
+
+//functions
+bool ota_DataProcess(u8 len, u8 *pData);
+static bool verifyFirmwareCrc(void);
 /**********************************************************************
  * @brief		get mcu reboot address
  *
@@ -91,6 +95,45 @@ u8 mcuBootAddrGet(void)
 	u8 flashInfo = 0;
 	flash_read(OTA_TLNK_KEYWORD_ADDROFFSET, 1, &flashInfo);
 	return ((flashInfo == 0x4b) ? 0 : 1);
+}
+
+
+static bool verifyFirmwareCrc(void)
+{
+	u8 binBuf[OTA_FRAMESIZE] = {0};
+	u32 binLen = 0,frameLen=0,addr=0,binCrc=0xffffffff,calcCrc=0xffffffff;
+	bool ret = false;
+	u32 otaAddr = FLASH_OTA_NEWIMAGE_ADDR;
+	if(mcuBootAddr){
+		otaAddr = 0;
+	}
+	flash_read(otaAddr + FIRMWARE_LENGTH_ADDR,4,(u8 *)&binLen);
+	flash_read(otaAddr + binLen-FIRMWARECRC_LENGTH,FIRMWARECRC_LENGTH,(u8 *)&binCrc);
+	binLen -= FIRMWARECRC_LENGTH;
+	if(binLen>OTA_FRAMESIZE)
+		frameLen = OTA_FRAMESIZE;
+	for(u32 i = 0;i<binLen;)
+	{
+		addr = i;
+		flash_read(otaAddr + addr,frameLen,binBuf);
+		if(addr==0)
+		{
+			binBuf[8] = 0x4b;
+		}
+		if(binLen>i+OTA_FRAMESIZE)
+		{
+			frameLen = OTA_FRAMESIZE;
+		}
+		else
+		{
+			frameLen = binLen - i;
+		}
+		i += frameLen;
+		calcCrc = xcrc32(binBuf, frameLen, calcCrc);
+	}
+	if(calcCrc==binCrc)
+		ret = true;
+	return ret;
 }
 
 
@@ -179,7 +222,6 @@ int ota_startReqCb(void *arg)
 	}
 	else
 	{
-//		T_OTA_Debug[2]++;
 		ota_state = OTA_STA_FAILED;
 		ev_on_timer(ota_callBackRestore, 0, 500*1000);
 //		otaCb(ota_state);
@@ -190,8 +232,6 @@ int ota_startReqCb(void *arg)
 
 int ota_callBackRestore(void *arg)
 {
-//	T_OTA_Debug[0]++;
-//	T_OTA_Debug[1] = ota_state;
 	otaCb(ota_state);
 	return -1;
 }
@@ -207,7 +247,6 @@ void ota_startRspHandler(u8 *pd)
 	   (pHdr->chipType==CHIP_ID)&&
 	   (pHdr->fileVer>firmwareVersion))
 	{
-//		T_OTA_Debug[8] += 1;
 		if(autoPollingCb)
 		   ev_unon_timer(&autoPollingCb);
 		rc_otaInfo.fileVer = pHdr->fileVer;
@@ -249,7 +288,6 @@ void ota_startRspHandler(u8 *pd)
 s8 ota_dataReqCb(void)
 {
 	if(tryPollingCb)  ev_unon_timer(&tryPollingCb);
-//	T_OTA_Debug[9] += 1;
 	tl_appFrameFmt_t *msg = (tl_appFrameFmt_t*)ev_buf_allocate();
 	if(msg){
 		tl_appFrameHdr_t *pHdr = (tl_appFrameHdr_t *)msg;
@@ -314,7 +352,6 @@ int ota_dataTryReqCb(void *arg)
 		ota_state = OTA_STA_FAILED;
 		ota_RetryCnt = 0;
 		ev_on_timer(ota_callBackRestore, 0, 500*1000);
-//		otaCb(ota_state);
 		ret = -1;
 	}
 	return ret;
@@ -327,8 +364,9 @@ int ota_dataTryReqCb(void *arg)
 
 
 
-void ota_DataProcess(u8 len, u8 *pData)
+bool ota_DataProcess(u8 len, u8 *pData)
 {
+	bool sta = TRUE;
 	u8 i=0;
 	if(ota_state == OTA_STA_STARTING)
 	{
@@ -376,7 +414,9 @@ void ota_DataProcess(u8 len, u8 *pData)
 					flag = 1;
 					pData[i+8-flashOffsetAddr] = 0xff;
 			}
-			flash_write(baseAddr + flashOffsetAddr, datalen, &pData[i]);
+//			flash_write(baseAddr + flashOffsetAddr, datalen, &pData[i]);
+			if(flash_writeWithCheck(baseAddr + flashOffsetAddr, datalen, &pData[i])!=TRUE)
+				sta = FALSE;
 			if(flag)  pData[i+8-flashOffsetAddr] = 0x4b;
 			flashOffsetAddr += datalen;
 
@@ -403,6 +443,7 @@ void ota_DataProcess(u8 len, u8 *pData)
 
 		}
 	}
+	return sta;
 }
 
 
@@ -425,7 +466,11 @@ void ota_dataRspHandler(u8 *pd)
 			ev_on_timer(ota_callBackRestore, 0, 500*1000);
 			return;
 		}
-		ota_DataProcess(pHdr->payloadSize,pHdr->payload);
+		if(ota_DataProcess(pHdr->payloadSize,pHdr->payload)!=TRUE)
+		{
+			ota_state = OTA_STA_FAILED;
+			ev_on_timer(ota_callBackRestore, 0, 500*1000);
+		}
 		rcDataCount++;
 		if(ota_headercnt>=rc_otaInfo.imageSize)
 		{
@@ -433,7 +478,7 @@ void ota_dataRspHandler(u8 *pd)
 			u32 crcBin=0;
 			flash_read(baseAddr + rc_otaInfo.imageSize-ota_headersize-4-6, 4, (u8 *)&crcBin);
 
-			if(crcBin==crcValue)
+			if(crcBin==crcValue&&verifyFirmwareCrc()==true)
 			{
 				ota_state = OTA_STA_SUCCESS;
 				ota_RetryCnt = DATAREQ_RETRYCNT;
@@ -470,7 +515,6 @@ int ota_stopRspCb(void *pd)
 			req->fileVer = rc_otaInfo.fileVer;//rc_otaInfo.fileVer;
 			req->chipType = rc_otaInfo.chipType;//rc_otaInfo.imageType;
 			req->manufaurerCode = rc_otaInfo.manufaurerCode;//rc_otaInfo.manufaurerCode;
-//			req->totalImageSize = OTA_FRAMESIZE;//max data block
 #if (RF4CE_ZRC2_ENABLE)
 			zrc2_vendorSpecficDataSend(ota_pairingRef, (u8 *)msg, sizeof(tl_appFrameHdr_t) + sizeof(ota_preamble_t)-4, 1);
 #elif (RF4CE_MSO_ENABLE)
@@ -484,7 +528,6 @@ int ota_stopRspCb(void *pd)
 	else
 	{
 		ota_state = OTA_STA_FAILED;
-//		ev_unon_timer(&autoPollingCb);
 		ev_on_timer(ota_callBackRestore, 0, 500*1000);
 		ret = -1;
 	}
@@ -506,7 +549,6 @@ void ota_stopRspHandler(u8 *pd)
 	else
 	{
 		ota_state = OTA_STA_FAILED;
-//		ev_unon_timer(&autoPollingCb);
 		ev_on_timer(ota_callBackRestore, 0, 500*1000);
 	}
 }
@@ -720,15 +762,20 @@ void tl_appOtaCmdHandler(u8 *pd)
 
 #if (RF4CE_CONTROLLER)
     if(pHdr->cmdId == TL_CMD_OTA_START_RSP){//from target
-//		T_OTA_Debug[10]++;
 		ota_startRspHandler(pld);
 	}else if(pHdr->cmdId == TL_CMD_OTA_STOP_RSP){
-//		T_OTA_Debug[11]++;
 		ota_stopRspHandler(pld);
 	}else if(pHdr->cmdId == TL_CMD_OTA_DATA_RSP){
-//		T_OTA_Debug[12]++;
 		ota_dataRspHandler(pld);
 	}
 #endif
 }
+
+
+
+
+
+
+
+
 

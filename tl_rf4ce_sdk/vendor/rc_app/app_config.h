@@ -146,7 +146,7 @@ extern "C" {
 #define RF4CE_MAX_PAIR_ENTRY_NUM        1
 
 /*********************UART_PRINTF_MODE******************/
-#define UART_PRINTF_MODE				0
+#define UART_PRINTF_MODE				1
 
 /*********************IR_LEARN_ENABLE******************/
 #define	MODULE_IR_LEARN_ENABLE			0

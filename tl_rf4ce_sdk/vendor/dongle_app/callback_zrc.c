@@ -629,7 +629,6 @@ void user_init(void){
 	/* Initialize stack */
     profile_init();
 
-#if RF4CE_ZRC2_ENABLE
     /* Initialize mso app */
     zrcApp_init();
 
@@ -639,15 +638,6 @@ void user_init(void){
     zrc_registerUserCb(&zrc_cmdCallbacks);
 
     gdp_registerUserCb(&gdp_cmdCallbacks);
-#elif  RF4CE_MSO_ENABLE
-    /* Initialize mso app */
-    msoApp_init();
-
-    /* Register Profile Call back function */
-    profile_registerUserCb(&mso_profileCmdCallbacks);
-
-    mso_registerUserCb(&mso_cmdCallbacks);
-#endif
 
     /* start RF4CE network */
     profile_startNwk();

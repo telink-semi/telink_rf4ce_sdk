@@ -104,6 +104,8 @@ static u8 platform_init(void){
 
 
 
+
+
 int main (void) {
 	platform_init();
 

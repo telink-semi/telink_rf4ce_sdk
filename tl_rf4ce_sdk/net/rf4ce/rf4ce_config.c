@@ -87,7 +87,6 @@ s8 freqAgilityNoisyThreshod = FREQUENCY_AGILITY_NOISY_THRESHOD;
 zid_proxy_entry_t zid_proxyTable[RF4CE_MAX_PAIR_ENTRY_NUM];
 #endif
 
-
 #if (RF4CE_MSO_ENABLE)
 #define RF4CE_OP_CHAN_NUM	5
 

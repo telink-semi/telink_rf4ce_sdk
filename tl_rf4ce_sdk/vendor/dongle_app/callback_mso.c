@@ -340,14 +340,11 @@ void mso_bindCnf(u8 pairingRef, u8 status,u8 lqi)
 void mso_startCnfCb(u8 status)
 {
 	if ( status == SUCCESS ) {
-		/* Force start in channel 25 */
-		//EV_SCHEDULE_TASK(mso_doPair, 0);
-		//mso_doPair(0);
 #if 1 || !DONGLE_TEST_MODE
 		ev_on_timer(mso_doPair,0, 500*1000);
 #endif
 	}
-	u8 value = 15;
+	u8 value = 26;
 	nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
 }
 

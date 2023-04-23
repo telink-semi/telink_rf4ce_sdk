@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    drv_flash.h
+ * @file    rc_info.h
  *
- * @brief   This is the header file for drv_flash.h
+ * @brief   This is the header file for rc_info.h
  *
  * @author	Zigbee GROUP
  * @date    2021
@@ -21,25 +21,13 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#pragma once
+#ifndef RF4CE_VERSION_H
+#define RF4CE_VERSION_H
 
-#include "../common/types.h"
-#include "../common/compiler.h"
+#define SDK_VERSION_ID				v2.4.1.1
 
+#define	SDK_VERSION_(sdk_version)	"$$$rf4ce_sdk_"#sdk_version"$$$"
+#define	SDK_VERSION(sdk_version)	SDK_VERSION_(sdk_version)
 
-typedef void (*drv_flash_write)(unsigned long addr, unsigned long len, unsigned char *buf);
-typedef void (*drv_flash_read)(unsigned long addr, unsigned long len, unsigned char *buf);
-typedef void (*drv_flash_erase)(unsigned long addr);
+#endif	/* RF4CE_VERSION_H */
 
-typedef struct{
-	drv_flash_write write;
-	drv_flash_read read;
-	drv_flash_erase erase;
-}drv_flash_t;
-
-void flash_write(u32 addr, u32 len, u8 *buf);
-bool flash_writeWithCheck(u32 addr, u32 len, u8 *buf);
-void flash_read(u32 addr, u32 len, u8 *buf);
-void flash_erase(u32 addr);
-bool flash_lock(void);
-bool flash_unlock(void);

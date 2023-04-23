@@ -170,9 +170,9 @@ typedef struct {
 
 typedef union {
 	struct {
-		u8 ch       : 2;
+		u8 ch       : 3;
 		u8 pmDeep   : 1;
-		u8 battSta  : 5;
+		u8 battSta  : 4;
 	} bf;
 	u8 byte;
 } pmFlag_t;
