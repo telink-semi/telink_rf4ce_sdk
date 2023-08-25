@@ -33,9 +33,11 @@ int Tl_printf(const char *format, ...);
 	#define	arrayPrint(arrayAddr,len)					\
 	{													\
 		Tl_printf("\n*********************************\n");		\
-		unsigned char	i = 0;							\
+		unsigned short	i = 0;							\
 		do{												\
-			Tl_printf(" %x",((unsigned char *)arrayAddr)[i++]);						\
+			Tl_printf(" 0x%x,",((unsigned char *)arrayAddr)[i++]);	\
+			if(i%16==0)											\
+					Tl_printf("\n");							\
 		}while(i<len);										\
 		Tl_printf("\n*********************************\n");		\
 	}

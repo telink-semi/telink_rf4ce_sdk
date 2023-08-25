@@ -138,7 +138,7 @@
 /**        
  *  @brief Length of reserved bytes for MAC
  */
-#define RESERVED_MAC_BYTES_LEN         45  
+#define RESERVED_MAC_BYTES_LEN         45
  
 /** @} end of group NWK_Constant */
 
@@ -399,10 +399,10 @@ typedef struct {
 typedef struct {
     u8 primitive;                          //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
     u8 status;                             //!< The status of the provisional pairing 
+    u8 srcIEEEAddr[8];                     //!< The IEEE address of the device requesting the pair
     u16 srcPanId;                          //!< The PAN identifier of the device requesting the pair    
-    u8 srcIEEEAddr[8];                     //!< The IEEE address of the device requesting the pair          
+    u16 orgVendorId;                       //!< The vendor identifier of the originator of the pair request
     u8 orgNodeCap;                         //!< The capabilities of the originator of the pair request     
-    u16 orgVendorId;                       //!< The vendor identifier of the originator of the pair request     
     u8 orgVendorString[7];                 //!< The vendor string of the originator of the pair request             
     u8 provPairingRef;                     //!< The pairing reference that will be used           
     u8 keyExTransferCount;                 //!< The number of transfers the target should use to exchange the link key with the pairing originator                  

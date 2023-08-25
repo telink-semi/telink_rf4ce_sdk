@@ -88,10 +88,10 @@ zid_proxy_entry_t zid_proxyTable[RF4CE_MAX_PAIR_ENTRY_NUM];
 #endif
 
 #if (RF4CE_MSO_ENABLE)
-#define RF4CE_OP_CHAN_NUM	5
+#define RF4CE_OP_CHAN_NUM	3
 
 u8 rf4ce_opChanNum  = RF4CE_OP_CHAN_NUM;
-u8 rf4ce_opChanList[RF4CE_OP_CHAN_NUM] = {11,15, 20, 25,26};
+u8 rf4ce_opChanList[RF4CE_OP_CHAN_NUM] = {15, 20, 25};
 #endif
 
 

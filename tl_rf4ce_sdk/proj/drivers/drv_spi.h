@@ -1,29 +1,57 @@
 /********************************************************************************************************
- * @file    drv_spi.h
+ * @file	drv_spi.h
  *
- * @brief   This is the header file for drv_spi.h
+ * @brief	This is the header file for drv_spi
  *
- * @author	Zigbee GROUP
- * @date    2021
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *          Licensed under the Apache License, Version 2.0 (the "License");
- *          you may not use this file except in compliance with the License.
- *          You may obtain a copy of the License at
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- *          Unless required by applicable law or agreed to in writing, software
- *          distributed under the License is distributed on an "AS IS" BASIS,
- *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *          See the License for the specific language governing permissions and
- *          limitations under the License.
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  *******************************************************************************************************/
-
 #pragma once
 
 
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define SPI_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
+#elif defined(MCU_CORE_B92)
+	/* PCLK provides clock source for PSPI module. */
+	#define SPI_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
+#endif
 
 /**
  *  @brief  Define the mode for SPI interface
@@ -35,67 +63,52 @@ typedef enum {
     SPI_MODE_3,
 }drv_spi_mode_type_def;
 
-/**
- *  @brief  Define the pin port for SPI interface
- */
-typedef enum {
-    SPI_PIN_GPIO1 = 0,	//826x:SPI_PIN_GPIOA 8258/8278:SPI_GPIO_GROUP_A2A3A4D6
-    SPI_PIN_GPIO2,		//826x:SPI_PIN_GPIOB 8258/8278:SPI_GPIO_GROUP_B6B7D2D7
-} drv_spi_pin_group;
+
 
 /**
  * @brief     This function configures the clock and working mode for SPI interface
- * @param[in] divClock - the division factor for SPI module
+ * @param[in] spiClock - SPI module
  *            SPI clock = System clock / ((DivClock+1)*2)
  * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
  * @return    none
  */
-void drv_spi_master_init(u8 divClock, drv_spi_mode_type_def mode);
+void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode);
 
-#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 /**
- * @brief     This function selects a pin port for the SPI interface
- * @param[in] PinGrp - the selected pin group port
+ * @brief     This function configures the clock and working mode for SPI interface
+ * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
  * @return    none
  */
-void drv_spi_master_pin_select(drv_spi_pin_group pinGrp);
+void drv_spi_slave_init(drv_spi_mode_type_def mode);
+
+/**
+ * @brief     This function selects a pin port for the SPI master interface
+ * @param[in] Pin Group or Pins
+ * @return    none
+ */
+#if	defined(MCU_CORE_826x)
+void drv_spi_master_pin_select(SPI_PinTypeDef pinGroup);
+#elif defined(MCU_CORE_8258)
+void drv_spi_master_pin_select(SPI_GPIO_GroupTypeDef pinGroup);
 #elif defined(MCU_CORE_8278)
-/**
- * @brief     This function selects a pin port for the SPI interface
- * @param[in]
- * @return    none
- */
-void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
-#endif
-
-
-/**
- * @brief     This function selects a GPIO pin as CS of SPI function.
- * @param[in] CSPin - the selected CS pin
- * @return    none
- */
-#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-void drv_spi_master_cspin_select(GPIO_PinTypeDef CSPin);
+void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
+#elif defined(MCU_CORE_B92)
+void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin);
 #endif
 
 /**
- * @brief     This function configures the clock and working mode for SPI interface
- * @param[in] divClock - the division factor for SPI module
- *            SPI clock = System clock / ((DivClock+1)*2)
- * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
+ * @brief     This function selects a pin port for the SPI slave interface
+ * @param[in] Pin Group or Pins
  * @return    none
  */
-void drv_spi_slave_init(u8 divClock, drv_spi_mode_type_def mode);
-
-#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
-/**
- * @brief     This function selects a pin port for the SPI interface
- * @param[in] pinGrp - the selected pin port
- * @return    none
- */
-void drv_spi_slave_pin_select(drv_spi_pin_group pinGrp);
+#if	defined(MCU_CORE_826x)
+void drv_spi_slave_pin_select(SPI_PinTypeDef pinGroup);
+#elif defined(MCU_CORE_8258)
+void drv_spi_slave_pin_select(SPI_GPIO_GroupTypeDef pinGroup);
 #elif defined(MCU_CORE_8278)
 void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
+#elif defined(MCU_CORE_B92)
+void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin);
 #endif
 
 /**
@@ -110,7 +123,6 @@ void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef 
  * @return     none
  */
 void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin);
-
 
 /**
  * @brief      This function serves to read a bulk of data from the SPI slave

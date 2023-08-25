@@ -25,23 +25,14 @@
 #include "../tl_common.h"
 
 
-#ifndef		BIT_INTERVAL
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-#define BAUDRATE			1000000//1M
-#define	BIT_INTERVAL	 	(16*1000*1000 / BAUDRATE)
-#else
-#define BAUDRATE			2000000//2M
-#define	BIT_INTERVAL	 	(CLOCK_SYS_CLOCK_HZ / BAUDRATE)
-#endif
-#endif
 
 _attribute_ram_code_ int soft_uart_putc(char byte) {
 #if UART_PRINTF_MODE
 	u8 j = 0;
 	u32 t1 = 0, t2 = 0;
-	u32 pcTxReg = (0x800583 + ((DEBUG_INFO_TX_PIN >> 8) << 3));; //register GPIO output
-	u8 tmp_bit0 = read_reg8(pcTxReg) & (~(DEBUG_INFO_TX_PIN & 0xff));
-	u8 tmp_bit1 = read_reg8(pcTxReg) | (DEBUG_INFO_TX_PIN & 0xff);
+
+	u8 tmp_bit0 = TX_PIN_OUTPUT_REG & (~(DEBUG_INFO_TX_PIN & 0xff));
+	u8 tmp_bit1 = TX_PIN_OUTPUT_REG | (DEBUG_INFO_TX_PIN & 0xff);
 
 	u8 bit[10] = {0};
 	bit[0] = tmp_bit0;
@@ -54,18 +45,17 @@ _attribute_ram_code_ int soft_uart_putc(char byte) {
 	bit[7] = ((byte >> 6) & 0x01) ? tmp_bit1 : tmp_bit0;
 	bit[8] = ((byte >> 7) & 0x01) ? tmp_bit1 : tmp_bit0;
 	bit[9] = tmp_bit1;
-	//u8 r = irq_disable();// enable this may disturb time sequence, but if disable unrecognizable code will show
-	t1 = reg_system_tick;
-	for(j = 0; j < 10; j++) {
+	//u32 r = drv_disable_irq();// enable this may disturb time sequence, but if disable unrecognizable code will show
+	t1 = clock_time();
+	for(j = 0; j < 10; j++){
 		t2 = t1;
 
-		while(t1 - t2 < BIT_INTERVAL) {
-			t1  = reg_system_tick;
+		while(t1 - t2 < BIT_INTERVAL){
+			t1 = clock_time();
 		}
 
-		write_reg8(pcTxReg, bit[j]);       //send bit0
+		TX_PIN_OUTPUT_REG = bit[j];       //send bit0
 	}
-	//irq_restore(r);
 	return byte;
 
 #else

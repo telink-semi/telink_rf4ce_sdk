@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 
 #include "../../proj/tl_common.h"
-#include "../../proj/os/timer.h"
+//#include "../../proj/os/timer.h"
 #include "../../proj/drivers/audio/drv_audio.h"
 void gpio_user_irq_handler(void);
 void timer_irq_handler(u8 tmrIdx);
@@ -69,13 +69,11 @@ _attribute_ram_code_ void irq_handler(void)
 	u32 src = reg_irq_src;
 	if(IRQ_TIMER1_ENABLE && (src & FLD_IRQ_TMR1_EN)){
 		reg_irq_src = FLD_IRQ_TMR1_EN;
-		timer_irq_handler(TIMER_IDX_1);
+		drv_timer_irq1_handler();
+//		drv_hwTmr_irq_process(TIMER_IDX_1);
 	}
 
-#if MODULE_QRP_ENABLE
-	/* enable for testing */
-	QRP_IRQHandler();
-#endif
+
 
 #if (MODULE_RF_ENABLE)
 	u16  src_rf = reg_rf_irq_status;
@@ -100,11 +98,13 @@ _attribute_ram_code_ void irq_handler(void)
 
     if((src & FLD_IRQ_TMR0_EN)){
 		reg_irq_src = FLD_IRQ_TMR0_EN;
-		timer_irq_handler(TIMER_IDX_0);
+		drv_timer_irq0_handler();
+//		drv_hwTmr_irq_process(TIMER_IDX_0);
 	}
     if((src & FLD_IRQ_TMR2_EN)){
 		reg_irq_src = FLD_IRQ_TMR2_EN;
-		timer_irq_handler(TIMER_IDX_2);
+		drv_timer_irq2_handler();
+//		drv_hwTmr_irq_process(TIMER_IDX_2);
 	}
 
 #if IRQ_I2C_ENABLE

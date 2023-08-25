@@ -25,9 +25,9 @@
 #define QSIR_TX_H_
 
 #include "../../proj/tl_common.h"
-#include "../../proj/os/timer.h"
+#include "../../proj/drivers/drv_timer.h"
 #include "app_config.h"
-#include "app_data.h"
+//#include "app_data.h"
 #include "board_cfg.h"
 #include "app_common.h"
 
@@ -101,7 +101,14 @@ typedef struct {
 														// duration
 #define 			ZRCIR_LOW 					0x0000  // Bit15 = 0: bit 15 set to zero to
 
+#if defined(MCU_CORE_B92)
+#define             Toggle_Reg					0x3b
+#else
 #define             Toggle_Reg					0x35
+#endif
+
+
+
 #define 			MAX_QS_DURATION_INTERVAL 	600000  // 10 minutes
 #define 			MAX_IRTX_SIZE 				400
 

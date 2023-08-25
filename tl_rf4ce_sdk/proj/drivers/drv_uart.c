@@ -24,6 +24,27 @@
 #include "../tl_common.h"
 #include "./drv_uart.h"
 
+#if defined(MCU_CORE_B92)
+#define UART_IDX					UART0
+#define UART_DMA_CHANNEL_RX			DMA2
+#define UART_DMA_CHANNEL_TX			DMA3
+
+static u8 *pUartRxBuf = NULL;
+static u32 uartRxBufLen = 0;
+
+#define UART_RCV_DMA_LEN_FIX()		do{	\
+										u32 rcvDataLen = uart_get_dma_rev_data_len(UART_IDX, UART_DMA_CHANNEL_RX);		\
+										if(pUartRxBuf){																	\
+											pUartRxBuf[0] = (u8)(rcvDataLen);											\
+											pUartRxBuf[1] = (u8)(rcvDataLen >> 8);										\
+											pUartRxBuf[2] = (u8)(rcvDataLen >> 16);										\
+											pUartRxBuf[3] = (u8)(rcvDataLen >> 24);										\
+										}																				\
+									}while(0)
+
+static u8 uart_dma_send(u8 *pBuf);
+#endif	/* MCU_CORE_B92 */
+
 
 drv_uart_t myUartDriver = {
 		.status = UART_STA_IDLE,
@@ -43,21 +64,44 @@ void drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart
 
 	uart_RecBuffInit(rxBuf, rxBufLen);	/* configure receive buffer */
 
-#else
+#elif	defined(MCU_CORE_8278) ||defined(MCU_CORE_8258)
 	uart_recbuff_init( rxBuf, rxBufLen);
 	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
-
-#if	defined(MCU_CORE_8278) ||defined(MCU_CORE_8258)
 	uart_init_baudrate(baudrate, (H_TIMER_CLOCK_1US*1000*1000), PARITY_NONE, STOP_BIT_ONE);//CLOCK_SYS_CLOCK_HZ
-#else
-	uart_init(baudrate, PARITY_NONE, STOP_BIT_ONE);
-#endif
+
 
 	// dma mode
 	uart_dma_enable(1, 1); 	//uart data in hardware buffer moved by dma, so we need enable them first
 	irq_set_mask(FLD_IRQ_DMA_EN);
 	dma_chn_irq_enable(FLD_DMA_CHN_UART_RX | FLD_DMA_CHN_UART_TX, 1); 	//uart Rx/Tx dma irq enable
 	uart_irq_enable(0, 0);  	//uart Rx/Tx irq no need, disable them
+#elif defined(MCU_CORE_B92)
+	u16 div = 0;
+	u8 bwpc = 0;
+
+	pUartRxBuf = rxBuf;
+	uartRxBufLen = rxBufLen;
+
+	uart_reset(UART_IDX);
+
+	uart_cal_div_and_bwpc(baudrate, (sys_clk.pclk * 1000 * 1000), &div, &bwpc);
+	uart_set_dma_rx_timeout(UART_IDX, bwpc, 12, UART_BW_MUL1);
+	uart_init(UART_IDX, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);
+
+	dma_clr_irq_mask(UART_DMA_CHANNEL_TX, TC_MASK | ABT_MASK | ERR_MASK);
+	dma_clr_irq_mask(UART_DMA_CHANNEL_RX, TC_MASK | ABT_MASK | ERR_MASK);
+	uart_set_tx_dma_config(UART_IDX, UART_DMA_CHANNEL_TX);
+	uart_set_rx_dma_config(UART_IDX, UART_DMA_CHANNEL_RX);
+
+	uart_receive_dma(UART_IDX, pUartRxBuf + 4, uartRxBufLen);
+
+	uart_clr_tx_done(UART_IDX);
+	uart_clr_irq_mask(UART_IDX, UART_RX_IRQ_MASK | UART_TX_IRQ_MASK | UART_TXDONE_MASK | UART_RXDONE_MASK);
+	uart_set_irq_mask(UART_IDX, UART_RXDONE_MASK | UART_TXDONE_MASK);
+	plic_interrupt_enable((UART_IDX == UART0) ? IRQ19_UART0 : IRQ18_UART1);
+
+
+
 #endif
 
 	myUartDriver.recvCb = uart_recvCb;

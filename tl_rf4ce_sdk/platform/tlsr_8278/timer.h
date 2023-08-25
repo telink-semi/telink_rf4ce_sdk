@@ -209,5 +209,5 @@ void sleep_us(unsigned long us);
 #define WaitUs				sleep_us
 #define WaitMs(t)			sleep_us((t)*1000)
 #define sleep_ms(t)			sleep_us((t)*1000)
-
+#define delay_us(t)			sleep_us(t)
 #endif /* TIMER_H_ */

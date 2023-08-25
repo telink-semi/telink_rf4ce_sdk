@@ -53,7 +53,7 @@ typedef enum{
 }tl_otaCmdId_e;
 
 
-enum{
+typedef enum{
 	OTA_STA_SUCCESS   = 0x00,		//!<  No Error Occurred
 	OTA_STA_FAILED    = 0x01,		//!<  Operation not permitted
 	OTA_STA_STARTING  = 0x02,		//!<  Operation not permitted
@@ -62,18 +62,18 @@ enum{
 }tl_otaState_e;
 
 
-enum{
+typedef enum{
 	OTA_BIN_VALID      = 0x00,		//!<  No Error Occurred
 	OTA_BIN_INVALID    = 0x01,		//!<  Operation not permitted
 }tl_otabin_e;
 
 
-enum{
+typedef enum{
 	OTA_TYPE_BIN       = 0x00,		//image
 }image_type_e;
 
 
-enum{
+typedef enum{
 	OTA_HEAD_LENGTH   = 0x06,		//!<  No Error Occurred
 	OTA_HEAD_MAUNCODE    = 0x0a,		//!<  Operation not permitted
 	OTA_HEAD_IMAGETYPE  = 0x0c,		//!<  Operation not permitted
@@ -156,7 +156,7 @@ int ota_stopRspCb(void *pd);
 int ota_callBackRestore(void *arg);
 s8 ota_dataReqCb(void);
 int ota_dataTryReqCb(void *arg);
-
+static bool verifyFirmwareCrc(void);
 
 extern int app_saveInfoPm(void);
 #endif /* TL_AUDIO_H_ */

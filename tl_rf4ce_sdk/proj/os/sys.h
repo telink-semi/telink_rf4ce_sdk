@@ -52,10 +52,10 @@ typedef struct {
 
 extern sys_stat_ctrl_t sys_stat_ctrl;
 extern u32			dbg_tick[8];
-void sys_init(void);
+void sysIdleTaskInit(void);
 void sys_enter_host_suspend_mode();
 void sys_exit_host_suspend_mode();
 void sys_suspendTimerSet(u32 ms);
-_attribute_ram_code_ u8 sys_reboot(u32 addr, u32 size);
+_attribute_ram_code_ u8 sysClrInfoReboot(u32 addr, u32 size);
 
 

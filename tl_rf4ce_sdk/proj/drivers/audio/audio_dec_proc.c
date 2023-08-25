@@ -40,6 +40,13 @@ static u16 abuf_dec_rptr;
 static int abuf_reset = 0;
 
 
+void addPcmBuf(void)
+{
+	abuf_dec_wptr+=1;
+}
+
+
+
 u8  abuf_mic[MIC_ADPCM_FRAME_SIZE * 4];     // adpcm buffer
 s16 abuf_dec[MIC_SHORT_DEC_SIZE << 2]; 		// pcm buffer after adpcm decoded
 
@@ -93,6 +100,7 @@ void abuf_mic_dec (void){
 					(s16 *) (abuf_mic + (abuf_dec_wptr & 3) * MIC_ADPCM_FRAME_SIZE),
 					abuf_dec + (abuf_dec_wptr & 3) * MIC_SHORT_DEC_SIZE,
 					MIC_SHORT_DEC_SIZE );
+
 			abuf_dec_wptr ++;			// 256-byte = 128-s16
 			start = 0;
 		}
@@ -191,6 +199,14 @@ void audio_decInit(void){
 	#elif MCU_CORE_8278
 		random_generator_init();
 	#endif
+#elif MCU_CORE_B92
+	reg_usb_ep6_buf_addr = 0x40;		// 192 max
+	reg_usb_ep7_buf_addr = 0x20;		// 32
+	reg_usb_ep8_buf_addr = 0x00;
+	reg_usb_ep_max_size = (192 >> 3);
+	plic_interrupt_enable(IRQ11_USB_ENDPOINT);		// enable usb endpoint interrupt
+	usbhw_set_eps_irq_mask(FLD_USB_EDP7_IRQ);
+	usbhw_set_eps_irq_mask(FLD_USB_EDP6_IRQ);
 #endif
 }
 

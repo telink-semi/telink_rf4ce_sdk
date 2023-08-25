@@ -27,7 +27,7 @@
 
 
 /* Flash Base Address define */
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)|| defined(MCU_CORE_B92)
 	#define FLASH_TLNK_FLAG_OFFSET		8
 #endif
 
@@ -50,8 +50,8 @@ enum{
 };
 
 /************************************************************************/
-extern u32 g_u32MacFlashAddr;
-extern u32 g_u32CfgFlashAddr;
+extern volatile u32 g_u32MacFlashAddr;
+extern volatile u32 g_u32CfgFlashAddr;
 
 #define MAC_BASE_ADD					(g_u32MacFlashAddr)
 #define FACTORY_CFG_BASE_ADD			(g_u32CfgFlashAddr)
@@ -197,7 +197,7 @@ typedef struct{
 	u16 size;
 	u8  itemId;
 	u8  usedState;
-#if defined(MCU_CORE_B91)
+#if defined(MCU_CORE_B92)
 	u8  resv[8];   //PUYA flash only supports re-write 64 times
 #endif
 }nv_info_idx_t;
@@ -290,7 +290,7 @@ typedef enum{
 
 
 
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 #define MODULES_START_ADDR(id)					(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
 #define NV_SECTOR_SIZE(id)						((id == DS_IR_LEARN_MODULE) ?  (FLASH_SECTOR_SIZE*4) : (FLASH_SECTOR_SIZE))
 #define MODULE_INFO_SIZE(id)					((id == DS_IR_LEARN_MODULE ) ? (FLASH_PAGE_SIZE*2) : (FLASH_PAGE_SIZE))
@@ -334,20 +334,15 @@ void nv_facrotyNewRstFlagClear(void);
 nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount);
 nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount);
 nv_sts_t nv_flashSingleItemSizeGet(u8 id, u8 itemId, u16 *len);
-nv_sts_t nv_init(u8 rst);
-nv_sts_t nv_write(u8 modules, u8 id, u16 len, u8 *buf);
-nv_sts_t nv_read(u8 modules, u8 id, u16 len, u8 *buf);
-nv_sts_t nv_userLoadFromFlash(u8 id, u16 len, u8 *buf);
-nv_sts_t nv_userSaveToFlash(u8 id, u16 len, u8 *buf);
-/*********************************************************************
- * @fn      internalFlashSizeCheck
- *
- * @brief   This function is provided to get and update to the correct flash address
- * 			where are stored the right MAC address and pre-configured parameters.
- * 			NOTE: It should be called before ZB_RADIO_INIT().
- *
- * @param   None
- *
- * @return  None
- */
-void internalFlashSizeCheck(void);
+///*********************************************************************
+// * @fn      internalFlashSizeCheck
+// *
+// * @brief   This function is provided to get and update to the correct flash address
+// * 			where are stored the right MAC address and pre-configured parameters.
+// * 			NOTE: It should be called before ZB_RADIO_INIT().
+// *
+// * @param   None
+// *
+// * @return  None
+// */
+//void internalFlashSizeCheck(void);

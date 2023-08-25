@@ -136,7 +136,7 @@
 
 
 void addrCpy(addr_t *pDstAddr, addr_t* pSrcAddr);
-void generateRandomData(unsigned char *pData, unsigned char len);
+
 
 unsigned short crc16_calculate (unsigned char *pD, int len, unsigned short init);
 

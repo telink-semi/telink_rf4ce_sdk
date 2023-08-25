@@ -58,7 +58,7 @@ static void puti(unsigned int num, int base){
 
 
 int Tl_printf(const char *format, ...){
-
+//	return;
 	char span;
 	unsigned long j;
 	char *s;

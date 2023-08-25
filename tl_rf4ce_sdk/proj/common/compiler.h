@@ -45,5 +45,26 @@
 #else
 	#define _attribute_data_retention_
 #endif
+
+
+
+#define _attribute_ram_code_sec_      			__attribute__((section(".ram_code")))
+
+#define _attribute_ram_code_sec_noinline_      	__attribute__((section(".ram_code"))) __attribute__((noinline))
+
+#define _attribute_text_sec_   					__attribute__((section(".text"))) __attribute__((noinline))//Inlining happens when __attribute__((noinline)) is not added.
+
+#define _attribute_aes_data_sec_      			__attribute__((section(".aes_data")))
+
+#define _attribute_data_retention_sec_   		__attribute__((section(".retention_data")))
+
+#define _attribute_aligned_(s)					__attribute__((aligned(s)))
+
+#define _always_inline                          inline __attribute__((always_inline))
+
+/// Pack a structure field
+#define __PACKED __attribute__ ((__packed__))
+
+
 #define _inline_ 				inline				//   C99 meaning
 

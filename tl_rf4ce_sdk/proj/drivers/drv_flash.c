@@ -25,14 +25,37 @@
 #include "drv_flash.h"
 
 
-extern void voltage_detect(void);
 
-
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 const drv_flash_t myFlashDrv = {
 	.write = flash_write_page,
 	.read = flash_read_page,
 	.erase = flash_erase_sector,
 };
+#elif defined(MCU_CORE_B92)
+///**
+// * @brief 		This function serve to change the read function and write function.
+// * @param[in]   read	- the read function.
+// * @param[in]   write	- the write function.
+// * @none
+// */
+//static inline void drv_flash_func_init(drv_flash_write read, drv_flash_read write,drv_flash_erase erase)
+//{
+//	if(read)
+//		myFlashDrv.read =  read;
+//	if(write)
+//		myFlashDrv.write = write;
+//	if(erase)
+//		myFlashDrv.erase = erase;
+//}
+const drv_flash_t myFlashDrv = {
+	.write = flash_write_page,
+	.read = flash_read_page,
+	.erase = flash_erase_sector,
+};
+#endif
+
+
 
 void flash_op(u8 opmode, u32 addr, u32 len, u8 *buf){
 	u32 re = addr%256;
@@ -65,9 +88,6 @@ void flash_op(u8 opmode, u32 addr, u32 len, u8 *buf){
 }
 
 void flash_write(u32 addr, u32 len, u8 *buf){
-#if POWER_DETECT_ENABLE
-	voltage_detect();
-#endif
 	flash_op(1, addr, len, buf);
 }
 
@@ -83,10 +103,6 @@ bool flash_writeWithCheck(u32 addr, u32 len, u8 *buf){
 
 #if(MODULE_WATCHDOG_ENABLE)
 	wd_clear();
-#endif
-
-#if POWER_DETECT_ENABLE
-	voltage_detect();
 #endif
 
 
@@ -116,10 +132,6 @@ void flash_read(u32 addr, u32 len, u8 *buf){
 void flash_erase(u32 addr){
 #if(MODULE_WATCHDOG_ENABLE)
 	wd_clear();
-#endif
-
-#if POWER_DETECT_ENABLE
-		voltage_detect();
 #endif
 
 	myFlashDrv.erase(addr);
@@ -186,6 +198,28 @@ bool flash_lock(void){
 		ret = ((data==0x407c)?TRUE:FALSE);
 		break;
 #endif
+
+#if defined (MCU_CORE_B92)
+	case 0x146085://1M
+		flash_lock_mid146085(FLASH_LOCK_ALL_1M_MID146085);
+		break;
+
+	case 0x156085://2M
+		flash_lock_mid156085(FLASH_LOCK_ALL_2M_MID156085);
+		break;
+
+	case 0x1560c8://2M
+		flash_lock_mid1560c8(FLASH_LOCK_ALL_2M_MID1560c8);
+		break;
+
+	case 0x166085://4M
+		flash_lock_mid166085(FLASH_LOCK_ALL_4M_MID166085);
+		break;
+
+	case 0x186085://16M
+		flash_lock_mid186085(FLASH_LOCK_ALL_16M_MID186085);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -250,6 +284,28 @@ bool flash_unlock(void){
 		flash_write_status(FLASH_TYPE_16BIT_STATUS_ONE_CMD, data);
 		data = (flash_read_status(FLASH_READ_STATUS_CMD_LOWBYTE)|(flash_read_status(FLASH_READ_STATUS_CMD_HIGHBYTE)<<8))&0x407c;
 		ret = ((data==0)?TRUE:FALSE);
+		break;
+#endif
+
+#if defined (MCU_CORE_B92)
+	case 0x146085://1M
+		flash_unlock_mid146085();
+		break;
+
+	case 0x156085://2M
+		flash_unlock_mid156085();
+		break;
+
+	case 0x1560c8://2M
+		flash_unlock_mid1560c8();
+		break;
+
+	case 0x166085://4M
+		flash_unlock_mid166085();
+		break;
+
+	case 0x186085://16M
+		flash_unlock_mid186085();
 		break;
 #endif
 

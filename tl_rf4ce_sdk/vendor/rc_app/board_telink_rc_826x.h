@@ -285,9 +285,7 @@ extern "C" {
  *
  * */
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PB4//print
-	#define PB4_OUTPUT_ENABLE		1
-	#define PB4_INPUT_ENABLE		0
+	#define	DEBUG_INFO_TX_PIN	    GPIO_PC3//print
 #endif
 
 

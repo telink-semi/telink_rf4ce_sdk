@@ -46,10 +46,10 @@ enum {
 #define BUFFER_NUM                       (14)
 #define SMALL_BUFFER                     (24)
 #define MIDDLE_BUFFER                    (48)
-#define LARGE_BUFFER                     (168-6)
-#define BUFFER_SIZE                      (168-6)
+#define LARGE_BUFFER                     (210)
+#define BUFFER_SIZE                      (274)
 
-#define RF_RX_BUFFER_OFFSET					16
+#define RF_RX_BUFFER_OFFSET					128
 
 #if USE_NEW_MSG_MANAGER
 

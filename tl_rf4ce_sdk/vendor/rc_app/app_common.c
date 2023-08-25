@@ -45,17 +45,17 @@
 #include "../../proj/drivers/drv_adc.h"
 #include "../../proj/drivers/drv_pm.h"
 #include "../../proj/drivers/nv.h"
-#include "../../proj/os/timer.h"
+#include "../../proj/drivers/drv_timer.h"
 #include "../../proj/os/sys.h"
 
 #include "app_const.h"
 #include "app_common.h"
-#include "app_data.h"
+//#include "app_data.h"
 
 #include "app_config.h"
 #include "rc_info.h"
 #include "app_led.h"
-#include "qsIR_Tx.h"
+//#include "qsIR_Tx.h"
 #if (MODULE_AUDIO_ENABLE)
 #include "../../proj/drivers/audio/drv_audio.h"
 #include "../common/TL_specificData/tl_specific_data_audio.h"
@@ -226,16 +226,16 @@ void init_IRModule(void){
 #endif
 
 #if	!IR_DMA_FIFO_EN
-	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+	drv_hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
 #endif
 
 #if (0 || IR_DEBUG)
-	void ir_send_mn6014_c6d6(u8 addr, u8 cmd, u8 fRepeat);
+	void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat);
 	while(1){
 		irq_enable();
 		T_App_irSentCnt++;
 		if(!ir_isBusy()){
-			ir_send_mn6014_c6d6(0x29, 0x20, 0);
+			ir_send_upd6121g(0x29, 0x20, 0);
 		}
 		ev_process_timer();
 	}
@@ -460,7 +460,7 @@ u8 app_allowedDeep(void){
 		return 1;
 	}
 	else {
-    	return rcu_appVars.flags.bf.allowedDeep && !app_isSendingIR() && !rcu_appVars.flags.bf.repeat && !rcu_appVars.ledBlinkTimer && timer_event_idle() ;
+    	return rcu_appVars.flags.bf.allowedDeep && !app_isSendingIR() && !rcu_appVars.flags.bf.repeat && !rcu_appVars.ledBlinkTimer && timer_event_idle()&& !tl_userTaskQNum() ;
 	}
 }
 
@@ -608,14 +608,14 @@ void app_idle_handler(void){
 	}
 
 	app_lightOnProgLed();
-
+#if 0
 	if(app_isSendingIR()){
 		ev_rf4ceStackEnable(0);
 		return;
 	}else{
 		ev_rf4ceStackEnable(1);
 	}
-
+#endif
 	if((APP_READY_STATE == app_getState())
 	   ||(APP_OTA_STATE == app_getState())
 	   ||(APP_AUDIO_STATE == app_getState())
@@ -712,7 +712,6 @@ u32 app_batteryDetect(void){
  * @return  battery level
  */
 u8 checkBatteryBeforeSaveFlash(u16 volThreshold){
-	//printf("checkBatteryBeforeSaveFlash \n\r");
 #if POWER_DETECT_ENABLE
 	if(rcu_appVars.battSta>volThreshold)
 	return 0;
@@ -735,9 +734,8 @@ u8 checkBatteryBeforeSaveFlash(u16 volThreshold){
  */
 #define BatteryDounceNum      100
 void checkBatteryPowerOn(void){
-	//printf("checkBatteryPowerOn \n\r");
 #if POWER_DETECT_ENABLE
-	if(pm_get_mcu_status()==MCU_STATUS_BOOT)//deep
+	if(drv_mcu_status()==SYSTEM_POWER_ON)//deep
 	{
 		voltage_detect();
 	}
@@ -751,17 +749,14 @@ void checkBatteryPowerOn(void){
 void voltage_detect(void)
 {
 #if POWER_DETECT_ENABLE
-	//TLSR825x 826x series has only one ADC.
+	//TLSR8 series has only one ADC.
 	//so the battery voltage cannot be detected when other ADC channel are running.
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_826x)
 	if(audio_recTaskStatusGet())
 		return;
-#endif
 	u16 voltage = 0;
 	u32 curTick = clock_time();
 	u32 battMatrix =  sizeof(batteryVoltage)/sizeof(u16);
 	u8  i=0;
-	//printf("VDD: %d\n", voltage);
 	while(1)
 	{
 		voltage = drv_get_adc_data();
@@ -771,7 +766,7 @@ void voltage_detect(void)
 			}
 		}
 
-		if(i<=BAT_LEVEL_CUTOFF)
+		if(i<=BAT_THRESHOLD_FLASH)
 			break;
 
 		if(clock_time_exceed(curTick, 1000 * 1000))
@@ -788,7 +783,6 @@ void voltage_detect(void)
 	rcu_appVars.battSta = i;
 #endif
 }
-
 
 
 
@@ -840,7 +834,6 @@ void enter_deepsleep_exit_bind(void){
  *
  * @return  none
  */
-
 void keyScan_keyReleasedCB(u8 keyCode);
 volatile u8 T_press_key_handler = 0;
 void press_key_handler(u8 keyCode, u8 validKey){
@@ -1167,7 +1160,7 @@ u8 app_bootFromRf4ce(void){
 
 s32 zrc_sysReboot(void *arg){
 	if(!zrc_appVars.ledBlinkTimer){
-		mcu_reset();
+		SYSTEM_RESET();
 		return -1;
 	}else{
 		return 0;
@@ -1268,7 +1261,7 @@ void audio_stateSettingCb(u8 state, u8 status){
 	}else if(state == AUDIO_IDLE){
 		app_restoreState();
 		led_Off(1);
-		TIMER_STOP(TIMER_FOR_USER);
+		timer_stop(TIMER_FOR_USER);
 		SetAudioTxState(0);
 		T_DBG_appAudioCb[2]++;
 	}
@@ -1281,7 +1274,6 @@ void audio_stateSettingCb(u8 state, u8 status){
 
 void ota_mcuReboot(void);
 void app_otaStateCb(u8 status){
-
 	if(status == OTA_STA_SUCCESS){
 		/* reboot */
 		ota_mcuReboot();

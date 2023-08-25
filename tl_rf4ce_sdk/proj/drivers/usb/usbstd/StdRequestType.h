@@ -37,21 +37,21 @@
 	 *
 	 *  \see \c REQDIR_* macros for masks indicating the request data direction.
 	 */
-	#define CONTROL_REQTYPE_DIRECTION  0x80
-	#define CONTROL_REQTYPE_TYPE       0x60
-	#define CONTROL_REQTYPE_RECIPIENT  0x1F
+#define CONTROL_REQTYPE_DIRECTION  0x80
+#define CONTROL_REQTYPE_TYPE       0x60
+#define CONTROL_REQTYPE_RECIPIENT  0x1F
 
-	#define REQDIR_HOSTTODEVICE        (0 << 7)
-	#define REQDIR_DEVICETOHOST        (1 << 7)
+#define REQDIR_HOSTTODEVICE        (0 << 7)
+#define REQDIR_DEVICETOHOST        (1 << 7)
 
-	#define REQTYPE_STANDARD           (0 << 5)
-	#define REQTYPE_CLASS              (1 << 5)
-	#define REQTYPE_VENDOR             (2 << 5)
+#define REQTYPE_STANDARD           (0 << 5)
+#define REQTYPE_CLASS              (1 << 5)
+#define REQTYPE_VENDOR             (2 << 5)
 
-	#define REQREC_DEVICE              (0 << 0)
-	#define REQREC_INTERFACE           (1 << 0)
-	#define REQREC_ENDPOINT            (2 << 0)
-	#define REQREC_OTHER               (3 << 0)
+#define REQREC_DEVICE              (0 << 0)
+#define REQREC_INTERFACE           (1 << 0)
+#define REQREC_ENDPOINT            (2 << 0)
+#define REQREC_OTHER               (3 << 0)
 	//@}
 
 /* Type Defines: */

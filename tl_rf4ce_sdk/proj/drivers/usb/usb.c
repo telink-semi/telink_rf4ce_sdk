@@ -28,9 +28,10 @@
 #include "usb.h"
 #include "usbdesc.h"
 #include "../../os/ev.h"
-#include "./usbstd/StdRequestType.h"
-#include "usbhw.h"				// inline
-#include "usbhw_i.h"
+#include "usbstd/usbstd.h"
+//#include "./usbstd/StdRequestType.h"
+//#include "usbhw.h"				// inline
+//#include "usbhw_i.h"
 
 #if (USB_MOUSE_ENABLE)
 #include "../app/usbmouse_i.h"
@@ -56,7 +57,7 @@
 #ifdef WIN32
 #include <stdio.h>
 #endif
-
+volatile unsigned char usb_g_feature=0;
 u8		host_keyboard_status;
 u8		host_cmd[8];
 u8		host_cmd_paring_ok = 0;
@@ -66,7 +67,8 @@ static u16 g_response_len = 0;
 static int g_stall = 0;
 u8 usb_mouse_report_proto = 0; //default 1 for report proto
 u8 g_rate = 0; //default 0 for all report
-
+unsigned char g_usb_config = 0;
+unsigned char g_usb_config_value = 0;
 #if (USB_SPEAKER_ENABLE || USB_MIC_ENABLE)
 u8 usb_alt_intf[USB_INTF_MAX];
 #endif
@@ -465,6 +467,9 @@ void usb_handle_get_intf() {
 }
 #endif
 
+
+
+
 void usb_handle_request(u8 data_request) {
 	u8 bmRequestType = control_request.bmRequestType;
 	u8 bRequest = control_request.bRequest;
@@ -482,6 +487,10 @@ void usb_handle_request(u8 data_request) {
 			}
 			usb_send_response();
 		}
+        else if (REQ_GetConfiguration == bRequest) {
+            usbhw_reset_ctrl_ep_ptr();
+            usbhw_write_ctrl_ep_data(g_usb_config_value);
+        }
 		break;
 
 	case (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_INTERFACE):
@@ -541,7 +550,21 @@ void usb_handle_request(u8 data_request) {
 		if (REQ_SetInterface == bRequest) {
 			usb_handle_set_intf();
 		}
+		else if(REQ_SetFeature == bRequest) {
+			g_stall = 1;
+		    usb_g_feature = 1;
+				}
 		break;
+	case (REQDIR_HOSTTODEVICE | REQTYPE_STANDARD | REQREC_DEVICE)://00
+        if (REQ_SetConfiguration == bRequest)
+        {
+            g_usb_config_value = control_request.wValue & 0xff;
+            if(control_request.wValue&0xff)
+            {
+                g_usb_config=1;
+            }
+        }
+	break;
 
 	default:
 		g_stall = 1;
@@ -552,6 +575,7 @@ void usb_handle_request(u8 data_request) {
 }
 
 void usb_handle_ctl_ep_setup() {
+	reg_usb_sups_cyc_cali=0x38;
 	usbhw_reset_ctrl_ep_ptr();
 	control_request.bmRequestType = usbhw_read_ctrl_ep_data();
 	control_request.bRequest = usbhw_read_ctrl_ep_data();
@@ -567,6 +591,7 @@ void usb_handle_ctl_ep_setup() {
 }
 
 void usb_handle_ctl_ep_data(void) {
+	reg_usb_sups_cyc_cali=0x38;
 	usbhw_reset_ctrl_ep_ptr();
 	g_stall = 0;
 	usb_handle_request(USB_IRQ_DATA_REQ);
@@ -577,6 +602,7 @@ void usb_handle_ctl_ep_data(void) {
 }
 
 void usb_handle_ctl_ep_status() {
+	reg_usb_sups_cyc_cali=0x38;
 	if (g_stall)
 		usbhw_write_ctrl_ep_ctrl(FLD_EP_STA_STALL);
 	else
@@ -588,6 +614,8 @@ u8  usb_just_wakeup_from_suspend = 1;
 extern u8 rf_channel;
 #define PM_USB_WAKEUP_TIME 10
 int usb_suspend_check(void){
+
+	return 0;
 	static u8 usb_suspend_allow = 0;
 	static u8 usb_suspend_time_init = 0;
 
@@ -629,7 +657,7 @@ int usb_suspend_check(void){
 	return 0;
 
 }
-
+#if(0)
 void usb_resume_host(void)
 {
 #if (MCU_CORE_TYPE == MCU_CORE_3520)
@@ -639,7 +667,7 @@ void usb_resume_host(void)
 #endif
 	sleep_us(6000);
 }
-
+#endif
 #define USB_BULK_TRANSFER_ENABLE    1
 #if(USB_BULK_TRANSFER_ENABLE)
 u16 bulkin_target_addr;
@@ -755,11 +783,22 @@ void usb_handle_irq(void) {
 		usbhw_clr_ctrl_ep_irq(FLD_CTRL_EP_IRQ_STA);
 		usb_handle_ctl_ep_status();
 	}
+
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
 	if (reg_irq_src & FLD_IRQ_USB_RST_EN){		//USB reset
 		usb_mouse_report_proto = 1;
 		reg_irq_src3 = BIT(1);					//Clear USB reset flag
 	}
 	irq = reg_usb_irq;							// data irq
+#elif defined (MCU_CORE_B92)
+	if (usbhw_get_irq_status(USB_IRQ_RESET_STATUS))
+	{
+		usb_mouse_report_proto = 1;                   		//1: report protocol; 0: start protocol
+		usbhw_clr_irq_status(USB_IRQ_RESET_STATUS) ; 		//Clear USB reset flag
+	}
+	irq = usbhw_get_eps_irq();
+#endif
+
 #if(USB_SOMATIC_ENABLE)
 	if(irq & BIT((USB_EDP_SOMATIC_OUT & 0x07))){
 		reg_usb_irq = BIT((USB_EDP_SOMATIC_OUT & 0x07));		// clear ime
@@ -777,14 +816,24 @@ void usb_handle_irq(void) {
     g_stall = 0;
     if(irq & BIT((USB_EDP_CDC_OUT & 0x07))){
     	t_usbCnt++;
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
         reg_usb_irq = BIT((USB_EDP_CDC_OUT & 0x07));        // clear ime
+#elif defined (MCU_CORE_B92)
+        usbhw_clr_eps_irq(BIT((USB_EDP_CDC_OUT & 0x07)));
+#endif
+
         extern void usbcdc_recvData();
         usbcdc_recvData();
         usbhw_data_ep_ack(USB_EDP_CDC_OUT);
     }
 
 	if(irq & BIT((USB_EDP_CDC_IN & 0x07))){
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
         reg_usb_irq = BIT((USB_EDP_CDC_IN & 0x07));        // clear ime
+#elif defined (MCU_CORE_B92)
+        usbhw_clr_eps_irq(BIT((USB_EDP_CDC_IN & 0x07)));
+#endif
+
         extern u8 usbcdc_sendBulkData();
         l = usbcdc_sendBulkData();
 		if (l > 0) {
@@ -794,7 +843,12 @@ void usb_handle_irq(void) {
 
 #endif
 #endif
-	if(IRQ_USB_PWDN_ENABLE && (reg_irq_src & FLD_IRQ_USB_PWDN_EN)){
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
+	if(IRQ_USB_PWDN_ENABLE && (reg_irq_src & FLD_IRQ_USB_PWDN_EN))
+#elif defined (MCU_CORE_B92)
+	if(IRQ_USB_PWDN_ENABLE && (usbhw_get_irq_status(USB_IRQ_SUSPEND_STATUS)))
+#endif
+	{
 		usb_has_suspend_irq = 1;
 	}else{
 		usb_has_suspend_irq = 0;
@@ -814,6 +868,26 @@ void usb_handle_irq(void) {
 
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void usb_init_interrupt() {
 
 	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC);
@@ -821,7 +895,13 @@ void usb_init_interrupt() {
 #if(USB_BULK_TRANSFER_ENABLE)
 
 #if (USB_CDC_ENABLE)
-    BM_CLR(reg_usb_mask, BIT(USB_EDP_CDC_IN & 0x07) | BIT(USB_EDP_CDC_OUT & 0x07));
+
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
+	BM_CLR(reg_usb_mask, BIT(USB_EDP_CDC_IN & 0x07) | BIT(USB_EDP_CDC_OUT & 0x07));//add api in TC32 platform
+#elif defined (MCU_CORE_B92)
+	usbhw_set_eps_en(BIT(CDC_TX_EPNUM & 0x07) | BIT(CDC_RX_EPNUM & 0x07)|FLD_USB_EDP6_EN|FLD_USB_EDP7_EN);
+#endif
+
     usbhw_data_ep_ack(USB_EDP_CDC_OUT);
 #endif
 
@@ -855,6 +935,7 @@ void usb_init() {
     REG_ADDR8 (0x13d) = 0x00;		//disable endpoint8 FIFO
 #else
 	usb_init_interrupt();
+	usbhw_data_ep_ack(USB_EDP_CDC_OUT);
 #endif
 
 	//ev_on_poll(EV_POLL_USB_IRQ, usb_handle_irq);

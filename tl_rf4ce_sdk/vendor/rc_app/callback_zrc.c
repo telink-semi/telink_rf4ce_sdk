@@ -53,7 +53,7 @@
 #include "app_const.h"
 #include "app_common.h"
 #include "app_led.h"
-#include "app_data.h"
+//#include "app_data.h"
 #include "app_config.h"
 #include "rc_info.h"
 
@@ -143,7 +143,7 @@ u8 app_bootFromRf4ce(void){
 
 s32 zrc_sysReboot(void *arg){
 	if(!rcu_appVars.ledBlinkTimer){
-		mcu_reset();
+		SYSTEM_RESET();
 		return -1;
 	}else{
 		return 0;

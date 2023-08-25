@@ -121,19 +121,22 @@
 										  }while(0)
 
 /* hardware timer initialization for mac-csma */
-#define ZB_TIMER_INIT()					hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
+#define ZB_TIMER_INIT()					drv_hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
+
+/* RF is busy */
+#define RF_DMA_BUSY()					is_rf_receiving_pkt()
+
+
 
 static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
 		u8 lqi;
 
 		s8 rssi = inRssi - 110;
 
-		s16 minEd = -106;
-		s16 maxEd = -58;  //maxGain
-
-		if(mode == RF_GAIN_MODE_AUTO){
-			maxEd = -6;   //Agc
-		}
+		s16 minEd = -99;
+		s16 maxEd = -15;  /* AGC */
+		if(rssi > maxEd){rssi = maxEd;}
+		if(rssi < minEd){rssi = minEd;}
 
 		lqi = 255*(rssi - minEd)/(maxEd - minEd); //LQI = 255* (rssi - MIN_ED_m106)/(MAX_ED_m6 - MIN_ED_m110)
 		return lqi;

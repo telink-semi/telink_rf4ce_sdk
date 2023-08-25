@@ -25,8 +25,8 @@
 
 #include "../config/user_config.h"
 #include "usbkb.h"
-#include "../drivers/usbhw.h"
-#include "../drivers/usbhw_i.h"
+//#include "../drivers/usbhw.h"
+//#include "../drivers/usbhw_i.h"
 /** HID class report descriptor. This is a special descriptor constructed with values from the
  *  USBIF HID class specification to describe the reports and capabilities of the HID device. This
  *  descriptor is parsed by the host and its contents used to determine what data (and in what encoding)

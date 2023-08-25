@@ -162,7 +162,7 @@ u8 mso_ckValiReq(u8 pairingRef)
 #else
 	//return MSO_SUCC;
 	if ( msoApp_state == MSO_APP_START_VALIDATION ) {
-		//generateRandomData(validationCode, 4);
+		drv_generateRandomData(validationCode, 4);
 
 		validationCode[0] = rand() % 10;
 		validationCode[1] = rand() % 10;
@@ -320,10 +320,15 @@ void mso_bindCnf(u8 pairingRef, u8 status,u8 lqi)
 	}
 	if ( status == MSO_SUCC ) {
 		mso_saveFlash(NULL);
-		T_succCnt++;
-	}else{
+#if (__DEBUG__ )
+        T_succCnt++;
+#endif
+	}
+#if (__DEBUG__ )
+	else{
 		T_failCnt++;
 	}
+#endif
 }
 
 /*********************************************************************
@@ -344,7 +349,7 @@ void mso_startCnfCb(u8 status)
 		ev_on_timer(mso_doPair,0, 500*1000);
 #endif
 	}
-	u8 value = 26;
+	u8 value = 15;
 	nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
 }
 
@@ -859,8 +864,24 @@ u8 checkPowerServiceLoop(u8 volThreshold){
 
 
 
-
-
+/*********************************************************************
+ * @fn      check power  when power on
+ *
+ * @brief   check the power level when power on
+ *
+ * @param   None
+ *
+ * @return  1:power level is great than or equal to BAT_LEVEL_CUTOFF
+ * 		    0:power level is less than BAT_LEVEL_CUTOFF
+ */
+void checkWhenPowerOn(void){
+#if POWER_DETECT_ENABLE
+	voltage_detect();
+#endif
+#if (!FLASH_PROTECT)
+	flash_unlock();
+#endif
+}
 
 void voltage_detect(void)
 {
@@ -894,24 +915,6 @@ void voltage_detect(void)
 #endif
 }
 
-/*********************************************************************
- * @fn      check power  when power on
- *
- * @brief   check the power level when power on
- *
- * @param   None
- *
- * @return  1:power level is great than or equal to BAT_LEVEL_CUTOFF
- * 		    0:power level is less than BAT_LEVEL_CUTOFF
- */
-void checkWhenPowerOn(void){
-#if POWER_DETECT_ENABLE
-	voltage_detect();
-#endif
-#if (!FLASH_PROTECT)
-	flash_unlock();
-#endif
-}
 
 
 #endif  /* __PROJECT_MSO_ADAPTOR_APP__ */

@@ -41,6 +41,76 @@ void drv_adc_enable(bool enable)
 	adc_power_on_sar_adc(enable);
 #endif
 }
+#elif defined (MCU_CORE_B92)
+#define  ADC_DMA_CHN				DMA7
+#define  ADC_SAMPLE_NUM				8
+#define  ADC_SAMPLE_FREQ			ADC_SAMPLE_FREQ_96K
+#define  ADC_SAMPLE_NDMA_DELAY_TIME	((1000/(6*(2<<(ADC_SAMPLE_FREQ)))) + 1)//delay 2 sample cycle
+volatile unsigned short adc_sample_buffer[ADC_SAMPLE_NUM] __attribute__((aligned(4))) = {0};
+
+/**
+ * @brief This function serves to sort adc sample code and get average value.
+ * @return 		adc_code_average 	- the average value of adc sample code.
+ */
+unsigned short adc_sort_and_get_average_code(void)
+{
+
+	unsigned short adc_code_average = 0;
+	int i, j;
+	unsigned short temp;
+	/**** insert Sort and get average value ******/
+	for(i = 1 ;i < ADC_SAMPLE_NUM; i++)
+	{
+		if(adc_sample_buffer[i] < adc_sample_buffer[i-1])
+		{
+			temp = adc_sample_buffer[i];
+			adc_sample_buffer[i] = adc_sample_buffer[i-1];
+	/**
+		 * add judgment condition "j>=0" in for loop,
+		 * otherwise may have array out of bounds.
+		 * changed by chaofan.20201230.
+	 */
+			for(j=i-1; j>=0 && adc_sample_buffer[j] > temp;j--)
+			{
+				adc_sample_buffer[j+1] = adc_sample_buffer[j];
+			}
+			adc_sample_buffer[j+1] = temp;
+		}
+	}
+
+	//get average value from raw data(abandon 1/4 small and 1/4 big data)
+	for (i = ADC_SAMPLE_NUM>>2; i < (ADC_SAMPLE_NUM - (ADC_SAMPLE_NUM>>2)); i++)
+	{
+		adc_code_average += adc_sample_buffer[i]/(ADC_SAMPLE_NUM>>1);
+	}
+	return adc_code_average;
+}
+
+
+/**
+ * @brief This function serves to get adc sample code by manual and convert to voltage value.
+ * @return 		adc_vol_mv_average 	- the average value of adc voltage value.
+ */
+unsigned short adc_get_voltage(void)
+{
+	unsigned short adc_vol_mv_average = 0;
+	unsigned short adc_code_average = 0;
+	for (int i = 0; i < ADC_SAMPLE_NUM; i++)
+	{
+	/**
+	 * move the "2 sample cycle" wait operation before adc_get_code(),
+	 * otherwise may have data lose due to no waiting when adc_power_on.
+	 * changed by chaofan.20201230.
+	 */
+		delay_us(ADC_SAMPLE_NDMA_DELAY_TIME);//wait at least 2 sample cycle(f = 96K, T = 10.4us)
+		adc_sample_buffer[i] = adc_get_code();
+	}
+	adc_code_average = adc_sort_and_get_average_code();
+	adc_vol_mv_average = adc_calculate_voltage(adc_code_average);
+	return adc_vol_mv_average;
+}
+
+
 
 #else
 /****
@@ -160,6 +230,9 @@ unsigned char drv_adc_init()
 	random_generator_init();
 	adc_init();
 	return 1;
+#elif defined(MCU_CORE_B92)
+//	adc_set_dma_config(ADC_DMA_CHN);
+	return 1;
 #endif
 }
 
@@ -178,6 +251,8 @@ unsigned short drv_get_adc_data(void)
 	return vol;
 #elif defined (MCU_CORE_8258)|| defined (MCU_CORE_8278)
 	return (unsigned short)adc_sample_and_get_result();
+#elif defined (MCU_CORE_B92)
+	return (unsigned short)adc_get_voltage();
 #endif
 }
 
@@ -196,5 +271,16 @@ void drv_adc_battery_detect_init(void){
 	adc_vbat_init(GPIO_PB7);
 	drv_adc_enable(1);
 	flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
+#elif  defined(MCU_CORE_B92)
+
+	#if 1
+		adc_battery_voltage_sample_init();//default vbat mode
+	#endif
+
+	#if 0
+		adc_gpio_sample_init(ADC_GPIO_PD1, ADC_VREF_1P2V, ADC_PRESCALE_1F4, ADC_SAMPLE_FREQ_96K);//gpio mode
+	#endif
+
+		adc_power_on();
 #endif
 }

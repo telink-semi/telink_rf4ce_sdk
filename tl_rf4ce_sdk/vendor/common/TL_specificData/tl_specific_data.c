@@ -29,7 +29,6 @@ u8 	g_tlAppDataSeqNo = 0;
 
 void tl_appDataIndicate(u8 *pd, u8 len){
 	tl_appFrameHdr_t *pHdr = (tl_appFrameHdr_t *)pd;
-
 	if(pHdr->appId == TL_SPECIFIC_ID_OTA){
 		tl_appOtaCmdHandler(pd);
 	}else if(pHdr->appId == TL_SPECIFIC_ID_AUDIO){

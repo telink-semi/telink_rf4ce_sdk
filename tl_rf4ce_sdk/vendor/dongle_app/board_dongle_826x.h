@@ -29,3 +29,16 @@
  *
  * */
 	#define ZRC_APP_ADC_PIN                  GPIO_PB7
+
+
+
+/*
+ * GPIO PIN configuration for printf DEBUG
+ * DEBUG_INFO_TX_PIN: used in function "soft_uart_putc()"
+ *
+ * */
+#if UART_PRINTF_MODE
+	#define	DEBUG_INFO_TX_PIN	    GPIO_PB4//print
+	#define PB4_OUTPUT_ENABLE		1
+	#define PB4_INPUT_ENABLE		0
+#endif

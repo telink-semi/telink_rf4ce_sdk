@@ -28,67 +28,31 @@
 #include "../../net/rf4ce/rf4ce_includes.h"
 #include "../../vendor/common/user_trace.h"
 
-#if MCU_CORE_826x
-SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_32M_PLL;
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-SYS_CLK_TypeDef g_sysClk = SYS_CLK_32M_Crystal;
-#endif
-u32 tick_usb_enum=0;
-extern void user_init();
-static void platform_init(void){
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	extern void bss_section_clear(void);
-	extern void data_section_load();
-	bss_section_clear();
-	data_section_load();
-#endif
 
-#if defined(MCU_CORE_8278)
-	pm_select_internal_32k_rc();
-	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
-#else
-	cpu_wakeup_init();
-#endif
+volatile u32 tick_usb_enum=0;
 
-	clock_init(g_sysClk);
 
-	gpio_init(TRUE);
-
-	usb_dp_pullup_en (0);
-
-	irq_disable();
-
-#if (MODULE_USB_ENABLE)
-    usb_init();
-#endif
-
-    ZB_RADIO_INIT();
-
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-		internalFlashSizeCheck();
-#endif
-}
-
+//(*(volatile unsigned char*)0x80140303) |= 0x8;
+//(*(volatile unsigned char*)0x80140313) &= ~0x4;
 
 int main (void) {
-	platform_init();
 
-    sys_init();
+	u8 isDeepBack = drv_platform_init();
+
+	sysIdleTaskInit();
 
 	ev_buf_init();
 
+	task_sched_init();
+
     user_init ();
 
-    irq_enable();
-
-#if (MODULE_USB_ENABLE)
-    usb_set_pin_en();
-#endif
 #if (MODULE_WATCHDOG_ENABLE)
-    wd_set_interval_ms(1000);
-    wd_start();
+    drv_wd_setInterval(1000);
+    drv_wd_start();
 #endif
 
+    irq_enable();
     tick_usb_enum = clock_time ();
 
     while(1)
@@ -97,6 +61,7 @@ int main (void) {
         usb_handle_irq();
         usb_uart_loopQ();
 #endif
+
 #if(MODULE_WATCHDOG_ENABLE)
         wd_clear();
 #endif

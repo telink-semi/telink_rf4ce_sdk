@@ -24,9 +24,9 @@
 #include "drv_audio.h"
 #include "audio_codec_adpcm.h"
 #include "../drv_adc.h"
-#include "../../os/timer.h"
 #include "../../../net/rf4ce/mac/mac_phy.h"
 #include "../../../net/rf4ce/rf4ce_includes.h"
+#include "../drv_timer.h"
 #if TL_MIC_BUFFER_SIZE
 #define		APP_AUDIO_HDR_LEN		4
 static s16 	buffer_mic[TL_MIC_BUFFER_SIZE>>1];
@@ -39,7 +39,7 @@ u8 audio_status = AUDIO_IDLE;
 int audio_delay_times = 0;
 u8 TIMER_FOR_USER   = TIMER_IDX_0;
 audio_rec_ntf  g_audioRecNtf = NULL;
-
+int AudioTimeOutTxCb(void* arg);
 bool GetAudioTxState(void);
 
 #if MCU_CORE_826x
@@ -195,7 +195,62 @@ static void audio_recInit_82x8(u32 sampleRate, audio_rec_ntf audioUserhandler)
 #endif
 	}
 }
+#elif MCU_CORE_B92
+#define AMIC_RX_DMA_CHN         DMA4
+#define FIFO_NUM        		FIFO0
+audio_codec_stream0_input_t audio_codec_amic_input =
+{
+	.input_src = AMIC_STREAM0_MONO_L,
+	.sample_rate = AUDIO_16K,
+	.fifo_num = FIFO_NUM,
+	.data_width = CODEC_BIT_16_DATA,
+	.dma_num = AMIC_RX_DMA_CHN,
+	.data_buf = buffer_mic,
+	.data_buf_size = sizeof(buffer_mic),
+};
 
+
+static void proc_mic_encoder_b92 (void)
+{
+	static u16	buffer_mic_rptr;
+	u16 mic_wptr = audio_get_rx_wptr(FIFO_NUM);
+	u16 l = ((mic_wptr) >= buffer_mic_rptr) ? ((mic_wptr) - buffer_mic_rptr) : 0xffff;
+	if (l >=(TL_MIC_BUFFER_SIZE>>1)) {
+		s16 *ps = buffer_mic + (buffer_mic_rptr>>1);//unit size:s16,so right shift 1 bit
+		mic_to_adpcm_split (ps,	TL_MIC_ADPCM_UNIT_SIZE,
+						(s16 *)(buffer_mic_enc + (ADPCM_PACKET_LEN>>2) *
+						(buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1))), 1);
+
+
+		u8 *ptr = (u8 *)(buffer_mic_enc + (ADPCM_PACKET_LEN>>2) * (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1)));
+
+		buffer_mic_rptr = buffer_mic_rptr ? 0 : (TL_MIC_BUFFER_SIZE>>1);
+		buffer_mic_pkt_wptr++;
+		int pkts = (buffer_mic_pkt_wptr - buffer_mic_pkt_rptr) & (TL_MIC_PACKET_BUFFER_NUM*2-1);
+		if (pkts > TL_MIC_PACKET_BUFFER_NUM) {
+			buffer_mic_pkt_rptr++;
+		}
+		if(audio_delay_times>0)
+			audio_delay_times--;
+
+	}
+
+}
+
+static void audio_recInit_b92(u32 sampleRate, audio_rec_ntf audioUserhandler)
+{
+	g_audioRecNtf = audioUserhandler;
+	if(sampleRate==AUDIO_SAMPLE_RATE_16K||sampleRate==AUDIO_SAMPLE_RATE_8K)
+	{
+	/****audio init ****/
+	(sampleRate==AUDIO_SAMPLE_RATE_8K)?(audio_codec_amic_input.sample_rate=AUDIO_8K):(audio_codec_amic_input.sample_rate=AUDIO_16K);
+	audio_codec_init();
+	audio_codec_stream0_input_init(&audio_codec_amic_input);
+	audio_rx_dma_chain_init(audio_codec_amic_input.fifo_num,audio_codec_amic_input.dma_num,(unsigned short*)audio_codec_amic_input.data_buf,audio_codec_amic_input.data_buf_size);
+	audio_rx_dma_en(audio_codec_amic_input.dma_num);
+	audio_set_adc_pga_l_gain(CODEC_IN_GAIN_24P0_DB);//set voltume
+	}
+}
 
 #endif
 
@@ -237,6 +292,8 @@ static void proc_sending84(void){
         memcpy(&buff_adpcm_temp[APP_AUDIO_HDR_LEN], buff_adpcm, MIC_ADPCM_FRAME_SIZE);
     	if(g_audioRecNtf){
     		g_audioRecNtf(buff_adpcm_temp, MIC_ADPCM_FRAME_SIZE+APP_AUDIO_HDR_LEN);
+    		drv_hwTmr_cancel(TIMER_FOR_USER);
+    		drv_hwTmr_set(TIMER_FOR_USER, 1000, AudioTimeOutTxCb, NULL);
 			}
 		}
 	}
@@ -248,6 +305,8 @@ void audio_recInit(u32 sampleRate, audio_rec_ntf audioUserhandler)
 	audio_recInit_826x(sampleRate,audioUserhandler);
 #elif MCU_CORE_8258 || MCU_CORE_8278
 	audio_recInit_82x8(sampleRate,audioUserhandler);
+#elif MCU_CORE_B92
+	audio_recInit_b92(sampleRate,audioUserhandler);
 #endif
 }
 
@@ -266,6 +325,8 @@ void audio_recTaskStart(void){
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
 #elif MCU_CORE_8278
 		BIT_SET(reg_dfifo_mode,0); //FLD_AUD_DFIFO0_IN   enable difofo
+#elif MCU_CORE_B92
+
 #endif
 		audio_delay_times = 20;
 
@@ -286,6 +347,9 @@ void audio_recTaskStop(void){
 #elif  MCU_CORE_8278
 	BIT_CLR(reg_dfifo_mode,0); 	 //FLD_AUD_DFIFO0_INenable difofo
 	audio_codec_and_pga_disable();
+#elif  MCU_CORE_B92
+	audio_rx_dma_dis(AMIC_RX_DMA_CHN);
+	audio_power_down();
 #endif
 }
 
@@ -296,6 +360,8 @@ void audio_recTaskRun(void){
     proc_mic_encoder_826x();
 #elif MCU_CORE_8258 || MCU_CORE_8278
     proc_mic_encoder_82x8();
+#elif MCU_CORE_B92
+    proc_mic_encoder_b92();
 #endif
 
     proc_sending84();
@@ -332,11 +398,10 @@ _attribute_ram_code_ u8 GetAudioTxCnt(void)
 {
 	return AudioTxCurCnt;
 }
-extern u8 rf_tx_buf[];
 
+extern u8 rf_tx_buf[];
 _attribute_ram_code_ int AudioTimeOutTxCb(void* arg)
 {
-	TIMER_STOP(TIMER_FOR_USER);
 	ZB_RADIO_RX_DONE_CLR;
 	ZB_RADIO_TX_DONE_CLR;
 	rf_setTrxState(RF_STATE_TX);
@@ -346,7 +411,6 @@ _attribute_ram_code_ int AudioTimeOutTxCb(void* arg)
 	SetAudioTxCnt(cnt+1);
 	return -1;
 }
-
 
 
 

@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 
 #include "../../proj/tl_common.h"
-#include "../../proj/os/timer.h"
+#include "../../proj/drivers/drv_timer.h"
 #include "../../proj/drivers/ir/ir.h"
 #include "../../proj/drivers/audio/drv_audio.h"
 void gpio_user_irq_handler(void);
@@ -54,11 +54,10 @@ _attribute_ram_code_ void  usb_endpoints_irq_handler (void) {
 
 _attribute_ram_code_ void irq_handler(void){
 	u32 src = reg_tmr_sta;
-
 	if(IRQ_TIMER1_ENABLE && (src & FLD_TMR_STA_TMR1)){
-//		*(volatile unsigned char *)0x80058b |= 2;
-		timer_irq1_handler();
-//		*(volatile unsigned char *)0x80058b &= ~2;
+		reg_irq_src = FLD_IRQ_TMR1_EN;
+		reg_tmr_sta = FLD_TMR_STA_TMR1;
+		drv_timer_irq1_handler();
 		return;
 	}
 
@@ -112,7 +111,9 @@ _attribute_ram_code_ void irq_handler(void){
 #endif
 
 	if(IRQ_TIMER0_ENABLE && (src & FLD_TMR_STA_TMR0)){
-		timer_irq0_handler();
+		reg_irq_src = FLD_IRQ_TMR0_EN;
+		reg_tmr_sta = FLD_TMR_STA_TMR0;
+		drv_timer_irq0_handler();
 		return;
 	}
 }

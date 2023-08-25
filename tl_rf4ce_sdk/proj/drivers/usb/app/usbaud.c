@@ -23,8 +23,8 @@
 
 #include "../../../config/user_config.h"
 #include "usbaud.h"
-#include "../usbhw.h"
-#include "../usbhw_i.h"
+//#include "../usbhw.h"
+//#include "../usbhw_i.h"
 #include "../usb.h"
 #include "../usbstd/audioClassCommon.h"
 

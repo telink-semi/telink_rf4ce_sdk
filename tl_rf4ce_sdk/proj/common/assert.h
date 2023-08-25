@@ -28,7 +28,7 @@
 #if (__DEBUG__)
 #define assert(expression)    while(!expression)
 #else
-#define assert(ignore)        ((void) 0)
+#define assert(ignore)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,6 @@
 #include "rf_drv.h"
 #include "emi.h"
 #include "pm.h"
-
+#include "putchar.h"
 
 

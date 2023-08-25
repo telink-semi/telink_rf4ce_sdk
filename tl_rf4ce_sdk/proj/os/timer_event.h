@@ -34,6 +34,14 @@
 #define TIMER_SAFE_MARGIN (TIMER_SAFE_MARGIN_US*CLOCK_SYS_CLOCK_1US)
 #define __DEBUG_TIMER__ (0)
 
+enum{
+	TL_EV_TASK = 0xA5,
+	TL_STACK_TASK,
+	TL_TASK_MAX
+};
+
+
+
 typedef int (*ev_timer_callback_t)(void *data);
 
 
@@ -50,7 +58,7 @@ typedef struct ev_time_event_t {
 } ev_time_event_t;
 #define USE_OLD_EV_UNON_TIMER   (0)
 ev_time_event_t *ev_on_timer(ev_timer_callback_t cb,void *data, u32 t_us);
-
+ev_time_event_t *stk_on_timer(ev_timer_callback_t cb, void *data, u32 t_us);
 #if USE_OLD_EV_UNON_TIMER
 void ev_unon_timer(ev_time_event_t **e);//ok
 #else
@@ -68,6 +76,14 @@ ev_time_event_t *__ev_unon_timer__(ev_time_event_t *e);
         						*(x) = __ev_unon_timer__(*(x)); \
         						irq_restore(r);	\
 							}while(0)
+
+
+#define stk_unon_timer(x)    do{ u8 r = irq_disable();	\
+        						*(x) = __stk_unon_timer__(*(x)); \
+        						irq_restore(r);	\
+							}while(0)
+
+
 #endif
 
 #endif

@@ -232,7 +232,7 @@ _CODE_MAC_ void mac_pibReset(void)
 	/* check the ieee address is valid or not */
 	if (memcmp(invalidIEEEAddr, extAddr, 8) == 0 ) {
 		u8 addr[8];
-		generateRandomData(addr, 5);
+		drv_generateRandomData(addr, 5);
 		memcpy(addr+5, startIEEEAddr, 3);
 		flash_write(MAC_IEEE_ADDRESS_IN_FLASH, 6, addr + 2);
 		flash_write(MAC_IEEE_ADDRESS_IN_FLASH + 6, 2, addr);

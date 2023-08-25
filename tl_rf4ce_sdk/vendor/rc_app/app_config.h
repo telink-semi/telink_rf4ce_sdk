@@ -81,7 +81,7 @@ extern "C" {
 /////////////////// CDC /////////////////////////////////
 #define USB_CDC_ENABLE            0 // UART work together to CDC
 /////////////user defined values////////////////////////////////
-#define USE_NEW_EV_MAIN         (0)
+#define USE_NEW_EV_MAIN          (0)
 //////////////////// Timer  //////////////////////////////
 #define IRQ_TIMER0_ENABLE         1
 #define IRQ_TIMER1_ENABLE         1
@@ -97,6 +97,10 @@ extern "C" {
 	#define S_TIMER_CLOCK_1US				sys_tick_per_us
 	#define S_TIMER_CLOCK_1MS				sys_tick_per_us*1000
 	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif  defined(MCU_CORE_B92)
+	#define S_TIMER_CLOCK_1US				SYSTEM_TIMER_TICK_1US
+	#define S_TIMER_CLOCK_1MS				SYSTEM_TIMER_TICK_1MS
+	#define H_TIMER_CLOCK_1US				(sys_clk.pclk)
 #endif
 
 ///////////////////  Mouse  Keyboard //////////////////////////////
@@ -146,7 +150,7 @@ extern "C" {
 #define RF4CE_MAX_PAIR_ENTRY_NUM        1
 
 /*********************UART_PRINTF_MODE******************/
-#define UART_PRINTF_MODE				1
+#define UART_PRINTF_MODE				0
 
 /*********************IR_LEARN_ENABLE******************/
 #define	MODULE_IR_LEARN_ENABLE			0

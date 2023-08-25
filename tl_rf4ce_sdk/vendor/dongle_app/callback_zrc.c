@@ -95,7 +95,7 @@ u32 app_powerDetect(void);
 void checkWhenPowerOn(void);
 void checkPowerDounce(void);
 u8 checkPowerServiceLoop(u8 volThreshold);
-void voltage_detect(void);
+//void voltage_detect(void);
 void tl_audioProfileInit(u8 profileId);
 /**********************************************************************
  * GLOBAL VARIABLES
@@ -160,7 +160,6 @@ gdp_userCbFunc_t gdp_cmdCallbacks = {
 };
 
 /*******************Profile Callback Functions Implementation******************************/
-
 /*********************************************************************
  * @fn      mso_ckValiReq
  *
@@ -173,7 +172,7 @@ gdp_userCbFunc_t gdp_cmdCallbacks = {
 u8 zrc_ckValiReq(u8 pairingRef){
 	if ( zrcApp_state == ZRC_APP_START_VALIDATION )
 	{
-		//generateRandomData(validationCode, 4);
+		drv_generateRandomData(validationCode, 4);
 		validationCode[0] = rand() % 10;
 		validationCode[1] = rand() % 10;
 		validationCode[2] = rand() % 10;
@@ -269,7 +268,7 @@ void zrc_startCnfCb(u8 status)
 		/* Force start in channel 25 */
         ev_on_timer(zrc_doPair, 0, 100*1000);
 	}
-	u8 value = 15;// 20;
+	u8 value = 20;// 20;
 	nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
 }
 
@@ -556,22 +555,23 @@ void zrcApp_initPib(void)
 	nwk_nlmeSetReq(NWK_VENDOR_IDENTIFIER, 0, (u8*)&vendorId);
 }
 
-u8 uart_recv_flag = 0;
-u8 aaa_uart_buf[64] = {0};
+volatile u8 uart_recv_flag = 0;
+volatile u8 aaa_uart_buf[64] = {0};
 volatile int aaa_uart_recv_num = 0;
 s32 zrcApp_uartRecvCb(u8 *pdata){
 	memcpy(aaa_uart_buf, pdata, 64);
 	//ota_cmd_parsing(pdata);
 	ev_buf_free(pdata);
-	uart_recv_flag = 1;
+	uart_recv_flag ^= 1;
+	aaa_uart_recv_num++;
 
-	/*u32 *p_sent = (u32 *)aaa_uart_buf;
-	*p_sent = aaa_uart_recv_num++;
+#if 1
+	u32 *p_sent = (u32 *)aaa_uart_buf;
 	usbcdc_txBuf_t* p = (usbcdc_txBuf_t *)ev_buf_allocate(LARGE_BUFFER);
 	memcpy(p->data, aaa_uart_buf, 64);
-	p->len = 64;
-	//sendCmdToTH(p, 64);
-	extern void ota_cmd_parsing(u8 *p_ota);*/
+	p->len = 66;
+	sendCmdToTH(p);
+#endif
 	return -1;
 }
 
@@ -626,10 +626,11 @@ void user_init(void){
 
     checkWhenPowerOn();
 #endif
+
 	/* Initialize stack */
     profile_init();
 
-    /* Initialize mso app */
+    /* Initialize zrc app */
     zrcApp_init();
 
     /* Register Profile Call back function */
@@ -766,6 +767,27 @@ u8 checkPowerServiceLoop(u8 volThreshold){
 
 
 
+
+/*********************************************************************
+ * @fn      check power  when power on
+ *
+ * @brief   check the power level when power on
+ *
+ * @param   None
+ *
+ * @return  1:power level is great than or equal to BAT_LEVEL_CUTOFF
+ * 		    0:power level is less than BAT_LEVEL_CUTOFF
+ */
+void checkWhenPowerOn(void){
+#if POWER_DETECT_ENABLE
+	voltage_detect();
+#endif
+#if (!FLASH_PROTECT)
+	flash_unlock();
+#endif
+}
+
+
 void voltage_detect(void)
 {
 #if POWER_DETECT_ENABLE
@@ -797,26 +819,4 @@ void voltage_detect(void)
 	battSta = i;
 #endif
 }
-
-
-
-/*********************************************************************
- * @fn      check power  when power on
- *
- * @brief   check the power level when power on
- *
- * @param   None
- *
- * @return  1:power level is great than or equal to BAT_LEVEL_CUTOFF
- * 		    0:power level is less than BAT_LEVEL_CUTOFF
- */
-void checkWhenPowerOn(void){
-#if POWER_DETECT_ENABLE
-	voltage_detect();
-#endif
-#if (!FLASH_PROTECT)
-	flash_unlock();
-#endif
-}
-
 #endif  /* __PROJECT_MSO_ADAPTOR_APP__ */

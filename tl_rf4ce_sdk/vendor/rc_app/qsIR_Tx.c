@@ -51,13 +51,13 @@ const u8 volumnDown[] = {
 
 
 
- zrcir_callback_t quickset_handler = NULL;
+volatile  zrcir_callback_t quickset_handler = NULL;
 u8 *quicksetIrCodeData=NULL;
  //zrc to zipir
  u8 ws,zrcMode=0;
  s8 zrcRepeat=0;
  u8 zrcIrState=0;
- volatile zrcIRTimeData zrcIRData;
+ volatile zrcIRTimeData zrcIRData __attribute__ ((aligned (4)));
  volatile zrcIRinfo qsInfo;
 
 
@@ -155,11 +155,11 @@ s8 zrcIrInit(u8 *database)
 		ws |= IRREPEAT;
 		if(zrcIRptr->numToggle)//toggle
 		{
-			ToggleFlag = ReadAnalogReg(Toggle_Reg);
+			ToggleFlag = analog_read(Toggle_Reg);
 			   ToggleFlag++;
 			if(ToggleFlag>zrcIRptr->numToggleSequ)
 			   ToggleFlag = 0;
-			WriteAnalogReg(Toggle_Reg,ToggleFlag);
+			analog_write(Toggle_Reg,ToggleFlag);
 		}
 	}
 
@@ -191,16 +191,20 @@ s8 zrcIrInit(u8 *database)
 		qs_getIrData(IRSTART);
 #if IR_DMA_FIFO_EN
 		unsigned char* buff = (u8 *)&zrcIRData.Size;
-		pwm_set_dma_address(buff);
-		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
-		reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
-		pwm_start_dma_ir_sending();
+//		pwm_set_dma_address(buff);
+//		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
+//		reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
+//		pwm_start_dma_ir_sending();
+		drv_ir_dma_set_buffer(buff);
+		drv_ir_dma_enable_irq();
+		drv_ir_dma_start();
 		zrcDMAIrcallback(qsIrqCallBack);
 #else
 		qsInfo.curCnt = 0;
 		qsInfo.totalCnt = zrcIRData.Size;
 		qsInfo.zrcIRdata = (u16 *)&zrcIRData.Symbol[0];
-		hwTmr_set(TIMER_IDX_1, 1000, qsTimer1IrqCb, NULL);
+		drv_hwTmr_set(TIMER_IDX_1, 1000, qsTimer1IrqCb, NULL);
+		hwTimerStart(TIMER_IDX_1);
 #endif
 	}
 	else if(ws&IRREPEAT)
@@ -208,16 +212,20 @@ s8 zrcIrInit(u8 *database)
 		qs_getIrData(IRREPEAT);
 #if IR_DMA_FIFO_EN
 		unsigned char* buff = (u8 *)&zrcIRData.Size;
-		pwm_set_dma_address(buff);
-		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
-		reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
-		pwm_start_dma_ir_sending();
+//		pwm_set_dma_address(buff);
+//		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
+//		reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
+//		pwm_start_dma_ir_sending();
+		drv_ir_dma_set_buffer(buff);
+		drv_ir_dma_enable_irq();
+		drv_ir_dma_start();
 		zrcDMAIrcallback(qsIrqCallBack);
 #else
 		qsInfo.curCnt = 0;
 		qsInfo.totalCnt = zrcIRData.Size;
 		qsInfo.zrcIRdata = (u16 *)&zrcIRData.Symbol[0];
-		hwTmr_set(TIMER_IDX_1, 1000, qsTimer1IrqCb, NULL);
+		drv_hwTmr_set(TIMER_IDX_1, 1000, qsTimer1IrqCb, NULL);
+		hwTimerStart(TIMER_IDX_1);
 #endif
 		if(zrcRepeat>0)zrcRepeat--;
 	}
@@ -227,16 +235,20 @@ s8 zrcIrInit(u8 *database)
 		qs_getIrData(IRRELEASE);
 #if IR_DMA_FIFO_EN
 		unsigned char* buff = (u8 *)&zrcIRData.Size;
-		pwm_set_dma_address(buff);
-		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
-		reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
-		pwm_start_dma_ir_sending();
+//		pwm_set_dma_address(buff);
+//		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
+//		reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
+//		pwm_start_dma_ir_sending();
+		drv_ir_dma_set_buffer(buff);
+		drv_ir_dma_enable_irq();
+		drv_ir_dma_start();
 		zrcDMAIrcallback(qsIrqCallBack);
 #else
 		qsInfo.curCnt = 0;
 		qsInfo.totalCnt = zrcIRData.Size;
 		qsInfo.zrcIRdata = (u16 *)&zrcIRData.Symbol[0];
-		hwTmr_set(TIMER_IDX_1, 1000, qsTimer1IrqCb, NULL);
+		drv_hwTmr_set(TIMER_IDX_1, 1000, qsTimer1IrqCb, NULL);
+		hwTimerStart(TIMER_IDX_1);
 #endif
 	}
 	return k;
@@ -266,7 +278,12 @@ s8 qs_getIrData(u8 frametype)
 			frameptr = &qsIRptr->irData;
 #if IR_DMA_FIFO_EN
 			if(qsInfo.carrierFreq)
+#if defined(MCU_CORE_B92)
+			carrier_cycle_tick = PWM_PCLK_SPEED/qsInfo.carrierFreq;
+#else
 			carrier_cycle_tick = CLOCK_SYS_CLOCK_HZ/qsInfo.carrierFreq;
+#endif
+
 #endif
 			if(qsIRptr->numTiming)
 			{
@@ -275,10 +292,14 @@ s8 qs_getIrData(u8 frametype)
 					Timing[i][0] = (*(u16 *)(frameptr + i*4));//mark
 					Timing[i][1] = (*(u16 *)(frameptr + i*4+2));//space
 #if IR_DMA_FIFO_EN
+//					if(Timing[i][0])
+//					Timing[i][0] = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, Timing[i][0] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//mark
+//					if(Timing[i][1])
+//					Timing[i][1] = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, Timing[i][1] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//space
 					if(Timing[i][0])
-					Timing[i][0] = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, Timing[i][0] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//mark
+					Timing[i][0] = drv_ir_dma_plus_config(Timing[i][0] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick,1);//pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, Timing[i][0] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//mark
 					if(Timing[i][1])
-					Timing[i][1] = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, Timing[i][1] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//space
+					Timing[i][1] = drv_ir_dma_plus_config(Timing[i][1] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick,0);//pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, Timing[i][1] * H_TIMER_CLOCK_1US*4/carrier_cycle_tick);//space
 #endif
 				}
 			}
@@ -293,7 +314,7 @@ s8 qs_getIrData(u8 frametype)
 				frameptr += (qsIRptr->numPress>>1)+(qsIRptr->numPress&0x1);
 				if(qsIRptr->numToggle)
 				{
-					togflag = ReadAnalogReg(Toggle_Reg);
+					togflag = analog_read(Toggle_Reg);
 					if(togflag)
 					{
 					toggleptr = frameptr +(qsIRptr->numRepeat>>1)+(qsIRptr->numRepeat&0x1);
@@ -376,6 +397,9 @@ s8 qs_getIrData(u8 frametype)
 				irdatasize <<= 1;
 #endif
 				zrcIRData.Size = irdatasize;
+				unsigned char* buff = (u8 *)&zrcIRData.Size;
+				drv_ir_dma_set_buffer(buff);
+
 			}
 		}
 		else
@@ -423,9 +447,11 @@ _attribute_ram_code_ void qsIrqCallBack(void)
 {
 	if((ws&(IRSTART|IRREPEAT|IRRELEASE))==0)
 	{
-		pwm_stop_dma_ir_sending();
-		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear irq status
-		reg_pwm_irq_mask &= ~FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //disable irq mask
+//		pwm_stop_dma_ir_sending();
+//		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear irq status
+//		reg_pwm_irq_mask &= ~FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //disable irq mask
+		drv_ir_dma_stop();
+		drv_ir_dma_disable_irq();
 		zrc_putIrState(0);
 		ev_on_timer(app_zrcIrDoneCb, NULL, 20* 1000);
 		ev_buf_free((u8 *)quicksetIrCodeData);
@@ -437,7 +463,8 @@ _attribute_ram_code_ void qsIrqCallBack(void)
 		if(zrcRepeat!=0)
 		{
 			qs_getIrData(IRREPEAT);
-			pwm_start_dma_ir_sending();
+//			pwm_start_dma_ir_sending();
+			drv_ir_dma_start();
 			if(zrcRepeat>0)
 			{
 				zrcRepeat--;
@@ -453,7 +480,8 @@ _attribute_ram_code_ void qsIrqCallBack(void)
 		if(ws&IRRELEASE)
 		{
 			qs_getIrData(IRRELEASE);
-			pwm_start_dma_ir_sending();
+//			pwm_start_dma_ir_sending();
+			drv_ir_dma_start();
 			ws&=~IRRELEASE;
 		}
 	}
@@ -468,7 +496,7 @@ _attribute_ram_code_ int qsTimer1IrqCb(void *arg){
 //    	    SPACE(0);
 		if((ws&(IRSTART|IRREPEAT|IRRELEASE))==0)
 		{
-			hwTmr_cancel(TIMER_IDX_1);
+			drv_hwTmr_cancel(TIMER_IDX_1);
 			zrc_putIrState(0);
 			ev_on_timer(app_zrcIrDoneCb, NULL, 20* 1000);
 			ev_buf_free((u8 *)quicksetIrCodeData);
@@ -511,7 +539,7 @@ _attribute_ram_code_ int qsTimer1IrqCb(void *arg){
     t_us<<=2;//symbol*4
     if(t_us>4)
     t_us-=4;
-	hwTmr_setInterval(TIMER_IDX_1, t_us);
+//	hwTmr_setInterval(TIMER_IDX_1, t_us);
 	qsInfo.curCnt += 1;
 	(t_flag)?(MARK(t_us)):(SPACE(t_us));
 	return 0;

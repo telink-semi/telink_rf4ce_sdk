@@ -142,6 +142,75 @@ static inline void wd_clear(void)
 }
 
 
+/**
+ * @brief This function servers to set system timer irq mask.
+ * @param[in]	none.
+ * @return  	none.
+ */
+static inline void stimer_set_irq_mask(void)
+{
+	reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
+}
+
+/**
+ * @brief This function servers to clear system timer irq mask.
+ * @param[in] 	none.
+ * @return  	none.
+ */
+static inline void stimer_clr_irq_mask(void)
+{
+	reg_irq_mask &= ~(unsigned long)FLD_IRQ_SYSTEM_TIMER;
+}
+
+static inline void timer_set_init_tick(unsigned char tmrIdx, unsigned int init_tick)
+{
+	reg_tmr_tick(tmrIdx) = init_tick;
+}
+
+
+/*
+ * @brief     This function set to capture tick for timer.
+ * @param[in] type - the specified timer.
+ * @param[in] cap_tick - cap tick value.
+ * @return    none
+ */
+static inline void timer_set_cap_tick(unsigned char tmrIdx, unsigned int cap_tick)
+{
+	reg_tmr_capt(tmrIdx) = cap_tick;
+}
+
+/*
+ * @brief     This function set capture tick for system timer.
+ * @param[in] cap_tick - cap tick value.
+ * @return    none
+ */
+static inline void stimer_set_irq_capture(unsigned long cap_tick)
+{
+	reg_system_tick_irq = cap_tick;
+}
+
+/*
+ * @brief     This function to enable the timer interrupt.
+ * @param[in] type - the specified timer.
+ * @return    none
+ */
+static inline void timer_irq_enable(unsigned char tmrIdx)
+{
+	reg_irq_mask |= (1 << tmrIdx);
+}
+
+/*
+ * @brief     This function to enable the system timer interrupt.
+ * @param[in] type - the specified timer.
+ * @return    none
+ */
+static inline void stimer_irq_enable(void)
+{
+	reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
+}
+
+
+
 #define TIMER_STATE_CLEAR(idx) 			reg_tmr_sta |= (1 << tmrIdx)
 #define TIMER_STOP(idx)					clock_enable_clock(idx, 0)
 #define TIMER_START(idx)				clock_enable_clock(idx, 1)
@@ -154,9 +223,13 @@ static inline void wd_clear(void)
 										   reg_irq_mask |= 1 << tmrIdx;	\
 									   }while(0)
 
+#define timer_set_mode(tmrIdx, mode) 	TIMER_INIT(tmrIdx, mode)
+#define timer_stop(tmrIdx) 				TIMER_STOP(tmrIdx)
+#define timer_start(tmrIdx) 			TIMER_START(tmrIdx)
 
 extern void sleep_us (unsigned int us);
 
 #define WaitUs(t)			sleep_us(t)
 #define WaitMs(t)			sleep_us((t)*1000)
 #define sleep_ms(t)			sleep_us((t)*1000)
+#define delay_us(t)			sleep_us(t)

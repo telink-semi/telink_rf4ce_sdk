@@ -47,7 +47,6 @@
 
 #include "app_const.h"
 #include "app_common.h"
-#include "app_data.h"
 #include "app_led.h"
 #include "qsIR_Tx.h"
 #include "../common/TL_specificData/tl_specific_data_audio.h"
@@ -279,9 +278,11 @@ void app_sendDtvIrCmd(u8 keyCode, u8 repeat)
 
 u8 app_sendIRData(u8 profileId, u8 keyCode, u8 single_key)
 {
+
 	if ( app_getState() == APP_VERIFY_PAIR_STATE || rcu_appVars.flags.bf.repeat||app_isSendingIR()) {
 		return FAILURE;
 	}
+
 	rcu_appVars.flags.bf.inRfRpt = 0;
 	rcu_appVars.keyCode = keyCode;
 	/* disable receiver to save power */

@@ -318,4 +318,3 @@ static inline unsigned char flash_get_vdd_f_calib_value(void)
 	return dcdc_flash_volatage;
 }
 
-void flash_safe_voltage_set(unsigned short vol);

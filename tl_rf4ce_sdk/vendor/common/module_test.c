@@ -24,8 +24,8 @@
 #include "../../proj/config/user_config.h"
 #include "../../proj/tl_common.h"
 #include "../../platform/platform_includes.h"
-#include "../../proj/os/timer.h"
 #include "../../proj/drivers/drv_adc.h"
+#include "../../proj/drivers/drv_timer.h"
 /*
  * Note: test case based on the Ohsung-RF211 8267 board
  */
@@ -94,16 +94,16 @@ volatile int T_timerCnt = 0;
 int timer1IrqCb(void* arg){
 	T_timerCnt++;
 
-	if(T_timerCnt & 0x01){
-		hwTmr_setInterval(TIMER_IDX_1, 10*1000);
-	}else{
-		hwTmr_setInterval(TIMER_IDX_1, 5000*1000);
-	}
+//	if(T_timerCnt & 0x01){
+//		hwTmr_setInterval(TIMER_IDX_1, 10*1000);
+//	}else{
+//		hwTmr_setInterval(TIMER_IDX_1, 5000*1000);
+//	}
 }
 void moduleTest_forTimer(void){
 	irq_enable();
-	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
-	hwTmr_set(TIMER_IDX_1, 1000*1000, timer1IrqCb, NULL);
+	drv_hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+	drv_hwTmr_set(TIMER_IDX_1, 1000*1000, timer1IrqCb, NULL);
 	while(1){
 		WaitMs(100);
 		wd_clear();

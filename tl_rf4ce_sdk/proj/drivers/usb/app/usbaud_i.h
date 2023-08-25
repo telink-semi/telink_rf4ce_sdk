@@ -28,8 +28,8 @@
 //#include "../mcu/register.h"
 #include "../../../../platform/platform_includes.h"
 
-#include "../usbhw.h"
-#include "../usbhw_i.h"
+//#include "../usbhw.h"
+//#include "../usbhw_i.h"
 #include "../usbstd/audioClassCommon.h"
 
 #if 0

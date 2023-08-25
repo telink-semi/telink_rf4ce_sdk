@@ -134,7 +134,10 @@ static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
 #define ZB_RADIO_INIT()		RF_Init(RF_OSC_12M,RF_MODE_ZIGBEE_250K)
 
 /* hardware timer initialization for mac-csma */
-#define ZB_TIMER_INIT()		hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
+#define ZB_TIMER_INIT()		drv_hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
+
+ /* RF is busy */
+ #define RF_DMA_BUSY()		0
 
 
 #endif  /* __RF_H__ */

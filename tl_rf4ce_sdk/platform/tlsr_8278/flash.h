@@ -299,9 +299,3 @@ static inline unsigned short flash_get_vdd_f_calib_value(void)
 	return flash_volatage;
 }
 
-/**
- * @brief		This function is to config the flash operation voltage threshold
- * @param[in]	vol.
- * @return		none.
- */
-void flash_safe_voltage_set(unsigned short vol);

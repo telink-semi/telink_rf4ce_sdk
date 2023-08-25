@@ -24,7 +24,7 @@
 #ifndef RF4CE_VERSION_H
 #define RF4CE_VERSION_H
 
-#define SDK_VERSION_ID				v2.4.1.1
+#define SDK_VERSION_ID				v2.4.2.0
 
 #define	SDK_VERSION_(sdk_version)	"$$$rf4ce_sdk_"#sdk_version"$$$"
 #define	SDK_VERSION(sdk_version)	SDK_VERSION_(sdk_version)

@@ -238,6 +238,8 @@ void ev_main(void){
 
     ev_process_timer();
 
+    tl_taskProcedure();
+
     #if MEASURE_TASK_TICKS
     if(measure_flag){
         new_ticks = clock_time();
@@ -287,6 +289,7 @@ void ev_main(void){
 	if(sys_idle_handler_ptr){
 	   sys_idle_handler_ptr();
 	}
+
 	if(rf_edDetect_ptr){
 	   rf_edDetect_ptr();
 	}

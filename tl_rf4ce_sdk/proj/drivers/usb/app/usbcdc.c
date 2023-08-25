@@ -26,8 +26,8 @@
 #if(USB_CDC_ENABLE)
 
 #include "usbcdc.h"
-#include "../usbhw.h"
-#include "../usbhw_i.h"
+//#include "../usbhw.h"
+//#include "../usbhw_i.h"
 #include "../usb.h"
 #include "../../../os/ev.h"
 //#include "../os/sys.h"
@@ -229,11 +229,9 @@ void usbcdc_recvData(void)
 	if (!cdc_v->rxBuf) {
 		while(1);
 	}
-
 	if (cdc_v->rx_timer) {
 		ev_unon_timer(&cdc_v->rx_timer);
 	}
-
 	len = reg_usb_ep_ptr(CDC_RX_EPNUM & 0x07);
 	fEnd = (len == CDC_TXRX_EPSIZE) ? 0 : 1;
 	usbhw_reset_ep_ptr(CDC_RX_EPNUM);
@@ -287,6 +285,14 @@ u8 usbcdc_sendBulkData(void)
 
 	/* Write ACK */
     reg_usb_ep_ctrl(CDC_TX_EPNUM) = FLD_EP_DAT_ACK;        // ACK
+#if defined (MCU_CORE_B92)
+	if(len%CDC_TXRX_EPSIZE==0)
+	{
+		delay_us(128);
+		usbhw_reset_ep_ptr(USB_EDP_CDC_IN);
+		usbhw_data_ep_ack(USB_EDP_CDC_IN);
+	}
+#endif
     u16 t = 0;
     while(usbhw_is_ep_busy(CDC_TX_EPNUM)) {
         if (t++ > 10000) {

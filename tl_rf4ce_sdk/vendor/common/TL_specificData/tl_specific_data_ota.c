@@ -56,10 +56,13 @@ ev_time_event_t otaTimer;
 #define   FIRMWARE_LENGTH_ADDR						0x18
 #define   FIRMWARECRC_LENGTH						4
 
-
 //flash address
 #define	FLASH_OTA_NEWIMAGE_ADDR						0x40000//256K
+#if (MCU_CORE_8258)||(MCU_CORE_826x)||(MCU_CORE_8278)
 #define	OTA_TLNK_KEYWORD_ADDROFFSET					8
+#elif (MCU_CORE_B92)
+#define	OTA_TLNK_KEYWORD_ADDROFFSET					0x20
+#endif
 #define	OTA_MAX_IMAGE_SIZE							0x30000
 ota_preamble_t rc_otaInfo;
 
@@ -83,7 +86,6 @@ ev_time_event_t *tryPollingCb;
 
 //functions
 bool ota_DataProcess(u8 len, u8 *pData);
-static bool verifyFirmwareCrc(void);
 /**********************************************************************
  * @brief		get mcu reboot address
  *
@@ -118,7 +120,7 @@ static bool verifyFirmwareCrc(void)
 		flash_read(otaAddr + addr,frameLen,binBuf);
 		if(addr==0)
 		{
-			binBuf[8] = 0x4b;
+			binBuf[OTA_TLNK_KEYWORD_ADDROFFSET] = 0x4b;
 		}
 		if(binLen>i+OTA_FRAMESIZE)
 		{
@@ -149,11 +151,11 @@ void ota_mcuReboot(void)
 		newAddr = 0;
 	}
 
-	flash_write((newAddr + 8),1,&flashInfo);//enable boot-up flag
+	flash_write((newAddr + OTA_TLNK_KEYWORD_ADDROFFSET),1,&flashInfo);//enable boot-up flag
 	flashInfo = 0;
-	flash_write((baseAddr + 8),1,&flashInfo);//disable boot-up flag
+	flash_write((baseAddr + OTA_TLNK_KEYWORD_ADDROFFSET),1,&flashInfo);//disable boot-up flag
 	app_saveInfoPm();
-	mcu_reset();
+	SYSTEM_RESET();
 }
 
 
@@ -409,15 +411,15 @@ bool ota_DataProcess(u8 len, u8 *pData)
 			ota_headercnt += datalen;
 			u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
 			u8 flag=0;
-			if((flashOffsetAddr<=8)&&((datalen+flashOffsetAddr)>=8)&&(datalen>0))
+			if((flashOffsetAddr<=OTA_TLNK_KEYWORD_ADDROFFSET)&&((datalen+flashOffsetAddr)>=OTA_TLNK_KEYWORD_ADDROFFSET)&&(datalen>0))
 			{
 					flag = 1;
-					pData[i+8-flashOffsetAddr] = 0xff;
+					pData[i+OTA_TLNK_KEYWORD_ADDROFFSET-flashOffsetAddr] = 0xff;
 			}
 //			flash_write(baseAddr + flashOffsetAddr, datalen, &pData[i]);
 			if(flash_writeWithCheck(baseAddr + flashOffsetAddr, datalen, &pData[i])!=TRUE)
 				sta = FALSE;
-			if(flag)  pData[i+8-flashOffsetAddr] = 0x4b;
+			if(flag)  pData[i+OTA_TLNK_KEYWORD_ADDROFFSET-flashOffsetAddr] = 0x4b;
 			flashOffsetAddr += datalen;
 
 
@@ -770,12 +772,6 @@ void tl_appOtaCmdHandler(u8 *pd)
 	}
 #endif
 }
-
-
-
-
-
-
 
 
 

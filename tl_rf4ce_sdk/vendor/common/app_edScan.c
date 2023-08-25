@@ -33,7 +33,6 @@ app_edScan_t g_appEdScanInfo = {0};
 s32 app_energyScanCb(void *arg){
 	u32 idx = g_appEdScanInfo.curChannelIdx;
 	u8 curEnergy = rf_stopED();
-
 	if(curEnergy <= ED_SCAN_LQI_THRESHOLD){
 		g_appEdScanInfo.bestChannel = RF4CE_Idx2Channel(idx);
 		g_appEdScanInfo.bestChannelEnergy = curEnergy;
@@ -73,7 +72,6 @@ u8 app_edScanStart(u8 channelNum, u8 duration, app_edScanFinishCb_t cb){
 	if(g_appEdScanInfo.scanTimer){
 		return FAILURE;
 	}
-
 	g_appEdScanInfo.ChannelTotal = channelNum;
 	g_appEdScanInfo.duration = duration * 10 * 1000;
 	g_appEdScanInfo.curChannelIdx = 0;

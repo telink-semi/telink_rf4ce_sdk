@@ -24,8 +24,8 @@
 #include "../../tl_common.h"
 #include "ir.h"
 #include "ir_database.h"
-#include "../../os/timer.h"
 #include "../../os/ev_buffer.h"
+#include "../drv_timer.h"
 
 static u8 IR_CHAANEL;
 #define IR_DATA_LEN_MAX		128
@@ -44,11 +44,10 @@ ir_info_t irInfo;
 void ir_init(u8 channel){
 	IR_CHAANEL = channel;
 
+	drv_pwm_init();
 #if MCU_CORE_826x
-	pwm_Init(0);   //set PWM divider
 	pwm_INVInvert(IR_CHAANEL);
 #elif MCU_CORE_8258 || MCU_CORE_8278
-	pwm_set_clk(CLOCK_SYS_CLOCK_HZ, CLOCK_SYS_CLOCK_HZ);
 #if IR_DMA_FIFO_EN
 	pwm_set_mode(IR_CHAANEL, PWM_IR_DMA_FIFO_MODE);
 #else
@@ -57,6 +56,12 @@ void ir_init(u8 channel){
 	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
 	pwm_n_revert(IR_CHAANEL);
 	pwm_stop(IR_CHAANEL);
+#elif MCU_CORE_B92
+#if IR_DMA_FIFO_EN
+	 pwm_set_pwm0_mode(PWM_IR_DMA_FIFO_MODE);
+#else
+	 pwm_set_pwm0_mode(PWM_NORMAL_MODE);
+#endif
 #endif
 }
 
@@ -69,16 +74,13 @@ void ir_set(int hz, int low_duty){
 	u16 max_tick = CLOCK_SYS_CLOCK_HZ/hz;
 	u16 cmp_tick = max_tick / low_duty;
 #if IR_DMA_FIFO_EN
-	pwm_set_mode(IR_CHAANEL, PWM_IR_DMA_FIFO_MODE);
-	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
 	pwm_set_cycle_and_duty(IR_CHAANEL, max_tick, cmp_tick);
 	reg_irq_mask |= FLD_IRQ_SW_PWM_EN;
 #else
-	pwm_set_mode(IR_CHAANEL, PWM_NORMAL_MODE);
-	pwm_set_phase(IR_CHAANEL, 0);   //no phase at pwm beginning
 	pwm_set_cycle_and_duty(IR_CHAANEL, max_tick, cmp_tick);
 #endif
-
+#elif MCU_CORE_B92
+	drv_ir_pwm_cfg(IR_CHAANEL,hz,low_duty);
 #endif
 }
 
@@ -87,6 +89,8 @@ void MARK(u32 t_us){
 	EN_PWM(IR_CHAANEL);
 #elif MCU_CORE_8258 || MCU_CORE_8278
 	pwm_start(IR_CHAANEL);
+#elif MCU_CORE_B92
+	pwm_start((IR_CHAANEL==0)?BIT(8):BIT(IR_CHAANEL));
 #endif
 }
 
@@ -95,6 +99,8 @@ void SPACE(u32 t_us){
 	DIS_PWM(IR_CHAANEL);
 #elif MCU_CORE_8258 || MCU_CORE_8278
 	pwm_stop(IR_CHAANEL);
+#elif MCU_CORE_B92
+	pwm_stop((IR_CHAANEL==0)?BIT(8):BIT(IR_CHAANEL));
 #endif
 }
 
@@ -126,13 +132,13 @@ volatile u8 T_irTimer1IrqCbCnt = 0;
 _attribute_ram_code_ int irTimer1IrqCb(void *arg){
 	int t_us = irInfo.interval[irInfo.curCnt];
 	if(t_us>4)t_us-=4;
-	hwTmr_setInterval(TIMER_IDX_1, t_us);
+//	hwTmr_setInterval(TIMER_IDX_1, t_us);
 
 	T_irTimer1IrqCbCnt++;
 	if(irInfo.curCnt == irInfo.totalCnt){
 		SPACE(0);
 		//cancel the timer1
-		hwTmr_cancel(TIMER_IDX_1);
+		drv_hwTmr_cancel(TIMER_IDX_1);
 		irInfo.repeatTimer = ev_on_timer(ir_repeatTimerCb, NULL, 50*1000);
 		irInfo.stopTimer = ev_on_timer(ir_stopTimerCb, NULL, 100*1000);
 		return -1;
@@ -167,7 +173,8 @@ void ir_send_serial(u16 *serial, u16 rawLen)
     memcpy(irInfo.interval, serial, 2*rawLen);
     irInfo.totalCnt = rawLen;
     irInfo.curCnt = 0;
-    hwTmr_set(TIMER_IDX_1, 1000, irTimer1IrqCb, NULL);
+    drv_hwTmr_set(TIMER_IDX_1, 1000, irTimer1IrqCb, NULL);
+    hwTimerStart(TIMER_IDX_1);
     irInfo.sta = 1;
 }
 
@@ -176,6 +183,7 @@ void ir_send_raw(u8 *raw, u32 rawLen, u8 specialIndex, u8 specialBase)
 {
     u32 i;
     u32 t_us;
+
     if(irInfo.repeatTimer){
 		ev_unon_timer(&irInfo.repeatTimer);
 	}
@@ -198,25 +206,29 @@ void ir_send_raw(u8 *raw, u32 rawLen, u8 specialIndex, u8 specialBase)
     }
     irInfo.totalCnt = rawLen;
     irInfo.curCnt = 0;
-    hwTmr_set(TIMER_IDX_1, 1000, irTimer1IrqCb, NULL);
+    drv_hwTmr_set(TIMER_IDX_1, 1000, irTimer1IrqCb, NULL);
+    hwTimerStart(TIMER_IDX_1);
     irInfo.sta = 1;
 }
 
 #if IR_DMA_FIFO_EN
 void ir_dma_send_raw(u16 *raw, u32 rawLen, u8 specialIndex, u8 specialBase);
-void ir_dma_convert_byte(u16 data, u8 bitLen, u16* p, u16 one_mark, u16 one_space, u8 fmls_1, u16 zero_mark, u16 zero_space, u8 fmls_0,u16 ir_carrier);
+void ir_dma_convert_byte(u16 data, u8 bitLen, u16* p, u16 one_mark, u16 one_space, u8 fmls_1, u16 zero_mark, u16 zero_space, u8 fmls_0,u16 ir_carrier_cycle_us);
 
 zrc_ir_dma_callback_t zrcir_dma_handler = NULL;
 ir_dma_serial_t  irDMABuffer;
 void ir_send_release(void)
 {
-	u8 r = irq_disable();
-	pwm_stop_dma_ir_sending();
-	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear irq status
-	reg_pwm_irq_mask &= ~FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //disable irq mask
+//	u8 r = irq_disable();
+//	pwm_stop_dma_ir_sending();
+//	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear irq status
+//	reg_pwm_irq_mask &= ~FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //disable irq mask
+
+	drv_ir_dma_disable_irq();
+	drv_ir_dma_stop();
 	irInfo.sta = 0;
 	irInfo.interval = NULL;
-	irq_restore(r);
+//	irq_restore(r);
 }
 
 void zrcDMAIrcallback(zrc_ir_dma_callback_t ir_cb)
@@ -226,12 +238,8 @@ void zrcDMAIrcallback(zrc_ir_dma_callback_t ir_cb)
 
 void rc_ir_irq_prc(void)
 {
-	if(reg_pwm_irq_sta & FLD_IRQ_PWM0_IR_DMA_FIFO_DONE)
-	{
-		reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //clear irq status
-		if(zrcir_dma_handler)
-			zrcir_dma_handler();
-	}
+	if(zrcir_dma_handler)
+		zrcir_dma_handler();
 }
 
 u8 Get_CarrierCycleTick(u32 freq)
@@ -264,7 +272,7 @@ void ir_dma_send_serial(u16 *serial, u16 rawLen)
     for (i = 0; i < rawLen; i++) {
     	t_us = serial[i];
     	waveflag = (i&0x1)?(0):(1);
-        irInfo.interval[i+2] = pwm_config_dma_fifo_waveform(waveflag, PWM0_PULSE_NORMAL, t_us * H_TIMER_CLOCK_1US/irDMABuffer.series_tick);;
+        irInfo.interval[i+2] = drv_ir_dma_plus_config( t_us * H_TIMER_CLOCK_1US/irDMABuffer.series_tick,waveflag);//pwm_config_dma_fifo_waveform(waveflag, PWM0_PULSE_NORMAL, t_us * H_TIMER_CLOCK_1US/irDMABuffer.series_tick);;
 
     }
 
@@ -274,16 +282,19 @@ void ir_dma_send_serial(u16 *serial, u16 rawLen)
 	buff[1]= (length>>8)&0xff;
 	buff[2]= (length>>16)&0xff;
 	buff[3]= (length>>24)&0xff;
-	pwm_set_dma_address(buff);
+//	pwm_set_dma_address(buff);
+	drv_ir_dma_set_buffer(buff);
 
     irInfo.totalCnt = length;
     irInfo.curCnt = 0;
     irInfo.sta = 1;
 
     zrcDMAIrcallback(ir_send_release);
-	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
-	reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
-	pwm_start_dma_ir_sending();
+//	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
+//	reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
+//	pwm_start_dma_ir_sending();
+	drv_ir_dma_enable_irq();
+	drv_ir_dma_start();
 }
 
 
@@ -320,23 +331,24 @@ void ir_dma_send_raw(u16 *raw, u32 rawLen, u8 specialIndex, u8 specialBase)
 	buff[1]= (length>>8)&0xff;
 	buff[2]= (length>>16)&0xff;
 	buff[3]= (length>>24)&0xff;
-	pwm_set_dma_address(buff);
-
+	drv_ir_dma_set_buffer(buff);
+    irInfo.totalCnt = length;
+    irInfo.curCnt = 0;
+    irInfo.sta = 1;
     zrcDMAIrcallback(ir_send_release);
-	reg_pwm_irq_sta = FLD_IRQ_PWM0_IR_DMA_FIFO_DONE;   //clear  dma fifo mode done irq status
-	reg_pwm_irq_mask |= FLD_IRQ_PWM0_IR_DMA_FIFO_DONE; //enable dma fifo mode done irq mask
-	pwm_start_dma_ir_sending();
+	drv_ir_dma_enable_irq();
+	drv_ir_dma_start();
 }
 
 
 
-void ir_dma_convert_byte(u16 data, u8 bitLen, u16* p, u16 one_mark, u16 one_space, u8 fmls_1, u16 zero_mark, u16 zero_space, u8 fmls_0,u16 ir_carrier_cycle_tick)
+void ir_dma_convert_byte(u16 data, u8 bitLen, u16* p, u16 one_mark, u16 one_space, u8 fmls_1, u16 zero_mark, u16 zero_space, u8 fmls_0,u16 ir_carrier_cycle_us)
 {
     u16  i;
-    u16  waveform_logic_1_1st = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, one_mark * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
-    u16  waveform_logic_1_2nd = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, one_space * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
-    u16  waveform_logic_0_1st = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, zero_mark * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
-    u16  waveform_logic_0_2nd = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, zero_space * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
+    u16  waveform_logic_1_1st = drv_ir_dma_plus_config( one_mark/ir_carrier_cycle_us,1);//pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, one_mark * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
+    u16  waveform_logic_1_2nd = drv_ir_dma_plus_config( one_space/ir_carrier_cycle_us,0);//pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, one_space * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
+    u16  waveform_logic_0_1st = drv_ir_dma_plus_config( zero_mark/ir_carrier_cycle_us,1);//pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, zero_mark * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
+    u16  waveform_logic_0_2nd = drv_ir_dma_plus_config( zero_space/ir_carrier_cycle_us,0);//pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, zero_space * H_TIMER_CLOCK_1US/ir_carrier_cycle_tick);
     for (i = 0; i < bitLen; i++) {
         if (data & 0x0001) {
             if (fmls_1) {
@@ -445,8 +457,12 @@ void ir_send_upd6121f(u16 addr, u16 cmd, u8 fRepeat)
 
 
 #if IR_DMA_FIFO_EN
+
+
 #define upd6121g_carrier						38000
-#define PWM_CARRIER_CYCLE_TICK					(CLOCK_SYS_CLOCK_HZ/upd6121g_carrier)
+#define PWM_CARRIER_CYCLE_US					(1000000/upd6121g_carrier)
+
+
 
 void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat)
 {
@@ -463,25 +479,25 @@ void ir_send_upd6121g(u16 addr, u16 cmd, u8 fRepeat)
 
     if (!fRepeat)
     {
-        *p++ = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, NEC_HDR_MARK * H_TIMER_CLOCK_1US/PWM_CARRIER_CYCLE_TICK);
-        *p++ = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, NEC_HDR_SPACE * H_TIMER_CLOCK_1US/PWM_CARRIER_CYCLE_TICK);
+        *p++ = drv_ir_dma_plus_config( NEC_HDR_MARK/PWM_CARRIER_CYCLE_US,1);
+        *p++ = drv_ir_dma_plus_config( NEC_HDR_SPACE/PWM_CARRIER_CYCLE_US,0);
 
-        ir_dma_convert_byte(first_addr, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        ir_dma_convert_byte(first_addr, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_US);
         p += 16;
-        ir_dma_convert_byte(second_addr, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        ir_dma_convert_byte(second_addr, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_US);
         p += 16;
-        ir_dma_convert_byte(first_cmd, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        ir_dma_convert_byte(first_cmd, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_US);
         p += 16;
-        ir_dma_convert_byte(second_cmd, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_TICK);
+        ir_dma_convert_byte(second_cmd, 8, p, NEC_BIT_MARK, NEC_ONE_SPACE, 1, NEC_BIT_MARK, NEC_ZERO_SPACE, 1,PWM_CARRIER_CYCLE_US);
         p += 16;
     }
     else
     {
-        *p++ = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, NEC_HDR_MARK * H_TIMER_CLOCK_1US/PWM_CARRIER_CYCLE_TICK);
-        *p++ = pwm_config_dma_fifo_waveform(0, PWM0_PULSE_NORMAL, NEC_RPT_SPACE * H_TIMER_CLOCK_1US/PWM_CARRIER_CYCLE_TICK);
+        *p++ = drv_ir_dma_plus_config( NEC_HDR_MARK/PWM_CARRIER_CYCLE_US,1);
+        *p++ = drv_ir_dma_plus_config( NEC_RPT_SPACE/PWM_CARRIER_CYCLE_US,0);
     }
 
-    	*p++ = pwm_config_dma_fifo_waveform(1, PWM0_PULSE_NORMAL, NEC_BIT_MARK * H_TIMER_CLOCK_1US/PWM_CARRIER_CYCLE_TICK);
+    	*p++ = drv_ir_dma_plus_config( NEC_BIT_MARK/PWM_CARRIER_CYCLE_US,1);
     	ir_dma_send_raw(buf, p-buf, NO_SPECIAL, 0);
 #if (__DEBUG_BUFM__)
     if ( ERR_NONE != ev_buf_free(buf) ) {

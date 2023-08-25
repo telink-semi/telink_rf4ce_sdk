@@ -23,7 +23,7 @@
 
 #pragma  once
 
-enum{
+typedef enum{
 	ZRC_APPID_OTA = 0x01,
 	ZRC_APPID_AUDIO = 0x02,
 }zrcAppDataId_e;

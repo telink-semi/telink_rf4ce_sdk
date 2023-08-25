@@ -72,27 +72,6 @@ void addrCpy(addr_t *pDstAddr, addr_t* pSrcAddr)
 }
 
 
-void generateRandomData(u8 *pData, u8 len)
-{
-	u8 i;
-	for (i=0; i<2; i++) {
-#ifdef WIN32
-		*((u16*)pData) = (u16)my_random(); //randomT();
-#else
-		*pData = rand(); //randomT();
-		*(pData + 1) = rand();
-#endif
-
-	}
-	for (i=2; i<len; i+=2) {
-#ifdef WIN32
-		*((u16*)(pData + i)) = (u16)my_random(); //randomT();
-#else
-		*((u16*)(pData + i)) = (u16)rand(); //randomT();
-#endif
-
-	}
-}
 
 unsigned short crc16_calculate (unsigned char *pD, int len, unsigned short init){
     static unsigned short poly[2]={0, 0xa001};              //0x8005 <==> 0xa001

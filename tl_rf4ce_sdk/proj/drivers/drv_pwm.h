@@ -26,6 +26,11 @@
 #include "../common/types.h"
 #include "../common/compiler.h"
 
+#if(MCU_CORE_B92)
+#define     PWM_PCLK_SPEED				16000000 //pwm clock 12M.
+#define  	DMA_CHN   					DMA5
+#endif
+
 void drv_pwm_init(void);
 
 void drv_pwm_cfg(u32  pwmId, unsigned short cmp_tick, unsigned short cycle_tick);
@@ -42,3 +47,9 @@ void drv_pwm_cfg(u32  pwmId, unsigned short cmp_tick, unsigned short cycle_tick)
 #define drv_pwm_n_invert(pwmId)		pwm_INVInvert(pwmId)
 #endif
 
+void drv_ir_dma_start(void);
+unsigned short drv_ir_dma_plus_config(unsigned short plus_num,unsigned char carrien);
+void drv_ir_dma_set_buffer(void *buf);
+void drv_ir_dma_enable_irq(void);
+void drv_ir_dma_disable_irq(void);
+void drv_ir_pwm_cfg(u32  pwmId, u32 hz, u32 low_duty);

@@ -25,10 +25,10 @@
 #include "sys.h"
 #include "../os/ev.h"
 #include "../../platform/platform_includes.h"
-#include "../os/timer.h"
 #include "../../net/rf4ce/rf4ce_includes.h"
 #include "../drivers/drv_flash.h"
 #include "../drivers/drv_pm.h"
+#include "../drivers/drv_timer.h"
 
 extern void app_idle_handler(void);
 
@@ -85,6 +85,7 @@ static void sys_enter_suspend_mode(void){
 		wakeupSrc |= PLATFORM_WAKEUP_PAD;
 	}
 #endif
+
 	platform_lowpower_enter(PLATFORM_MODE_SUSPEND, wakeupSrc, realInterval);
 	lastWakeupTime = clock_time();
 	firstRun = 0;
@@ -159,15 +160,15 @@ void sys_idle_handler(void){
 }
 
 
-void sys_init(void){
+void sysIdleTaskInit(void){
 #if (0 || IRQ_TIMER1_ENABLE)
 	/* Initialize hardware timer */
-	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+	drv_hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
 #endif
 
 #if (__PROJECT_ZRC_2_RC__ || __PROJECT_MSO_RC__)
 	extern u8 TIMER_FOR_USER;
-	hwTmr_init(TIMER_FOR_USER, TIMER_MODE_SCLK);
+	drv_hwTmr_init(TIMER_FOR_USER, TIMER_MODE_SCLK);
 #endif
     sys_idle_handler_ptr = sys_idle_handler;
 
@@ -181,7 +182,7 @@ void sys_init(void){
 extern const u8 protect_flash_cmd;
 #endif
 /* the following code must be allocated at RAM!!!!!! */
-_attribute_ram_code_ u8 sys_reboot(u32 addr, u32 size){
+_attribute_ram_code_ u8 sysClrInfoReboot(u32 addr, u32 size){
 	u32 sect_num_total = size / FLASH_SECTOR_SIZE + 1;
 	u32 page_num_total = size / FLASH_PAGE_SIZE + 1;
 	u32 erase_addr = 0;
@@ -249,7 +250,8 @@ recopy_start:
 
 	/* reset system */
 	volatile int j;
-	write_reg8(0x80006f,0x20);
+//	write_reg8(0x80006f,0x20);
+	SYSTEM_RESET();
 	for(j=0;j<3200;j++);
 	return NV_SUCC;
 }

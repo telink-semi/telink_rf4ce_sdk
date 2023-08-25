@@ -30,7 +30,7 @@ extern "C" {
 
 #define _USER_CONFIG_DEFINED_     1    // must define this macro to make others known
 
-#define __DEBUG__ 1
+#define __DEBUG__ 0
 
 //#define START_PERMIT_JOIN_OFF	1
     //////////// product  Infomation  //////////////////////////////
@@ -56,7 +56,7 @@ extern "C" {
 #define MODULE_FLASH_ENABLE     1
 /////////////////// watchdog  //////////////////////////////
 
-#define MODULE_WATCHDOG_ENABLE	0
+#define MODULE_WATCHDOG_ENABLE	  0
 #define MODULE_USB_ENABLE         1
 #define MODULE_BUFM_ENABLE        1
 #define MODULE_PRIQ_ENABLE        1
@@ -81,6 +81,10 @@ extern "C" {
 	#define S_TIMER_CLOCK_1US				sys_tick_per_us
 	#define S_TIMER_CLOCK_1MS				sys_tick_per_us*1000
 	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif  defined(MCU_CORE_B92)
+	#define S_TIMER_CLOCK_1US				SYSTEM_TIMER_TICK_1US
+	#define S_TIMER_CLOCK_1MS				SYSTEM_TIMER_TICK_1MS
+	#define H_TIMER_CLOCK_1US				(sys_clk.pclk)
 #endif
 ///////////////////  ADC  /////////////////////////////////
 #define MODULE_MOUSE_ENABLE       0
@@ -96,6 +100,9 @@ extern "C" {
 /////////////////// FLASH_PROTECT /////////////////////////////////
 #define FLASH_PROTECT           	  0
 ///////////////////  battery  /////////////////////////////////
+
+/*********************UART_PRINTF_MODE******************/
+#define UART_PRINTF_MODE				0
 
 
 #define BATT_ADC_CHANNEL		0

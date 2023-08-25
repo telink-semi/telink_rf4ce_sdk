@@ -30,11 +30,11 @@
 #include "../../proj/common/tlPrintf.h"
 
 #if FLASH_CAP_SIZE_1M
-u32 g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
-u32 g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
+volatile u32 g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
+volatile u32 g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
 #else
-u32 g_u32MacFlashAddr = MAC_ADDR_512K_FLASH;
-u32 g_u32CfgFlashAddr = CFG_ADDR_512K_FLASH;
+volatile u32 g_u32MacFlashAddr = MAC_ADDR_512K_FLASH;
+volatile u32 g_u32CfgFlashAddr = CFG_ADDR_512K_FLASH;
 #endif
 
 
@@ -80,39 +80,39 @@ static u8 g_nvItemLengthCheckNum = 0;
 
 
 
-/*********************************************************************
- * @fn      internalFlashSizeCheck
- *
- * @brief   This function is provided to get and update to the correct flash address
- * 			where are stored the right MAC address and pre-configured parameters.
- * 			NOTE: It should be called before ZB_RADIO_INIT().
- *
- * @param   None
- *
- * @return  None
- */
-void internalFlashSizeCheck(void){
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-	u32 mid = flash_read_mid();
-	u8 *pMid = (u8 *)&mid;
-
-	if( (pMid[2] < FLASH_SIZE_512K) || \
-		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (pMid[2] < FLASH_SIZE_1M))
-	){
-		/* Flash space not matched. */
-		while(1);
-	}
-
-	switch(pMid[2]){
-		case FLASH_SIZE_1M:
-			g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
-			g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
-			break;
-		default:
-			break;
-	}
-#endif
-}
+///*********************************************************************
+// * @fn      internalFlashSizeCheck
+// *
+// * @brief   This function is provided to get and update to the correct flash address
+// * 			where are stored the right MAC address and pre-configured parameters.
+// * 			NOTE: It should be called before ZB_RADIO_INIT().
+// *
+// * @param   None
+// *
+// * @return  None
+// */
+//void internalFlashSizeCheck(void){
+//#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+//	u32 mid = flash_read_mid();
+//	u8 *pMid = (u8 *)&mid;
+//
+//	if( (pMid[2] < FLASH_SIZE_512K) || \
+//		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (pMid[2] < FLASH_SIZE_1M))
+//	){
+//		/* Flash space not matched. */
+//		while(1);
+//	}
+//
+//	switch(pMid[2]){
+//		case FLASH_SIZE_1M:
+//			g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
+//			g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
+//			break;
+//		default:
+//			break;
+//	}
+//#endif
+//}
 
 
 
@@ -444,15 +444,12 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 	nv_sts_t ret = NV_SUCC;
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
 	nv_info_idx_t idx;
-
 	flash_read(idxStartAddr + opIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idx);
 	if(!ITEM_VALID_FLAG_CHECK(idx.usedState)){
 		return NV_ITEM_NOT_FOUND;
 	}
-
 	itemHdr_t hdr;
 	flash_read(idx.offset, sizeof(itemHdr_t), (u8*)&hdr);
-
 	bool lenMatch = NV_ITEMLEN_MATCH(hdr.size, len);
 	u16  realLen = nv_itemLengthValidCheck(itemId, hdr.size);
 	u32 readOft = 0;
@@ -460,19 +457,15 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 	if(lenMatch && (ITEM_HDR_VALID_CHECK(hdr.used)) && hdr.itemId == itemId){
 		flash_read(idx.offset + sizeof(itemHdr_t), realLen, buf);
 		readOft = idx.offset + sizeof(itemHdr_t) + realLen;
-
 		u8 pTemp[32] = {0};
 		u32 opLen = 0;
 		s32 leftSize = 0;
-
 		// check check_sum
 		if(hdr.used == ITEM_HDR_FIELD_VALID_CHECKSUM){
 			u32 checkSum = 0;
-
 			for(s32 i = 0; i < realLen; i++){
 				checkSum += buf[i];
 			}
-
 			if(realLen < hdr.size){
 				leftSize = hdr.size - realLen;
 				while(leftSize > 0){
@@ -491,7 +484,6 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 		}else{
 			u32 crcRead = 0xffffffff;
 			crcRead = xcrc32(buf, realLen, crcRead);
-
 			if(realLen < hdr.size){
 				leftSize = hdr.size - realLen;
 				while(leftSize > 0){
@@ -568,7 +560,6 @@ nv_sts_t nv_flashSingleItemSizeGet(u8 id, u8 itemId, u16 *len){
 	return ret;
 }
 
-/*
 static void nv_exceptionDataHandler(bool single, u8 opSect, u16 id, u8 itemId, u16 len){
 	s16 idxTotalNum = MODULE_IDX_NUM(id);
 	s16 validNum = 0;
@@ -605,7 +596,7 @@ static void nv_exceptionDataHandler(bool single, u8 opSect, u16 id, u8 itemId, u
 		ev_buf_free(idxTbl);
 	}
 }
-*/
+
 
 static nv_sts_t nv_flashWriteNewHandler(bool forceChgSec, u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	nv_sts_t ret = NV_SUCC;
@@ -844,12 +835,10 @@ nv_sts_t nv_flashReadNew(u8 single, u8 id, u8 itemId, u16 len, u8 *buf){
 	if(id == DS_NWK_FRAMECOUNT_MODULE){
 		return NV_INVALID_MODULS;
 	}
-
 	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
 	if(ret != NV_SUCC){
 		return ret;
 	}
-
 	opSect = sectInfo.opSect;
 	idxTotalNum = MODULE_IDX_NUM(id);
 

@@ -182,7 +182,7 @@ static u32 kb_key_pressed(u32 * gpio)
 		gpio_write(drive_pins[i], KB_LINE_HIGH_VALID);
 		gpio_set_output_en(drive_pins[i], 1);
 	}
-	sleep_us (20);
+	delay_us (20);
 	gpio_read_all ((u8 * )gpio);
 
 	u32 ret = 0;
