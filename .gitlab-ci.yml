@@ -12,7 +12,7 @@ build:
   before_script:
   script:
     - which tc32-elf-gcc
-    - chmod +x tl_rf4ce_sdk/*.sh
+    - chmod +x tl_rf4ce_sdk/tools/*.sh
     - date
     - ls ./tl_rf4ce_sdk/
     - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import ./tl_rf4ce_sdk/build/tlsr_tc32/ -cleanBuild tl_rf4ce_sdk/build/tlsr_tc32/zrc2_rc_8258
