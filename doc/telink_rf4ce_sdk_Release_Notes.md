@@ -1,3 +1,60 @@
+## V2.4.2.0
+
+### Features
+* Support B92 A3
+### Bug Fixes
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+
+  * tl_rf4ce_sdk/build/tlsr_riscv/zrc2_rc_b92
+    - Flash:106k
+    - RAM:25k
+  * tl_rf4ce_sdk/build/tlsr_riscv/zrc2_dongle_b92
+    - Flash:88k
+    - RAM:19k
+  * tl_rf4ce_sdk/build/tlsr_riscv/mso_rc_b92
+    - Flash:88k
+    - RAM:24k
+  * tl_rf4ce_sdk/build/tlsr_riscv/mso_dongle_b92
+    - Flash:74k
+    - RAM:19k
+
+## V2.4.1.1
+### Features
+* Add SDK version information in the bin firmware.
+* Add CRC check to ensure the integrity of new firmware upgraded by OTA.
+* Update ADC and flash driver for 8258 with embedded zbit flash.
+### Bug Fixes
+* Fix the extended channel save issue.
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 在bin文件里增加SDK版本信息
+* 增加CRC校验，确保OTA升级的新固件的完整性
+* 为内嵌zbit flash的8258/8278更新ADC和Flash驱动
+### Bug Fixes
+* 修复扩展频点保存的问题
+### BREAKING CHANGES
+* N/A
+
+## V2.4.0.1
+### Features
+* Normalizes the naming of content related to private schemas.
+### Bug Fixes
+* N/A
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 规范化与私有模式相关内容的命名.
+### Bug Fixes
+* N/A
+### BREAKING CHANGES
+* N/A
+
 ## V2.4.0.0(Public release)
 ### Features
 * Support mso profile.([ab6f52ff](http://192.168.48.36/src/rf4ce/telink_rf4ce_src/commit/ab6f52ff4981bcffa095c95af81eb90af5b77bb5))
