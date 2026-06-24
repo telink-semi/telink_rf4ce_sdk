@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for usbkb_i.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -38,11 +38,11 @@ static const USB_Descriptor_HIDReport_Datatype_t keyboard_report_desc[] = {
 };
 
 static inline u8* usbkb_get_report_desc(void) {
-	return (u8*) (keyboard_report_desc);
+    return (u8*) (keyboard_report_desc);
 }
 
 static inline u16 usbkb_get_report_desc_size(void) {
-	return sizeof(keyboard_report_desc);
+    return sizeof(keyboard_report_desc);
 }
 
 

@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	drv_spi.h
+ * @file    drv_spi.h
  *
- * @brief	This is the header file for drv_spi
+ * @brief    This is the header file for drv_spi
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee GROUP
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -47,10 +47,10 @@
 
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define SPI_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
+    #define SPI_CLOCK_SOURCE            CLOCK_SYS_CLOCK_HZ
 #elif defined(MCU_CORE_B92)
-	/* PCLK provides clock source for PSPI module. */
-	#define SPI_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
+    /* PCLK provides clock source for PSPI module. */
+    #define SPI_CLOCK_SOURCE            (sys_clk.pclk * 1000 * 1000)
 #endif
 
 /**
@@ -86,7 +86,7 @@ void drv_spi_slave_init(drv_spi_mode_type_def mode);
  * @param[in] Pin Group or Pins
  * @return    none
  */
-#if	defined(MCU_CORE_826x)
+#if defined(MCU_CORE_826x)
 void drv_spi_master_pin_select(SPI_PinTypeDef pinGroup);
 #elif defined(MCU_CORE_8258)
 void drv_spi_master_pin_select(SPI_GPIO_GroupTypeDef pinGroup);
@@ -101,7 +101,7 @@ void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_
  * @param[in] Pin Group or Pins
  * @return    none
  */
-#if	defined(MCU_CORE_826x)
+#if defined(MCU_CORE_826x)
 void drv_spi_slave_pin_select(SPI_PinTypeDef pinGroup);
 #elif defined(MCU_CORE_8258)
 void drv_spi_slave_pin_select(SPI_GPIO_GroupTypeDef pinGroup);

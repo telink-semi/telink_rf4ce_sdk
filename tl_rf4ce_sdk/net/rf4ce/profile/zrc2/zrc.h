@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for zrc.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -50,32 +50,32 @@
 #else
 #define ZRC2_aplcMaxConfigWaitTime                        100  //ms
 #endif
-#define ZRC2_aplcMaxActionRepeatTriggerInterval           500
-#define ZRC2_aplcShortRetryDuration                       100
-#define ZRC2_aplcBindWindowDuration                       15*1000  //15S
+#define ZRC2_aplcMaxActionRepeatTriggerInterval    500
+#define ZRC2_aplcShortRetryDuration                100
+#define ZRC2_aplcBindWindowDuration                15*1000//15S
   
-#define ZRC2_CHECK_BINDING_PROCEDURE_TIME                 30*1000  //30S
+#define ZRC2_CHECK_BINDING_PROCEDURE_TIME          30*1000//30S
 
 
-#define MAX_ZRC_ATTR_NUM                       7
-#define MAX_ZRC_IR_RF_KEY_DATABASE_NUM         40
+#define MAX_ZRC_ATTR_NUM                           7
+#define MAX_ZRC_IR_RF_KEY_DATABASE_NUM             40
 
 
-#define ZRC_USE_NODE_IF_DUPLICATE                 0
-#define ZRC_RECLASSIFY_IF_DUPLICATE               1
-#define ZRC_ABORT_BINDING_IF_DUPLICATE            2
-#define ZRC_RESERVED_BINDING_IF_DUPLICATE         3
+#define ZRC_USE_NODE_IF_DUPLICATE                  0
+#define ZRC_RECLASSIFY_IF_DUPLICATE                1
+#define ZRC_ABORT_BINDING_IF_DUPLICATE             2
+#define ZRC_RESERVED_BINDING_IF_DUPLICATE          3
 
 
-#define ZRC_CLASS_NUM_PRE_COMMISSIONED            0
-#define ZRC_CLASS_NUM_BUTTON_PRESS_IND            1
-#define ZRC_CLASS_NUM_BUTTON_RESERVED             2
-#define ZRC_CLASS_NUM_DISCOVERABLE_ONLY           0xf
+#define ZRC_CLASS_NUM_PRE_COMMISSIONED             0
+#define ZRC_CLASS_NUM_BUTTON_PRESS_IND             1
+#define ZRC_CLASS_NUM_BUTTON_RESERVED              2
+#define ZRC_CLASS_NUM_DISCOVERABLE_ONLY            0xf
   
   
-#define ZRC_PRIMARY_CLASS_DESCRIPTOR             0
-#define ZRC_SECONDARY_CLASS_DESCRIPTOR           1
-#define ZRC_TERTIARY_CLASS_DESCRIPTOR            2
+#define ZRC_PRIMARY_CLASS_DESCRIPTOR               0
+#define ZRC_SECONDARY_CLASS_DESCRIPTOR             1
+#define ZRC_TERTIARY_CLASS_DESCRIPTOR              2
 
 
 
@@ -92,60 +92,60 @@ typedef enum {
 
 
 typedef struct {
-	union {
+    union {
         struct {
-            u8 classNum         : 4;     /* vendor sending packet */
-            u8 duplicateHandle  : 2;
-			u8 reserved         : 2;
+        u8    classNum : 4;    /* vendor sending packet */
+        u8    duplicateHandle : 2;
+        u8    reserved : 2;
         } bf;
-        u8 val;
+        u8    val;
     } flags; 
 } zrc_classDesc_t;
 
 typedef struct {
     union {
         struct {
-            u8 minClassNum : 4;
-            u8 maxClassNum : 4;
+        u8    minClassNum : 4;
+        u8    maxClassNum : 4;
         }bf;
-        u8 val; 
+        u8    val;    
     }flags; 
 } zrc_classFilter_t;
 
 typedef struct {
-	u8 zrc_userStr[8];
-	u8 null_byte;
-	u16 reserved;
-	zrc_classDesc_t teriaryCD;
-	zrc_classDesc_t secCD;
-	zrc_classDesc_t priCD;
-	u8 LqiTh;
+                 u8    zrc_userStr[8];
+                 u8    null_byte;
+                u16    reserved;
+    zrc_classDesc_t    teriaryCD;
+    zrc_classDesc_t    secCD;
+    zrc_classDesc_t    priCD;
+                 u8    LqiTh;
 } zrc_discRespUserStr_t;
 
 typedef struct {
-    u8 zrc_userStr[8];
-    u8 null_byte;
-    u16 vendorFilter;
-    zrc_classFilter_t classFilter;
-    u8 minLqi;    
-    u8 reserved[2];
+                   u8    zrc_userStr[8];
+                   u8    null_byte;
+                  u16    vendorFilter;
+    zrc_classFilter_t    classFilter;
+                   u8    minLqi;    
+                   u8    reserved[2];
 } zrc_discReqUserStr_t;
 
 
     
 typedef struct {
-	addrExt_t ieee;
-	u8 classNum[3];
+    addrExt_t    ieee;
+           u8    classNum[3];
     union {
         struct {
-            u8 ch   : 3;     /* vendor sending packet */
-            u8 isZRC2 : 1;
-            u8 reversed : 4;
+           u8    ch : 3;    /* vendor sending packet */
+           u8    isZRC2 : 1;
+           u8    reversed : 4;
         } bf;
-        u8 val;
+           u8    val;
     } flags;    
     
-    u16 panId;
+          u16    panId;
 } zrc_nodeInfo_t;
 
 /**
@@ -153,8 +153,8 @@ typedef struct {
  */
 typedef struct zrc_evItem_t{
     struct zrc_evItem_t *next;
-    u8 *pData;
-    u8 evt;
+    u8    *pData;
+    u8    evt;
 } zrc_evItem_t;
 
 
@@ -162,44 +162,44 @@ typedef struct zrc_evItem_t{
 /** @brief  ZRC state machine */
 typedef struct
 {
-    u16            curState;            /*! The ZID State in which the event handler can be used */
-    u16            event;               /*! The event for which the event handler is to be invoked */
-    fn_ptr        evHandlerFunc;       /*! The corresponding event handler */
+       u16    curState;    /*! The ZID State in which the event handler can be used */
+       u16    event;    /*! The event for which the event handler is to be invoked */
+    fn_ptr    evHandlerFunc;    /*! The corresponding event handler */
 } zrc_stateMachine_t;
 
 
 typedef struct {
-    u16               zrc2ProfileVersion;
-    u16               zrc2ZRCActionBanksVersion;     
-    u32               zrc2ProfileCapabilities;
-    u8                zrc2ActionBanksSupportedTX[32];
-    u8                zrc2ActionCodesSupportedTX[32];
-    u16                zrc2ActionRepeatTriggerInterval;
+    u16    zrc2ProfileVersion;
+    u16    zrc2ZRCActionBanksVersion;    
+    u32    zrc2ProfileCapabilities;
+     u8    zrc2ActionBanksSupportedTX[32];
+     u8    zrc2ActionCodesSupportedTX[32];
+    u16    zrc2ActionRepeatTriggerInterval;
 } zrc2_rcPib_t;
 
 typedef struct {
-    u16               zrc2ProfileVersion;
-    u16               zrc2ZRCActionBanksVersion;
-    u32               zrc2ProfileCapabilities;
-    u8                zrc2ActionBanksSupportedRX[32];
+    u16    zrc2ProfileVersion;
+    u16    zrc2ZRCActionBanksVersion;
+    u32    zrc2ProfileCapabilities;
+     u8    zrc2ActionBanksSupportedRX[32];
     //u8                zrc2ActionCodesSupportedRX[32];
-    u16                zrc2ActionRepeatWaitTime;
+    u16    zrc2ActionRepeatWaitTime;
 } zrc2_tgtPib_t;
 
 typedef struct {
     union {
         struct {
-            u32 supportActionsOriginator          :1;
-            u32 supportActionsRecipient           :1;
-            u32 supportHAActionsOriginator        :1;
-            u32 supportHAActionsRecipient         :1;
-            u32 supportActionMappingClient        :1;
-            u32 supportActionMappingServer        :1;
-            u32 supportVendorSpecificIRDBFormats  :1;
-            u32 informAboutSupportedActions       :1;
-            u32 reserved                          :24;
+        u32    supportActionsOriginator : 1;
+        u32    supportActionsRecipient : 1;
+        u32    supportHAActionsOriginator : 1;
+        u32    supportHAActionsRecipient : 1;
+        u32    supportActionMappingClient : 1;
+        u32    supportActionMappingServer : 1;
+        u32    supportVendorSpecificIRDBFormats : 1;
+        u32    informAboutSupportedActions : 1;
+        u32    reserved : 24;
         }bf;
-        u32 byte32;
+        u32    byte32;
     } profileCapabilities;
 } zrc2_profileCap_t;
 
@@ -207,22 +207,22 @@ typedef struct {
  *  @brief  Definition for attribute record format
  */
 typedef struct {
-    u8 id;             /*!< Attribute ID */
-    u8 len;            /*!< Attribute length */
-    u8 offset;           /*!< Pointer to data field */
+    u8    id;    /*!< Attribute ID */
+    u8    len;    /*!< Attribute length */
+    u8    offset;    /*!< Pointer to data field */
 } zrc_attr_t;
 
 typedef struct {
-    u8 bankHasSent;
-    u8 bankNeedSent;
-    u8 bankPos[1];
+    u8    bankHasSent;
+    u8    bankNeedSent;
+    u8    bankPos[1];
 } bankInfo_t;
 
 typedef struct {
-	u8 pairingRef;
-	u8 attrId;
-	u16 entryId;
-	u8 value[32];
+     u8    pairingRef;
+     u8    attrId;
+    u16    entryId;
+     u8    value[32];
 } zrc_attrInfo_t;
 
 
@@ -284,3 +284,4 @@ _CODE_ZRC_ void zrc_pairForceStop(void);
 void zrc_setNeedWaitTimer(u8 needTimer);
 
 zrc_sts_t zrc2_vendorSpecficDataSend(u8 pairingRef, u8* payload, u8 len, u8 fUseWaitingTimer);
+

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for selection_sort.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")

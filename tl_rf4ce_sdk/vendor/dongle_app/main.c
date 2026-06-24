@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for main.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -37,15 +37,15 @@ volatile u32 tick_usb_enum=0;
 
 int main (void) {
 
-	u8 isDeepBack = drv_platform_init();
+    u8 isDeepBack = drv_platform_init();
 
-	sysIdleTaskInit();
+    sysIdleTaskInit();
 
-	ev_buf_init();
+    ev_buf_init();
 
-	task_sched_init();
+    task_sched_init();
 
-    user_init ();
+    user_init();
 
 #if (MODULE_WATCHDOG_ENABLE)
     drv_wd_setInterval(1000);

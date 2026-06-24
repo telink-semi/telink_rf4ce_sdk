@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for usbkb.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -35,11 +35,11 @@ extern "C" {
 
 #define KEYBOARD_REPORT_KEY_MAX     6
 typedef struct {
-    u8 Modifier; /**< Keyboard modifier byte, indicating pressed modifier keys (a combination of
+    u8    Modifier;    /**< Keyboard modifier byte, indicating pressed modifier keys (a combination of
                        *   \c HID_KEYBOARD_MODIFER_* masks).
                        */
-    u8 Reserved; /**< Reserved for OEM use, always set to 0. */
-    u8 KeyCode[KEYBOARD_REPORT_KEY_MAX]; /**< Key codes of the currently pressed keys. */
+    u8    Reserved;    /**< Reserved for OEM use, always set to 0. */
+    u8    KeyCode[KEYBOARD_REPORT_KEY_MAX];    /**< Key codes of the currently pressed keys. */
 } usbkb_hid_report_t;
 
 int usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
@@ -49,4 +49,5 @@ int usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
 #if defined(__cplusplus)
 }
 #endif
+
 

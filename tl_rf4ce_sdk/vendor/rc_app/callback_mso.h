@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for callback_mso.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -25,20 +25,20 @@
 
 #include "../../proj/drivers/keyboard.h"
 
-#define    PROFILE_DEFAULT_KEY_TYPE			ZRC_USER_CTRL_PRED
+#define    PROFILE_DEFAULT_KEY_TYPE            ZRC_USER_CTRL_PRED
 
 #if  (RF4CE_MSO_ENABLE)
-#define    profile_doUnpair					mso_doUnpair
-#define    profile_doPair					mso_doPair
-#define    profile_PowerStatusPush			mso_PowerStatusPush
+#define profile_doUnpair           mso_doUnpair
+#define profile_doPair             mso_doPair
+#define profile_PowerStatusPush    mso_PowerStatusPush
 #endif
 
 extern const profile_cbFunc_t mso_profileCmdCallbacks;
 
 //extern const mso_userCbFunc_t mso_cmdCallbacks;
 
-#define isSetElem(e,e0,e1) ((e == e0)||(e == e1))
-#define isCombKey(k0,k1,e0,e1) (isSetElem(k0,e0,e1)&&isSetElem(k1,e0,e1))
+#define isSetElem(e,e0,e1)        ((e == e0)||(e == e1))
+#define isCombKey(k0,k1,e0,e1)    (isSetElem(k0,e0,e1)&&isSetElem(k1,e0,e1))
 
 int mso_doPair(void *arg);
 //void mso_doUnpair(void *arg);

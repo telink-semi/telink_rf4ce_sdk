@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for tl_specific_data.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,27 +29,28 @@
 
 
 typedef enum{
-	TL_SPECIFIC_ID_OTA 		= 0x31,
-	TL_SPECIFIC_ID_AUDIO 	= 0x32,
+    TL_SPECIFIC_ID_OTA       = 0x31,
+    TL_SPECIFIC_ID_AUDIO     = 0x32,
 }tl_specificDataId_e;
 
 typedef struct{
-	tl_specificDataId_e	appId;
-	u8					seqNo;
-	u8					cmdId;
-	u8					len;
+    tl_specificDataId_e    appId;
+                     u8    seqNo;
+                     u8    cmdId;
+                     u8    len;
 }tl_appFrameHdr_t;
 
 typedef struct{
-	tl_appFrameHdr_t	hdr;
-	u8					payload[0];
+    tl_appFrameHdr_t    hdr;
+                  u8    payload[0];
 }tl_appFrameFmt_t;
 
 
-extern u8 	g_tlAppDataSeqNo;
+extern u8     g_tlAppDataSeqNo;
 
-#define TL_SPECIFC_SEQNO_ADD		(g_tlAppDataSeqNo++)
+#define TL_SPECIFC_SEQNO_ADD        (g_tlAppDataSeqNo++)
 
 void tl_appDataIndicate(u8 *pd, u8 len);
 
 #endif /* TL_AUDIO_H_ */
+

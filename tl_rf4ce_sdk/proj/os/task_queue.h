@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	zb_task_queue.h
+ * @file    zb_task_queue.h
  *
- * @brief	This is the header file for zb_task_queue
+ * @brief    This is the header file for zb_task_queue
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee GROUP
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -44,20 +44,20 @@
  *
  *******************************************************************************************************/
 #ifndef ZB_TASK_QUEUE_H
-#define ZB_TASK_QUEUE_H
+#define ZB_TASK_QUEUE_H          
 
 
 
-#define	TL_TASKQ_USERUSE_SIZE				10
+#define TL_TASKQ_USERUSE_SIZE    16
 
 enum{
-	ZB_RET_OK,			/*!< status: success */
-	ZB_RET_OVERFLOW,	/*!< status: array or buffer overflow */
+    ZB_RET_OK,            /*!< status: success */
+    ZB_RET_OVERFLOW,    /*!< status: array or buffer overflow */
 };
 
 enum{
-	TL_Q_EV_TASK = 0,
-	TL_Q_TYPE_MAX
+    TL_Q_EV_TASK = 0,
+    TL_Q_TYPE_MAX
 };
 
 /**
@@ -73,19 +73,19 @@ typedef void (*tl_task_callback_t)(void *arg);
 
 
 typedef struct tl_zb_task_s{
-	tl_task_callback_t tlCb;
-	 void *data;
+    tl_task_callback_t    tlCb;
+                  void    *data;
 }tl_zb_task_t;
 
 typedef struct{
-	tl_zb_task_t evt[TL_TASKQ_USERUSE_SIZE];
-	u8 wptr;
-	u8 rptr;
+    tl_zb_task_t    evt[TL_TASKQ_USERUSE_SIZE];
+              u8    wptr;
+              u8    rptr;
 }tl_taskq_user_t;
 
 
 
-#define	TL_QUEUE_HAS_SPACE(wptr, rptr, size)		((wptr - rptr) < (size))
+#define    TL_QUEUE_HAS_SPACE(wptr, rptr, size)        ((wptr - rptr) < (size))
 
 /**
    Initialize scheduler subsystem.
@@ -129,7 +129,7 @@ u8 tl_taskQPush(u8 idx, tl_zb_task_t *task);
   * @return      the status
   */
 u8 tl_taskPost(tl_task_callback_t func, void *arg);
-#define	TL_SCHEDULE_TASK	tl_taskPost
+#define    TL_SCHEDULE_TASK    tl_taskPost
 
 
 u8 tl_isTaskDone(void);
@@ -138,3 +138,4 @@ u8 tl_userTaskQNum(void);
 
 
 #endif /* ZB_TASK_QUEUE_H */
+

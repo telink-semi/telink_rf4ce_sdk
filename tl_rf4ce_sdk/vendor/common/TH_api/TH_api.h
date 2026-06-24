@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for TH_api.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,13 +29,14 @@ typedef void (*th_recvCb_t)(u8*);
 
 #if !USB_CDC_ENABLE
 typedef struct{
-	u8 len;
-	u8 host_cmdId;
-	u8 device_cmdID;
-	u8 param[8];
+    u8    len;
+    u8    host_cmdId;
+    u8    device_cmdID;
+    u8    param[8];
 }usb_command_t;
 #endif
 
 int recvCmdFromTH(u8 *recvBuf, u8 bufLen);
 int sendCmdToTH(usbcdc_txBuf_t *buf);
 void TH_trxInit(uart_recvCb_t cb);
+

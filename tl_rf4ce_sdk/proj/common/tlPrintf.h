@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for tlPrintf.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -30,29 +30,29 @@ int Tl_printf(const char *format, ...);
 
 
 #if (UART_PRINTF_MODE || USB_PRINTF_MODE)
-	#define	arrayPrint(arrayAddr,len)					\
-	{													\
-		Tl_printf("\n*********************************\n");		\
-		unsigned short	i = 0;							\
-		do{												\
-			Tl_printf(" 0x%x,",((unsigned char *)arrayAddr)[i++]);	\
-			if(i%16==0)											\
-					Tl_printf("\n");							\
-		}while(i<len);										\
-		Tl_printf("\n*********************************\n");		\
-	}
+    #define arrayPrint(arrayAddr,len)    \
+    {                                                    \
+        Tl_printf("\n*********************************\n");        \
+        unsigned short    i = 0;                            \
+        do{                                                \
+            Tl_printf(" 0x%x,",((unsigned char *)arrayAddr)[i++]);    \
+            if(i%16==0)                                            \
+                    Tl_printf("\n");                            \
+        }while(i<len);                                        \
+        Tl_printf("\n*********************************\n");        \
+    }
 
-	#define	DEBUG(compileFlag,...)						\
-			do{											\
-				if(compileFlag) Tl_printf(__VA_ARGS__);					\
-			}while(0)
+    #define DEBUG(compileFlag,...)       \
+            do{                                            \
+                if(compileFlag) Tl_printf(__VA_ARGS__);                    \
+            }while(0)
 
-	#define printf			Tl_printf
-	#define	printfArray		arrayPrint
+    #define printf                       Tl_printf
+    #define printfArray                  arrayPrint
 #else
-	#define printf
-	#define	printfArray
-	#define	DEBUG(compileFlag,...)
+//    #define printf
+    #define printfArray               
+    #define DEBUG(compileFlag,...)    
 #endif
 
 #if (FLASH_PRINTF_MODE)
@@ -61,5 +61,6 @@ int Tl_printf(const char *format, ...);
 #else
 #define quick_printf
 #endif
+
 
 

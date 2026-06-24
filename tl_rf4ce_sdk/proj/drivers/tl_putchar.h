@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for tl_putchar.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -28,44 +28,48 @@
 int putchar(int c);
 
 #if defined(MCU_CORE_826x)
-	#ifndef	BAUDRATE
-		#define BAUDRATE					1000000//2M
-	#endif
-		#define	BIT_INTERVAL	 			(CLOCK_SYS_CLOCK_HZ / BAUDRATE)
+    #ifndef    BAUDRATE
+        #define BAUDRATE                    1000000//2M
+    #endif
+        #define    BIT_INTERVAL                 (CLOCK_SYS_CLOCK_HZ / BAUDRATE)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#ifndef	BAUDRATE
-		#define BAUDRATE					1000000//1M
-	#endif
-		#define	BIT_INTERVAL	 			((16*1000*1000) / BAUDRATE)
-#elif defined(MCU_CORE_B92)
-	#ifndef	BAUDRATE
-		#define BAUDRATE					1000000//1M
-	#endif
-		#define	BIT_INTERVAL	 			(SYSTEM_TIMER_TICK_1S / BAUDRATE)
+    #ifndef    BAUDRATE
+        #define BAUDRATE                    1000000//1M
+    #endif
+        #define    BIT_INTERVAL                 ((16*1000*1000) / BAUDRATE)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+    #ifndef    BAUDRATE
+        #define BAUDRATE                    1000000//1M
+    #endif
+        #define    BIT_INTERVAL                 (SYSTEM_TIMER_TICK_1S / BAUDRATE)
 #endif
 
 #if UART_PRINTF_MODE
-	#ifdef DEBUG_INFO_TX_PIN
-		#define TX_PIN_OUTPUT_REG			reg_gpio_out(DEBUG_INFO_TX_PIN)
+    #ifdef DEBUG_INFO_TX_PIN
+        #if defined(MCU_CORE_TL321X)
+            #define TX_PIN_OUTPUT_REG           reg_gpio_out_set_clear(DEBUG_INFO_TX_PIN)
+        #else
+            #define TX_PIN_OUTPUT_REG            reg_gpio_out(DEBUG_INFO_TX_PIN)
+        #endif
 
-		#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-			#define DEBUG_TX_PIN_INIT()		do{	\
-												gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);							\
-												gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);							\
-												gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); 	\
-												gpio_write(DEBUG_INFO_TX_PIN, 1);									\
-											}while(0)
-		#elif defined(MCU_CORE_B92)
-			#define DEBUG_TX_PIN_INIT()		do{	\
-												gpio_function_en(DEBUG_INFO_TX_PIN);								\
-												gpio_set_output(DEBUG_INFO_TX_PIN, 1);								\
-												gpio_set_up_down_res(DEBUG_INFO_TX_PIN, GPIO_PIN_PULLUP_1M);		\
-												gpio_set_high_level(DEBUG_INFO_TX_PIN);								\
-											}while(0)
-		#endif
-	#else
-		#error	"DEBUG_INFO_TX_PIN is undefined!"
-	#endif
+        #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+            #define DEBUG_TX_PIN_INIT()        do{    \
+                                                gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);                            \
+                                                gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);                            \
+                                                gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M);     \
+                                                gpio_write(DEBUG_INFO_TX_PIN, 1);                                    \
+                                            }while(0)
+        #elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+            #define DEBUG_TX_PIN_INIT()        do{    \
+                                                gpio_function_en(DEBUG_INFO_TX_PIN);                                \
+                                                gpio_set_output(DEBUG_INFO_TX_PIN, 1);                                \
+                                                gpio_set_up_down_res(DEBUG_INFO_TX_PIN, GPIO_PIN_PULLUP_1M);        \
+                                                gpio_set_high_level(DEBUG_INFO_TX_PIN);                                \
+                                            }while(0)
+        #endif
+    #else
+        #error    "DEBUG_INFO_TX_PIN is undefined!"
+    #endif
 #endif
 
 

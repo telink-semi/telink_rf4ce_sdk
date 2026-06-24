@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for timer_event.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -51,53 +51,53 @@ static void start_timer(ev_time_event_t * e){
 }
 
 static void cancel_timer(ev_time_event_t * e){
-	if ( e == NULL ) {
-		while(1);
-	}
-	u8 r = irq_disable();
+    if ( e == NULL ) {
+        while(1);
+    }
+    u8 r = irq_disable();
     e->valid = 2;
     e->busy = 2;
-	irq_restore(r);
+    irq_restore(r);
 }
 
 static ev_time_event_t *on_timer(u8 idx,ev_timer_callback_t cb, void *data, u32 t_us){
-    int i;
+    u32 i;
     ev_time_event_t *e = NULL;
     ev_time_event_t *time_list = NULL;
     u32 timer_current_pos=0,timer_len=0;
     u32 *pos=NULL;
-	if ( cb == NULL ) {
-		while(1);
-	}
-	if(idx==TL_EV_TASK)
-	{
-		time_list = evTimer_list;
-		timer_current_pos = evtimer_current_pos;
-		pos = &evtimer_current_pos;
-		timer_len = LengthOfArray(evTimer_list);
-	}
-	else if(idx==TL_STACK_TASK)
-	{
-		time_list = stackTimer_list;
-		timer_current_pos = stacktimer_current_pos;
-		pos = &stacktimer_current_pos;
-		timer_len = LengthOfArray(stackTimer_list);
-	}
-	else
-	{
-		return NULL;
-	}
+    if ( cb == NULL ) {
+        while(1);
+    }
+    if(idx==TL_EV_TASK)
+    {
+        time_list = evTimer_list;
+        timer_current_pos = evtimer_current_pos;
+        pos = (u32*)&evtimer_current_pos;
+        timer_len = LengthOfArray(evTimer_list);
+    }
+    else if(idx==TL_STACK_TASK)
+    {
+        time_list = stackTimer_list;
+        timer_current_pos = stacktimer_current_pos;
+        pos = (u32*)&stacktimer_current_pos;
+        timer_len = LengthOfArray(stackTimer_list);
+    }
+    else
+    {
+        return NULL;
+    }
 
 
 
     for(i=0;i<timer_len;i++){
         if(time_list[timer_current_pos].busy == 0){
-        	time_list[timer_current_pos].busy = 1;
+            time_list[timer_current_pos].busy = 1;
             e = time_list + timer_current_pos;
             timer_current_pos = (timer_current_pos + 1)%timer_len;
             break;
         }else{
-        	timer_current_pos = (timer_current_pos + 1)%timer_len;
+            timer_current_pos = (timer_current_pos + 1)%timer_len;
         }
     }
     if ( e == NULL ) {
@@ -113,20 +113,20 @@ static ev_time_event_t *on_timer(u8 idx,ev_timer_callback_t cb, void *data, u32 
 
 ev_time_event_t *ev_on_timer(ev_timer_callback_t cb, void *data, u32 t_us)
 {
-	return on_timer(TL_EV_TASK ,cb, data, t_us);
+    return on_timer(TL_EV_TASK ,cb, data, t_us);
 }
 
 ev_time_event_t *stk_on_timer(ev_timer_callback_t cb, void *data, u32 t_us)
 {
-	return on_timer(TL_STACK_TASK ,cb, data, t_us);
+    return on_timer(TL_STACK_TASK ,cb, data, t_us);
 }
 
 #if USE_OLD_EV_UNON_TIMER
 void ev_unon_timer(ev_time_event_t ** e){
-	if ( e == NULL || *e == NULL ) {
-		return;
-	}
-	cancel_timer(*e);
+    if ( e == NULL || *e == NULL ) {
+        return;
+    }
+    cancel_timer(*e);
     *e = NULL;
 }
 #else
@@ -134,27 +134,27 @@ void ev_unon_timer(ev_time_event_t ** e){
 
 
 ev_time_event_t *__ev_unon_timer__(ev_time_event_t *e){
-	if ( e == NULL) {
-		return NULL;
-	}
+    if ( e == NULL) {
+        return NULL;
+    }
 
     ev_time_event_t *te=NULL;
 
     for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++)
     {
-    		if(te==e)
-    			break;
+        if(te==e) {
+            break;
+        }
     }
 
-	if(te!=e)
-	{
-		while(1);
-		return NULL;
-	}
+    if(te!=e)
+    {
+        while(1);
+        return NULL;
+    }
 
     //CHECK_ARRAY_ELEM_POINTER(timer_list,e,step,p_value);
-	//ev_cancel_timer(e);
-	e->valid = 2;
+    e->valid = 2;
     e->busy = 2;
 
     return NULL;
@@ -162,27 +162,28 @@ ev_time_event_t *__ev_unon_timer__(ev_time_event_t *e){
 
 
 
-ev_time_event_t *__stk_unon_timer__(ev_time_event_t *e){
-	if ( e == NULL) {
-		return NULL;
-	}
+ev_time_event_t *__stk_unon_timer__(ev_time_event_t *e)
+{
+    if ( e == NULL) {
+        return NULL;
+    }
 
     ev_time_event_t *te=NULL;
 
     for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++)
     {
-    		if(te==e)
-    			break;
+            if(te==e) {
+                break;
+            }
     }
 
-	if(te!=e)
-	{
-		while(1);//non-stack event list timer
-	}
+    if(te!=e)
+    {
+        while(1);//non-stack event list timer
+    }
 
     //CHECK_ARRAY_ELEM_POINTER(timer_list,e,step,p_value);
-	//ev_cancel_timer(e);
-	e->valid = 2;
+    e->valid = 2;
     e->busy = 2;
 
     return NULL;
@@ -197,32 +198,32 @@ void ev_process_timer(){
 
     for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++)
     {
-    	if(te->valid ==2)
-    	{
-			te->busy = 0;
-			te->valid = 0;
-    	}
+        if(te->valid ==2)
+        {
+            te->busy = 0;
+            te->valid = 0;
+        }
     }
 
     for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++)
     {
-    	if(te->valid ==2)
-    	{
-			te->busy = 0;
-			te->valid = 0;
-    	}
+        if(te->valid ==2)
+        {
+            te->busy = 0;
+            te->valid = 0;
+        }
     }
 
 
     for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++){
         if((!is_timer_expired(te))&&ev_is_timer_expired(te, now)){
             int t;
-//			if ( (u32)(te->cb) < 0x100 || (u32)(te->cb) > 0x20000 ) {
-//				while(1);
-//			}
+//            if ( (u32)(te->cb) < 0x100 || (u32)(te->cb) > 0x20000 ) {
+//                while(1);
+//            }
             t = te->cb(te->data);
             if(t < 0){
-            	cancel_timer(te);        // delete timer
+                cancel_timer(te);        // delete timer
             }else if(0 == t){
                 te->t = now + te->interval;    // becare of overflow
             }else{
@@ -236,12 +237,12 @@ void ev_process_timer(){
     for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++){
         if((!is_timer_expired(te))&&ev_is_timer_expired(te, now)){
             int t;
-//			if ( (u32)(te->cb) < 0x100 || (u32)(te->cb) > 0x20000 ) {
-//				while(1);
-//			}
+//            if ( (u32)(te->cb) < 0x100 || (u32)(te->cb) > 0x20000 ) {
+//                while(1);
+//            }
             t = te->cb(te->data);
             if(t < 0){
-            	cancel_timer(te);        // delete timer
+                cancel_timer(te);        // delete timer
             }else if(0 == t){
                 te->t = now + te->interval;    // becare of overflow
             }else{
@@ -270,42 +271,42 @@ int is_timer_expired(ev_time_event_t *e)
 
 
 int ev_timer_event_idle(void){
-	ev_time_event_t *te;
-	for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++){
-		if(te->busy){
-			return 0;
-		}
-	}
-	return 1;
+    ev_time_event_t *te;
+    for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++){
+        if(te->busy){
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int stack_timer_event_idle(void){
-	ev_time_event_t *te;
-	for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++){
-		if(te->busy){
-			return 0;
-		}
-	}
-	return 1;
+    ev_time_event_t *te;
+    for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++){
+        if(te->busy){
+            return 0;
+        }
+    }
+    return 1;
 }
 
 
 int timer_event_idle(void){
-	ev_time_event_t *te;
+    ev_time_event_t *te;
 
-	for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++){
-		if(te->busy){
-			return 0;
-		}
-	}
+    for(te = evTimer_list;te < evTimer_list + LengthOfArray(evTimer_list);te++){
+        if(te->busy){
+            return 0;
+        }
+    }
 
-	for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++){
-		if(te->busy){
-			return 0;
-		}
-	}
+    for(te = stackTimer_list;te < stackTimer_list + LengthOfArray(stackTimer_list);te++){
+        if(te->busy){
+            return 0;
+        }
+    }
 
-	return 1;
+    return 1;
 }
 
 

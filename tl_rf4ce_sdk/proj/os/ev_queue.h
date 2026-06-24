@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for ev_queue.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -62,10 +62,10 @@ typedef struct queue_item {
  *  @brief Definition for the EV Queue structure
  */
 typedef struct priQueue {
-    queue_item_t *head;             //!<  Pointer to the head item of the queue
-    queue_item_t *tail;             //!<  Pointer to the tail item of the queue
-    ev_priFunc_t priFunc;           //!<  Priority function, NULL means not use priority
-    u32 curNum;                     //!<  Current number of entries in the queue
+    queue_item_t    *head;    //!<  Pointer to the head item of the queue
+    queue_item_t    *tail;    //!<  Pointer to the tail item of the queue
+    ev_priFunc_t    priFunc;    //!<  Priority function, NULL means not use priority
+             u32    curNum;    //!<  Current number of entries in the queue
 } ev_queue_t;
 
 /**
@@ -73,7 +73,7 @@ typedef struct priQueue {
  */
 typedef enum ev_queue_sts_e {
     // SUCCESS should always be ZERO
-	QUEUE_SUCC = 0,
+    QUEUE_SUCC = 0,
     QUEUE_INVALID_PARAMETER = 1,    //!< Invalid parameter of the API
     QUEUE_EMPTY,                    //!< Queue is empty
     QUEUE_NOT_FOUND,                //!< Queue is not found
@@ -182,3 +182,4 @@ queue_item_t* ev_queue_rawPop(ev_queue_t* q);
 
 /**  @} end of group TELINK_COMMON_MODULE */
 #endif
+

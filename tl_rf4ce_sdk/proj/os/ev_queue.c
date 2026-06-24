@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for ev_queue.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -78,10 +78,10 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
     queue_item_t* previous;
     queue_item_t* current;
     u8 r;
-#if (__DEBUG__ )	
+#if (__DEBUG__ )    
     T_queue = (u8 *)q;
     T_newItem = (u8 *)newElement;
-#endif	
+#endif    
     if (NULL == q || NULL == newElement) {
         return QUEUE_INVALID_PARAMETER;
     }
@@ -158,9 +158,9 @@ queue_item_t* ev_queue_rawPop(ev_queue_t* q)
         q->curNum--;
     }
 
-	if ( q->curNum == 0 ) {
-		q->head = q->tail = NULL;
-	}
+    if ( q->curNum == 0 ) {
+        q->head = q->tail = NULL;
+    }
     irq_restore(r);
     return oldHead;
 }

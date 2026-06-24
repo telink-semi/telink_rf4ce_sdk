@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for app_const.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,39 +29,39 @@
 
 
 
-#define ZRC_APP_MAX_ERR_CNT              10
-#define APP_INFO_NV_ITEM                  1
+#define ZRC_APP_MAX_ERR_CNT    10
+#define APP_INFO_NV_ITEM       1
 
 
 static const u16 batteryVoltage[] = {
-		3000,
-		2500,
-		2300,
-		2200,
-		2000,
+        3000,
+        2500,
+        2300,
+        2200,
+        2000,
 };
 
 enum{
-	BAT_LEVEL_FULL = 0,
-	BAT_LEVEL_2P5_UP,
-	BAT_LEVEL_2P3_0,
-	BAT_LEVEL_2P2_0,
-	BAT_LEVEL_CUTOFF  // <2.2v
+    BAT_LEVEL_FULL = 0,
+    BAT_LEVEL_2P5_UP,
+    BAT_LEVEL_2P3_0,
+    BAT_LEVEL_2P2_0,
+    BAT_LEVEL_CUTOFF  // <2.2v
 };
 
-#define 	BAT_THRESHOLD_OTA		BAT_LEVEL_2P5_UP
-#define 	BAT_THRESHOLD_PAIR		BAT_LEVEL_2P3_0
-#define 	BAT_THRESHOLD_FLASH		BAT_LEVEL_2P2_0
-#define 	BAT_THRESHOLD_WARNING	BAT_LEVEL_2P2_0
+#define BAT_THRESHOLD_OTA        BAT_LEVEL_2P5_UP
+#define BAT_THRESHOLD_PAIR       BAT_LEVEL_2P3_0
+#define BAT_THRESHOLD_FLASH      BAT_LEVEL_2P2_0
+#define BAT_THRESHOLD_WARNING    BAT_LEVEL_2P2_0
 
 
 
-#define 	APP_VID_SUPPPORT_MAX	1
+#define APP_VID_SUPPPORT_MAX     1
 
 typedef struct{
-	u16 vendId;
-	u8  vendString[7];
-	u8  userString[15];
+    u16    vendId;
+     u8    vendString[7];
+     u8    userString[15];
 }appVendInfo_t;
 extern const appVendInfo_t app_vendor_info_list[];
 

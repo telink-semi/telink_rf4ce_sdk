@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for assert.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../config/user_config.h"			//   for  __DEBUG__
+#include "../config/user_config.h"            //   for  __DEBUG__
 
 #if (__DEBUG__)
 #define assert(expression)    while(!expression)
@@ -36,10 +36,10 @@
 #if (__DEBUG__)
 #include "printf.h"
 
-#define assert(expression)  \
+#define assert(expression)                    \
   do{if(!(expression)) __assert (expression, __FILE__, __LINE__)}while(0)
 
-#define __assert(expression, file, lineno)  {printf ("%s:%u: assertion failed!\n", file, lineno);}
+#define __assert(expression, file, lineno)    {printf ("%s:%u: assertion failed!\n", file, lineno);}
 
 #else
 #define assert(ignore) ((void) 0)
@@ -50,8 +50,8 @@
 // http://gcc.gnu.org/ml/gcc-help/2010-10/msg00196.html
 // http://stackoverflow.com/questions/3030099/c-c-pragma-in-define-macro
 
-#define _STRINGIFY(x) #x
-#define STRINGIFY(x) _STRINGIFY(x)
+#define _STRINGIFY(x)    #x
+#define STRINGIFY(x)     _STRINGIFY(x)
 
 #ifdef __GNUC__
 #define COMPILE_MESSAGE(x) _Pragma (#x)
@@ -86,4 +86,5 @@
 #else
 #define NOTE(x)
 #endif
+
 

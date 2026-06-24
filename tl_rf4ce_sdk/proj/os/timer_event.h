@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for timer_event.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -25,19 +25,19 @@
 
 #include "../../proj/common/types.h"
 //
-#define MAC_TIMER_NUM (10)//please fix me
-#define NWK_TIMER_NUM (10)
-#define PROFILE_TIMER_NUM (10)
+#define MAC_TIMER_NUM              (10)//please fix me
+#define NWK_TIMER_NUM              (10)
+#define PROFILE_TIMER_NUM          (10)
 //
-#define LengthOfArray(arr_name) (sizeof(arr_name)/sizeof(arr_name[0]))
-#define TIMER_SAFE_MARGIN_US (5)//(10)//please fix me
-#define TIMER_SAFE_MARGIN (TIMER_SAFE_MARGIN_US*CLOCK_SYS_CLOCK_1US)
-#define __DEBUG_TIMER__ (0)
+#define LengthOfArray(arr_name)    (sizeof(arr_name)/sizeof(arr_name[0]))
+#define TIMER_SAFE_MARGIN_US       (5)//(10)//please fix me
+#define TIMER_SAFE_MARGIN          (TIMER_SAFE_MARGIN_US*CLOCK_SYS_CLOCK_1US)
+#define __DEBUG_TIMER__            (0)
 
 enum{
-	TL_EV_TASK = 0xA5,
-	TL_STACK_TASK,
-	TL_TASK_MAX
+    TL_EV_TASK = 0xA5,
+    TL_STACK_TASK,
+    TL_TASK_MAX
 };
 
 
@@ -49,12 +49,12 @@ typedef int (*ev_timer_callback_t)(void *data);
  *  @brief Definition for timer event
  */
 typedef struct ev_time_event_t {
-    ev_timer_callback_t     cb;            //!< Callback function when expire, this must be specified
-    u32                     t;             //!< Used internal
-    u32                     interval;      //!< Used internal
-    void                    *data;         //!< Callback function arguments.
-    u8                     valid;
-    u8                     busy;
+    ev_timer_callback_t    cb;    //!< Callback function when expire, this must be specified
+                    u32    t;    //!< Used internal
+                    u32    interval;    //!< Used internal
+                   void    *data;    //!< Callback function arguments.
+                     u8    valid;
+                     u8    busy;
 } ev_time_event_t;
 #define USE_OLD_EV_UNON_TIMER   (0)
 ev_time_event_t *ev_on_timer(ev_timer_callback_t cb,void *data, u32 t_us);
@@ -63,25 +63,26 @@ ev_time_event_t *stk_on_timer(ev_timer_callback_t cb, void *data, u32 t_us);
 void ev_unon_timer(ev_time_event_t **e);//ok
 #else
 ev_time_event_t *__ev_unon_timer__(ev_time_event_t *e);
+ev_time_event_t *__stk_unon_timer__(ev_time_event_t *e);
 
 #if __DEBUG_TIMER__
 #define ev_unon_timer(x)    do{ WRITE_FUNC_CALL_POS(func_call_line,func_call_file,64); \
-								u8 r = irq_disable();	\
+                                u8 r = irq_disable();    \
                                 *(x) = __ev_unon_timer__(*(x)); \
-                                irq_restore(r);	\
+                                irq_restore(r);    \
                             }while(0)
                                 
 #else
-#define ev_unon_timer(x)    do{ u8 r = irq_disable();	\
-        						*(x) = __ev_unon_timer__(*(x)); \
-        						irq_restore(r);	\
-							}while(0)
+#define ev_unon_timer(x)     do{ u8 r = irq_disable();    \
+                                *(x) = __ev_unon_timer__(*(x)); \
+                                irq_restore(r);    \
+                            }while(0)
 
 
-#define stk_unon_timer(x)    do{ u8 r = irq_disable();	\
-        						*(x) = __stk_unon_timer__(*(x)); \
-        						irq_restore(r);	\
-							}while(0)
+#define stk_unon_timer(x)    do{ u8 r = irq_disable();    \
+                                *(x) = __stk_unon_timer__(*(x)); \
+                                irq_restore(r);    \
+                            }while(0)
 
 
 #endif
@@ -93,3 +94,4 @@ void ev_process_timer();
 int is_timer_expired(ev_time_event_t *e);//ok
 
 int timer_event_idle(void);
+

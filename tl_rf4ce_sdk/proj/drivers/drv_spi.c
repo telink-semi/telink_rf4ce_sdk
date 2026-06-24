@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	drv_spi.c
+ * @file    drv_spi.c
  *
- * @brief	This is the source file for drv_spi
+ * @brief    This is the source file for drv_spi
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee GROUP
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -47,8 +47,8 @@
 #include "drv_spi.h"
 
 #if defined(MCU_CORE_B92)
-#define SPI_MODULE_SEL	    			        GSPI_MODULE
-#define SPI_CLK	    					  		1000000
+#define SPI_MODULE_SEL    GSPI_MODULE
+#define SPI_CLK           1000000
 #endif
 
 /**
@@ -61,16 +61,16 @@
 void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode)
 {
 
-#if	defined(MCU_CORE_826x)
-	u8 divClock = (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
-	SPI_MasterInit(divClock, mode);
+#if    defined(MCU_CORE_826x)
+    u8 divClock = (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
+    SPI_MasterInit(divClock, mode);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	u8 divClock = (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
-	spi_master_init(divClock, mode);
+    u8 divClock = (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
+    spi_master_init(divClock, mode);
 #elif defined(MCU_CORE_B92)
-	drv_spi_mode_type_def m =  mode;
-	spi_master_init(SPI_MODULE_SEL, (u16)(SPI_CLOCK_SOURCE/SPI_CLK), SPI_MODE0);
-	spi_master_config(SPI_MODULE_SEL, SPI_SINGLE_MODE);
+    drv_spi_mode_type_def m =  mode;
+    spi_master_init(SPI_MODULE_SEL, (u16)(SPI_CLOCK_SOURCE/SPI_CLK), SPI_MODE0);
+    spi_master_config(SPI_MODULE_SEL, SPI_SINGLE_MODE);
 #endif
 }
 
@@ -81,15 +81,15 @@ void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode)
  */
 void drv_spi_slave_init(drv_spi_mode_type_def mode)
 {
-#if	defined(MCU_CORE_826x)
-	SPI_SlaveInit(0, mode);
+#if    defined(MCU_CORE_826x)
+    SPI_SlaveInit(0, mode);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	spi_slave_init(0, mode);
+    spi_slave_init(0, mode);
 #elif defined(MCU_CORE_B92)
-	drv_spi_mode_type_def m =  mode;
-	spi_slave_init(SPI_MODULE_SEL, SPI_MODE0);
-	spi_tx_irq_trig_cnt(SPI_MODULE_SEL,4);
-	spi_set_dummy_cnt(SPI_MODULE_SEL, 32);
+    drv_spi_mode_type_def m =  mode;
+    spi_slave_init(SPI_MODULE_SEL, SPI_MODE0);
+    spi_tx_irq_trig_cnt(SPI_MODULE_SEL,4);
+    spi_set_dummy_cnt(SPI_MODULE_SEL, 32);
 #endif
 }
 
@@ -98,34 +98,34 @@ void drv_spi_slave_init(drv_spi_mode_type_def mode)
  * @param[in] Pin Group or Pins
  * @return    none
  */
-#if	defined(MCU_CORE_826x)
+#if    defined(MCU_CORE_826x)
 void drv_spi_master_pin_select(SPI_PinTypeDef pinGroup)
 {
-	SPI_MasterPinSelect(pinGroup);
+    SPI_MasterPinSelect(pinGroup);
 }
 #elif defined(MCU_CORE_8258)
 void drv_spi_master_pin_select(SPI_GPIO_GroupTypeDef pinGroup)
 {
-	spi_master_gpio_set(pinGroup);
+    spi_master_gpio_set(pinGroup);
 }
 #elif defined(MCU_CORE_8278)
 void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin)
 {
-	spi_master_gpio_set(sclk_pin, cs_pin, sdo_pin, sdi_pin);
+    spi_master_gpio_set(sclk_pin, cs_pin, sdo_pin, sdi_pin);
 }
 #elif defined(MCU_CORE_B92)
 void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
 {
-	lspi_pin_config_t gspi_pin_config;
+    lspi_pin_config_t gspi_pin_config;
 
-	gspi_pin_config.spi_clk_pin			= sclk_pin;
-	gspi_pin_config.spi_csn_pin 		= cs_pin;
-	gspi_pin_config.spi_mosi_io0_pin    = mosi_pin;
-	gspi_pin_config.spi_miso_io1_pin    = miso_pin;//3line mode set 0
-	gspi_pin_config.spi_io2_pin     	= NULL;//set quad mode otherwise set 0
-	gspi_pin_config.spi_io3_pin   		= NULL;//set quad mode otherwise set 0
+    gspi_pin_config.spi_clk_pin            = sclk_pin;
+    gspi_pin_config.spi_csn_pin         = cs_pin;
+    gspi_pin_config.spi_mosi_io0_pin    = mosi_pin;
+    gspi_pin_config.spi_miso_io1_pin    = miso_pin;//3line mode set 0
+    gspi_pin_config.spi_io2_pin         = NULL;//set quad mode otherwise set 0
+    gspi_pin_config.spi_io3_pin           = NULL;//set quad mode otherwise set 0
 
-	gspi_set_pin(&gspi_pin_config);
+    gspi_set_pin(&gspi_pin_config);
 }
 #endif
 
@@ -134,34 +134,34 @@ void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_
  * @param[in] Pin Group or Pins
  * @return    none
  */
-#if	defined(MCU_CORE_826x)
+#if    defined(MCU_CORE_826x)
 void drv_spi_slave_pin_select(SPI_PinTypeDef pinGroup)
 {
-	SPI_SlavePinSelect(pinGroup);
+    SPI_SlavePinSelect(pinGroup);
 }
 #elif defined(MCU_CORE_8258)
 void drv_spi_slave_pin_select(SPI_GPIO_GroupTypeDef pinGroup)
 {
-	spi_slave_gpio_set(pinGroup);
+    spi_slave_gpio_set(pinGroup);
 }
 #elif defined(MCU_CORE_8278)
 void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin)
 {
-	spi_slave_gpio_set(sclk_pin, cs_pin, sdo_pin, sdi_pin);
+    spi_slave_gpio_set(sclk_pin, cs_pin, sdo_pin, sdi_pin);
 }
 #elif defined(MCU_CORE_B92)
 void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
 {
-	lspi_pin_config_t gspi_pin_config;
+    lspi_pin_config_t gspi_pin_config;
 
-	gspi_pin_config.spi_clk_pin			= sclk_pin;
-	gspi_pin_config.spi_csn_pin 		= cs_pin;
-	gspi_pin_config.spi_mosi_io0_pin    = mosi_pin;
-	gspi_pin_config.spi_miso_io1_pin    = miso_pin;//3line mode set 0
-	gspi_pin_config.spi_io2_pin     	= NULL;//set quad mode otherwise set 0
-	gspi_pin_config.spi_io3_pin   		= NULL;//set quad mode otherwise set 0
+    gspi_pin_config.spi_clk_pin            = sclk_pin;
+    gspi_pin_config.spi_csn_pin         = cs_pin;
+    gspi_pin_config.spi_mosi_io0_pin    = mosi_pin;
+    gspi_pin_config.spi_miso_io1_pin    = miso_pin;//3line mode set 0
+    gspi_pin_config.spi_io2_pin         = NULL;//set quad mode otherwise set 0
+    gspi_pin_config.spi_io3_pin           = NULL;//set quad mode otherwise set 0
 
-	gspi_set_pin(&gspi_pin_config);
+    gspi_set_pin(&gspi_pin_config);
 }
 #endif
 
@@ -178,26 +178,26 @@ void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e
  */
 void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 {
-#if	defined(MCU_CORE_826x)
-	SPI_Write(cmd, cmdLen, data, dataLen, csPin);
+#if    defined(MCU_CORE_826x)
+    SPI_Write(cmd, cmdLen, data, dataLen, csPin);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	spi_write(cmd, cmdLen, data, dataLen, csPin);
+    spi_write(cmd, cmdLen, data, dataLen, csPin);
 #elif defined(MCU_CORE_B92)
-	u8 *pBuf = (u8 *)ev_buf_allocate(cmdLen + dataLen);
-	if(pBuf){
-		u32 pin = csPin;
+    u8 *pBuf = (u8 *)ev_buf_allocate(cmdLen + dataLen);
+    if(pBuf){
+        u32 pin = csPin;
 
-		u8 *pData = pBuf;
+        u8 *pData = pBuf;
 
-		memcpy(pData, cmd, cmdLen);
-		pData += cmdLen;
-		memcpy(pData, data, dataLen);
-		pData += dataLen;
+        memcpy(pData, cmd, cmdLen);
+        pData += cmdLen;
+        memcpy(pData, data, dataLen);
+        pData += dataLen;
 
-		spi_master_write(SPI_MODULE_SEL, pBuf, cmdLen + dataLen);
+        spi_master_write(SPI_MODULE_SEL, pBuf, cmdLen + dataLen);
 
-		ev_buf_free(pBuf);
-	}
+        ev_buf_free(pBuf);
+    }
 #endif
 }
 
@@ -215,13 +215,14 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
  */
 void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 {
-#if	defined(MCU_CORE_826x)
-	SPI_Read(cmd, cmdLen, data, dataLen, csPin);
+#if    defined(MCU_CORE_826x)
+    SPI_Read(cmd, cmdLen, data, dataLen, csPin);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	spi_read(cmd, cmdLen, data, dataLen, csPin);
+    spi_read(cmd, cmdLen, data, dataLen, csPin);
 #elif defined(MCU_CORE_B92)
-	u32 pin = csPin;
-	spi_master_write_read(SPI_MODULE_SEL, cmd, cmdLen, data, dataLen);
+    u32 pin = csPin;
+    spi_master_write_read(SPI_MODULE_SEL, cmd, cmdLen, data, dataLen);
 #endif
 }
+
 

@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for app_data.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -27,11 +27,11 @@
 
 #if RF4CE_ZRC2_ENABLE
 void zrc_appDataIndCb(u8 pairingRef, u8 *pd, u8 len){
-	tl_appDataIndicate( pd, len);
+    tl_appDataIndicate( pd, len);
 }
 #elif RF4CE_MSO_ENABLE
 void mso_appDataIndCb(u8 pairingRef, u8 *pd, u8 len){
-	tl_appDataIndicate( pd, len);
+    tl_appDataIndicate( pd, len);
 }
 #endif
 

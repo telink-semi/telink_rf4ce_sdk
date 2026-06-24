@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for tl_specific_data.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -25,15 +25,18 @@
 #include "tl_specific_data.h"
 #include "tl_specific_data_audio.h"
 
-u8 	g_tlAppDataSeqNo = 0;
+u8     g_tlAppDataSeqNo = 0;
 
 void tl_appDataIndicate(u8 *pd, u8 len){
-	tl_appFrameHdr_t *pHdr = (tl_appFrameHdr_t *)pd;
-	if(pHdr->appId == TL_SPECIFIC_ID_OTA){
-		tl_appOtaCmdHandler(pd);
-	}else if(pHdr->appId == TL_SPECIFIC_ID_AUDIO){
-		tl_appAudioCmdHandler(pd, len);
-	}
+    tl_appFrameHdr_t *pHdr = (tl_appFrameHdr_t *)pd;
+    if(pHdr->appId == TL_SPECIFIC_ID_OTA){
+        tl_appOtaCmdHandler(pd);
+    }
+#if MODULE_AUDIO_ENABLE
+    else if(pHdr->appId == TL_SPECIFIC_ID_AUDIO){
+        tl_appAudioCmdHandler(pd, len);
+    }
+#endif
 }
 
 

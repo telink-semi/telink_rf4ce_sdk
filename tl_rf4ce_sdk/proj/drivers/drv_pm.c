@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for drv_pm.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,110 +24,117 @@
 #include "../tl_common.h"
 #include "drv_pm.h"
 
-void platform_wakeup_init(void){
-#if defined(MCU_CORE_8278)
-	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
-#else
-	cpu_wakeup_init();
-#endif
-}
-
 void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en){
 #if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
-	PM_PadSet(pin, pol, en);
+    PM_PadSet(pin, pol, en);
 #elif defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
-	cpu_set_gpio_wakeup(pin, pol, en);
-#elif defined (MCU_CORE_B92)
-	pm_set_gpio_wakeup(pin, pol, en);
+    cpu_set_gpio_wakeup(pin, pol, en);
+#elif defined (MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+    pm_set_gpio_wakeup(pin, pol, en);
 #endif
 }
 
 platform_wakeup_e platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms ){
 #if defined (MCU_CORE_826x)
-	u8 sleep_mode = 0;
-	if(mode == PLATFORM_MODE_DEEPSLEEP){
-		sleep_mode = 1;
-	}
+    u8 sleep_mode = 0;
+    if(mode == PLATFORM_MODE_DEEPSLEEP){
+        sleep_mode = 1;
+    }
 
-	WakeupSrc_TypeDef srcType = 0;
-	if(src & PLATFORM_WAKEUP_PAD){
-		srcType |= WAKEUP_SRC_PAD;
-	}
-	if(src & PLATFORM_WAKEUP_TIMER){
-		srcType |= WAKEUP_SRC_TIMER;
-	}
-	int wakeupSrc = pm_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
-	if(wakeupSrc & BIT(1)){
-		return PLATFORM_WAKEUP_TIMER;
-	}else{
-		return PLATFORM_WAKEUP_PAD;
-	}
+    WakeupSrc_TypeDef srcType = 0;
+    if(src & PLATFORM_WAKEUP_PAD){
+        srcType |= WAKEUP_SRC_PAD;
+    }
+    if(src & PLATFORM_WAKEUP_TIMER){
+        srcType |= WAKEUP_SRC_TIMER;
+    }
+    int wakeupSrc = pm_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
+    if(wakeupSrc & BIT(1)){
+        return PLATFORM_WAKEUP_TIMER;
+    }else{
+        return PLATFORM_WAKEUP_PAD;
+    }
 #elif defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
-	platform_wakeup_e ws = PLATFORM_WAKEUP_TIMER;
-	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
-	if(mode == PLATFORM_MODE_SUSPEND){
-		sleep_mode = SUSPEND_MODE;
-	}else if(mode == PLATFORM_MODE_DEEPSLEEP){
-		sleep_mode = DEEPSLEEP_MODE;
-	}
+    platform_wakeup_e ws = PLATFORM_WAKEUP_TIMER;
+    SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
+    if(mode == PLATFORM_MODE_SUSPEND){
+        sleep_mode = SUSPEND_MODE;
+    }else if(mode == PLATFORM_MODE_DEEPSLEEP){
+        sleep_mode = DEEPSLEEP_MODE;
+    }
 
-	SleepWakeupSrc_TypeDef srcType = 0;
-	if(src & PLATFORM_WAKEUP_PAD){
-		srcType |= PM_WAKEUP_PAD;
-	}
-	if(src & PLATFORM_WAKEUP_TIMER){
-		srcType |= PM_WAKEUP_TIMER;
-	}
+    SleepWakeupSrc_TypeDef srcType = 0;
+    if(src & PLATFORM_WAKEUP_PAD){
+        srcType |= PM_WAKEUP_PAD;
+    }
+    if(src & PLATFORM_WAKEUP_TIMER){
+        srcType |= PM_WAKEUP_TIMER;
+    }
 
-	int wakeupSrc = cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*S_TIMER_CLOCK_1US);
-	if(wakeupSrc & BIT(1)){
-		ws = PLATFORM_WAKEUP_TIMER;
-	}else{
-		ws = PLATFORM_WAKEUP_PAD;
-	}
-	/* reconfigure some module used */
-	ZB_RADIO_INIT();
-	rf_setTxPower(PHY_TX_POWER_MAX);
-#elif defined (MCU_CORE_B92)
-	platform_wakeup_e ws = PLATFORM_WAKEUP_TIMER;
-	pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
-	if(mode == PLATFORM_MODE_SUSPEND){
-		sleep_mode = SUSPEND_MODE;
-	}else if(mode == PLATFORM_MODE_DEEPSLEEP){
-		sleep_mode = DEEPSLEEP_MODE;
-	}
+    int wakeupSrc = cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*S_TIMER_CLOCK_1US);
+    if(wakeupSrc & BIT(1)){
+        ws = PLATFORM_WAKEUP_TIMER;
+    }else{
+        ws = PLATFORM_WAKEUP_PAD;
+    }
+    /* reconfigure some module used */
+    ZB_RADIO_INIT();
+    rf_setTxPower(PHY_TX_POWER_MAX);
+    return ws;
+#elif defined (MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+    platform_wakeup_e ws = PLATFORM_WAKEUP_TIMER;
+    pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
+    if(mode == PLATFORM_MODE_SUSPEND){
+        sleep_mode = SUSPEND_MODE;
+    }else if(mode == PLATFORM_MODE_DEEPSLEEP){
+        sleep_mode = DEEPSLEEP_MODE;
+    }
 
-	pm_sleep_wakeup_src_e srcType = 0;
-	if(src & PLATFORM_WAKEUP_PAD){
-		srcType |= PM_WAKEUP_PAD;
-	}
-	if(src & PLATFORM_WAKEUP_TIMER){
-		srcType |= PM_WAKEUP_TIMER;
-	}
+    pm_sleep_wakeup_src_e srcType = 0;
+    if(src & PLATFORM_WAKEUP_PAD){
+        srcType |= PM_WAKEUP_PAD;
+    }
+    if(src & PLATFORM_WAKEUP_TIMER){
+        srcType |= PM_WAKEUP_TIMER;
+    }
 
-	pm_wakeup_tick_type_e wakeupType = PM_TICK_STIMER;//default
+    pm_wakeup_tick_type_e wakeupType = PM_TICK_STIMER;//default
 
-	adc_set_vbat_divider(ADC_VBAT_DIV_OFF);
-
-	clock_cal_24m_rc();
-
-	int wakeupSrc = pm_sleep_wakeup (sleep_mode, srcType,wakeupType, stimer_get_tick() + cycle_ms*S_TIMER_CLOCK_1MS);
-
-	if(wakeupSrc & BIT(2)){
-		ws = PLATFORM_WAKEUP_TIMER;
-	}else{
-		ws = PLATFORM_WAKEUP_PAD;
-	}
-	/* reconfigure some module used */
-	ZB_RADIO_INIT();
-	rf_setTxPower(PHY_TX_POWER_MAX);
-	adc_set_vbat_divider(ADC_VBAT_DIV_1F4);
-#if 0
-	u8 value;
-	u8 len;
-	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
-	ZB_TRANSCEIVER_SET_CHANNEL(value);
+#if defined (MCU_CORE_B92)
+    adc_set_vbat_divider(ADC_VBAT_DIV_OFF);
+#elif defined(MCU_CORE_TL321X)
+    adc_set_vbat_divider(ADC_M_CHANNEL, ADC_VBAT_DIV_OFF);
 #endif
-	return ws;
+
+    clock_cal_24m_rc();
+
+    int wakeupSrc = pm_sleep_wakeup (sleep_mode, srcType, wakeupType, stimer_get_tick() + cycle_ms*S_TIMER_CLOCK_1MS);
+
+    if(wakeupSrc & BIT(2)){
+        ws = PLATFORM_WAKEUP_TIMER;
+    }else{
+        ws = PLATFORM_WAKEUP_PAD;
+    }
+    /* reconfigure some module used */
+#if defined(MCU_CORE_TL321X)
+    rf_pm_restore();
+#else
+    ZB_RADIO_INIT();
+    rf_setTxPower(PHY_TX_POWER_MAX);
+#endif
+
+#if defined (MCU_CORE_B92)
+    adc_set_vbat_divider(ADC_VBAT_DIV_1F4);
+#elif defined(MCU_CORE_TL321X)
+    adc_set_vbat_divider(ADC_M_CHANNEL, ADC_VBAT_DIV_1F4);
+#endif
+
+#if 0
+    u8 value;
+    u8 len;
+    tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
+    ZB_TRANSCEIVER_SET_CHANNEL(value);
+#endif
+    return ws;
 #endif
 }

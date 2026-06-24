@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for mac_phy.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -35,20 +35,20 @@
 /**********************************************************************
  * LOCAL CONSTANTS
  */
-#define MAC_FCF_ACK_REQ_BIT    0x20
-#define MAC_FCF_INTRA_PAN_BIT  0x40
-#define MAC_FCF_DST_ADDR_BIT   0x0c
-#define MAC_FCF_FRAME_TYPE     0x07
+#define MAC_FCF_ACK_REQ_BIT                  0x20
+#define MAC_FCF_INTRA_PAN_BIT                0x40
+#define MAC_FCF_DST_ADDR_BIT                 0x0c
+#define MAC_FCF_FRAME_TYPE                   0x07
 
 
-#define RF_DROP_REASON_INVALID_CRC        0x01
-#define RF_DROP_REASON_RF_BUSY            0x02
-#define RF_DROP_REASON_EXPECT_ACK         0x03
-#define RF_DROP_REASON_INVALIC_BEACON     0x04
-#define RF_DROP_REASON_FILTER_PANID       0x05
-#define RF_DROP_REASON_FILTER_DSTADDR     0x06
-#define RF_DROP_REASON_FILTER_LEN         0x07
-#define RF_DROP_REASON_INVALIC_FRAME_TYPE         0x08
+#define RF_DROP_REASON_INVALID_CRC           0x01
+#define RF_DROP_REASON_RF_BUSY               0x02
+#define RF_DROP_REASON_EXPECT_ACK            0x03
+#define RF_DROP_REASON_INVALIC_BEACON        0x04
+#define RF_DROP_REASON_FILTER_PANID          0x05
+#define RF_DROP_REASON_FILTER_DSTADDR        0x06
+#define RF_DROP_REASON_FILTER_LEN            0x07
+#define RF_DROP_REASON_INVALIC_FRAME_TYPE    0x08
 
 u8 rf_busyFlag = 0;
 _attribute_aligned_(4) u8 rf_tx_buf[ZB_RADIO_TX_HDR_LEN + 127];
@@ -57,10 +57,10 @@ _attribute_aligned_(4) u8 rf_tx_buf[ZB_RADIO_TX_HDR_LEN + 127];
  */
 #if RF_STATISTIC_ENABLE
 typedef struct {
-    u32 rxCnt;
-    u32 rxGarbageCnt;
-	u32 txAckCnt;
-    u32 txFinishCnt;
+    u32    rxCnt;
+    u32    rxGarbageCnt;
+    u32    txAckCnt;
+    u32    txFinishCnt;
 } rf_statistic_t;
 #endif  /* RF_STATISTIC_ENABLE */
 
@@ -148,8 +148,8 @@ u8 T_drop;
  _CODE_MAC_ void rf_reset(void)
 {
 //#if 0
-	rf_txPower = 0;
-	rf_lastRssi = 0;
+    rf_txPower = 0;
+    rf_lastRssi = 0;
 #ifndef WIN32
     //trf_drv_init(0);
     ZB_RADIO_INIT();
@@ -185,10 +185,10 @@ u8 T_drop;
 
     ZB_RADIO_TRX_CFG((RF_PKT_BUFF_LEN));
 
-	ZB_RADIO_RX_ENABLE;
-	ZB_RADIO_TX_ENABLE;
+    ZB_RADIO_RX_ENABLE;
+    ZB_RADIO_TX_ENABLE;
 
-	rf_setTxPower(PHY_TX_POWER_MAX);
+    rf_setTxPower(PHY_TX_POWER_MAX);
 
    // rf_start();   //TODO by jingzhi
 }
@@ -237,20 +237,39 @@ u8 T_drop;
  */
  _CODE_MAC_ void rf_setAckCB(rf_ackCB_t ackCbFunc)
 {
-	rf_ackCbFunc = ackCbFunc;
+    rf_ackCbFunc = ackCbFunc;
 }
 
  _CODE_MAC_ u8 *rf_getRxBuf(void){
-	 u8 *buf = (u8 *)ev_buf_allocate(LARGE_BUFFER);
-	 if(buf){
-		 return (buf + RF_RX_BUFFER_OFFSET);
-	 }
+     u8 *buf = (u8 *)ev_buf_allocate(LARGE_BUFFER);
+     if(buf){
+         return (buf + RF_RX_BUFFER_OFFSET);
+     }
 
-	 return NULL;
+     return NULL;
 }
 
 
+ _CODE_MAC_ void rf_pm_restore(void)
+{
+    ZB_RADIO_INIT();
 
+    ZB_RADIO_TRX_CFG((RF_PKT_BUFF_LEN));
+
+    rf_setTxPower(PHY_TX_POWER_MAX);
+
+    if (rf_rxBuf) {
+        ZB_RADIO_RX_BUF_SET(rf_rxBuf);
+    } else {
+        rf_rxBuf = rf_getRxBuf();
+        if (rf_rxBuf) {
+            ZB_RADIO_RX_BUF_SET(rf_rxBuf);
+        }
+    }
+
+    ZB_RADIO_RX_ENABLE;
+    ZB_RADIO_TX_ENABLE;
+}
 
 
 /*********************************************************************
@@ -268,7 +287,7 @@ u8 T_drop;
 {
     if (id >RF_ID_GENERAL_END) {
         if (rf_specificFuns.setFunc) {
-        	rf_specificFuns.setFunc(id, pValue, len);
+            rf_specificFuns.setFunc(id, pValue, len);
         }
         return;
     }
@@ -312,7 +331,7 @@ _CODE_MAC_ void rf_802154_reset(void)
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     rf_ack_buf[0] = 4;
-#elif defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
     ZB_RADIO_DMA_HDR_BUILD(rf_ack_buf, 3);
 #endif
 
@@ -360,24 +379,24 @@ _CODE_MAC_ void rf_802154_set(u8 id, u8 *pValue, u8 len)
 
 _attribute_ram_code_ void rf_tx(u8* buf, u8 len)
 {
-	/* Fill the telink RF header */
-	rf_setTrxState(RF_STATE_TX);
+    /* Fill the telink RF header */
+    rf_setTrxState(RF_STATE_TX);
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	rf_tx_buf[0] = len+1;
-	rf_tx_buf[1] = 0;
-	rf_tx_buf[2] = 0;
-	rf_tx_buf[3] = 0;
-#elif defined(MCU_CORE_B92)
-	ZB_RADIO_DMA_HDR_BUILD(rf_tx_buf, len);
+    rf_tx_buf[0] = len+1;
+    rf_tx_buf[1] = 0;
+    rf_tx_buf[2] = 0;
+    rf_tx_buf[3] = 0;
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+    ZB_RADIO_DMA_HDR_BUILD(rf_tx_buf, len);
 #endif
-	// RF length
-	rf_tx_buf[4] = len+2;
-	// Payload
-	memcpy(rf_tx_buf+5, buf, len);
-	//reg_rf_irq_status = (FLD_RF_IRQ_RX | FLD_RF_IRQ_TX);
-	ZB_RADIO_TX_DONE_CLR;
-	ZB_RADIO_RX_DONE_CLR;
-	ZB_RADIO_TX_START(rf_tx_buf);//Manual mode
+    // RF length
+    rf_tx_buf[4] = len+2;
+    // Payload
+    memcpy(rf_tx_buf+5, buf, len);
+    //reg_rf_irq_status = (FLD_RF_IRQ_RX | FLD_RF_IRQ_TX);
+    ZB_RADIO_TX_DONE_CLR;
+    ZB_RADIO_RX_DONE_CLR;
+    ZB_RADIO_TX_START(rf_tx_buf);//Manual mode
 }
 
 
@@ -389,8 +408,8 @@ _CODE_MAC_ void rf_edDetect(void)
     //soft_rssi = rssi;//(rssi + soft_rssi)/2;
     sum_rssi += rssi;
     if(++cnt_rssi >= 0xfffffe){
-    	sum_rssi = sum_rssi/cnt_rssi;
-    	cnt_rssi = 1;
+        sum_rssi = sum_rssi/cnt_rssi;
+        cnt_rssi = 1;
     }
 }
 
@@ -428,7 +447,7 @@ _CODE_MAC_ void rf_edDetect(void)
     u8 ed;
     u32 temp;
 
-    if(cnt_rssi == 0) cnt_rssi = 1;
+    if(cnt_rssi == 0) { cnt_rssi = 1; }
     soft_rssi = sum_rssi/cnt_rssi;
 
     //ev_disable_poll(EV_POLL_ED_DETECT);
@@ -439,7 +458,7 @@ _CODE_MAC_ void rf_edDetect(void)
     } else if (soft_rssi >= -6) {
         ed = 0xff;
     } else{
-    	temp = (soft_rssi + 106) * 255;
+        temp = (soft_rssi + 106) * 255;
         ed = temp/100;
     }
     return ed;
@@ -456,32 +475,32 @@ _CODE_MAC_ void rf_edDetect(void)
   * @return  lqi result
   */
  u8 rf_getLqi(u8 inRssi){
- 	rf_rxGainMode_t mode = RF_GAIN_MODE_MANU_MAX;
- 	return ZB_RADIO_RSSI_TO_LQI(mode, inRssi);
+     rf_rxGainMode_t mode = RF_GAIN_MODE_MANU_MAX;
+     return ZB_RADIO_RSSI_TO_LQI(mode, inRssi);
  }
 
  _CODE_MAC_ u8 rf_performCCA(void)
  {
- 	u32 t1 = clock_time();
- 	s8 rssi_peak = -110;
- 	s8 rssi_cur = -110;
- 	s32 rssiSum = 0;
- 	s32 cnt = 1;
+     u32 t1 = clock_time();
+     s8 rssi_peak = -110;
+     s8 rssi_cur = -110;
+     s32 rssiSum = 0;
+     s32 cnt = 1;
 
-	rssi_cur = ZB_RADIO_RSSI_GET();
-	rssiSum += rssi_cur;
-	while(!clock_time_exceed(t1,128)){
-		rssi_cur = ZB_RADIO_RSSI_GET();
-		rssiSum += rssi_cur;
-		cnt++;
-	}
-	rssi_peak = rssiSum/cnt;
+    rssi_cur = ZB_RADIO_RSSI_GET();
+    rssiSum += rssi_cur;
+    while(!clock_time_exceed(t1,128)){
+        rssi_cur = ZB_RADIO_RSSI_GET();
+        rssiSum += rssi_cur;
+        cnt++;
+    }
+    rssi_peak = rssiSum/cnt;
 
-	if(rssi_peak > CCA_THRESHOLD || (rf_busyFlag & TX_BUSY)){//Return if currently in TX state
-		return PHY_CCA_BUSY;
-	}else{
-		return PHY_CCA_IDLE;
-	}
+    if(rssi_peak > CCA_THRESHOLD || (rf_busyFlag & TX_BUSY)){//Return if currently in TX state
+        return PHY_CCA_BUSY;
+    }else{
+        return PHY_CCA_IDLE;
+    }
 }
 
 
@@ -499,7 +518,9 @@ _CODE_MAC_ void rf_edDetect(void)
     rf_rxBuf = pBuf + RF_RX_BUFFER_OFFSET;
 #ifndef WIN32
     //rfhw_setRxBuf(rf_rxBuf);
-    ZB_RADIO_RX_BUF_SET((u16)(u32)(rf_rxBuf));
+//    ZB_RADIO_RX_BUF_SET((u16)(u32)(rf_rxBuf));
+
+    ZB_RADIO_RX_BUF_SET(rf_rxBuf);
 #endif
 }
 
@@ -514,19 +535,19 @@ _CODE_MAC_ void rf_edDetect(void)
   * @return  none
   */
   _CODE_MAC_ void rf_setTrxState(u8 state) {
-	if (RF_STATE_RX == state || RF_STATE_ED == state) {
-		ZB_RADIO_TRX_SWITCH(RF_MODE_RX,LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+    if (RF_STATE_RX == state || RF_STATE_ED == state) {
+        ZB_RADIO_TRX_SWITCH(RF_MODE_RX,LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
 
-		rfMode = RF_STATE_RX;
-	} else if (RF_STATE_TX == state) {
-		ZB_RADIO_TRX_SWITCH(RF_MODE_TX,LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+        rfMode = RF_STATE_RX;
+    } else if (RF_STATE_TX == state) {
+        ZB_RADIO_TRX_SWITCH(RF_MODE_TX,LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
 
-		rfMode = RF_STATE_TX;
-	} else {
-		/* Close RF */
-		rf_setIdleMode();
-		rfMode = RF_MODE_OFF;
-	}
+        rfMode = RF_STATE_TX;
+    } else {
+        /* Close RF */
+        rf_setIdleMode();
+        rfMode = RF_MODE_OFF;
+    }
 
  }
 
@@ -540,11 +561,11 @@ _CODE_MAC_ void rf_edDetect(void)
 * @return  none
 */
 _CODE_MAC_ void rf_RxGainModeSet(u8 mode){
-	if(mode == RF_GAIN_MODE_MANU_MAX){
-		ZB_RADIO_MODE_MAX_GAIN();
-	}else{
-		ZB_RADIO_MODE_AUTO_GAIN();
-	}
+    if(mode == RF_GAIN_MODE_MANU_MAX){
+        ZB_RADIO_MODE_MAX_GAIN();
+    }else{
+        ZB_RADIO_MODE_AUTO_GAIN();
+    }
 }
 
 
@@ -558,15 +579,15 @@ _CODE_MAC_ void rf_RxGainModeSet(u8 mode){
    * @return  none
    */
 _CODE_MAC_ void rf_setTxPower(u8 power){
-	ZB_RADIO_TX_POWER_SET(power);
+    ZB_RADIO_TX_POWER_SET(power);
 }
 
 
 void process_AckCB(void *arg)
 {
-	u16 idx = (u16)arg;
-	u8 fPendingFrame = idx;
-	u8 seq = (idx>>8);
+    u16 idx = (u16)(u32)arg;
+    u8 fPendingFrame = idx;
+    u8 seq = (idx>>8);
     if (rf_ackCbFunc) {
         rf_ackCbFunc( fPendingFrame, seq);
     }
@@ -589,7 +610,12 @@ _attribute_ram_code_ u8 tl_audioDataSendCnfHandler(u8 sta);
  * @return  none
  */
 volatile u8 T_rf_rx_irq_handlerCnt[6] = {0};//debug
-_attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(void)
+#if defined (MCU_CORE_TL321X)
+_attribute_ram_code_
+#else
+_attribute_ram_code_ __attribute__((optimize("-Os")))
+#endif
+void rf_rx_irq_handler(void)
 {
     u8 *p = rf_rxBuf;
     int fNeedAck = 0;
@@ -597,37 +623,37 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
     int len;
     u8 fDrop = 0;
     u8 fcf1, fcf2;
-
+    ZB_RADIO_RX_DONE_CLR;
 
     if(RF_DMA_BUSY()){
-    	return;
+        return;
     }
 
     ZB_RADIO_RX_DISABLE;
-	ZB_RADIO_RX_DONE_CLR;
 
     if ( (!ZB_RADIO_CRC_OK(p)) || (!ZB_RADIO_PACKET_LENGTH_OK(p)) || (rf_busyFlag&TX_BUSY) ) {
-    	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-    	ZB_RADIO_RX_ENABLE;
+        ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+        ZB_RADIO_RX_ENABLE;
         return;
     }
     T_rf_rx_irq_handlerCnt[0]++;
 
 #if (__PROJECT_ZRC_2_RC__ || __PROJECT_MSO_RC__ ) && MODULE_AUDIO_ENABLE
     if(GetAudioTxState()){
-    	len = (int)ZB_RADIO_ACTUAL_PAYLOAD_LEN(p);
+        len = (int)ZB_RADIO_ACTUAL_PAYLOAD_LEN(p);
         fcf1 = *(p + ZB_RADIO_RX_HDR_LEN);    // frame control byte 1
         if(len==5&&(fcf1 & MAC_FCF_FRAME_TYPE) == 0x02)
         {
-        	hwTimerInfoReset(TIMER_FOR_USER);
-        	timer_stop(TIMER_FOR_USER);
-//        	hwTimerStop(TIMER_FOR_USER);
-         	reg_tmr_sta = (1 << TIMER_FOR_USER);
-        	tl_audioDataSendCnfHandler(SUCCESS);
-			*((u32*)rf_rxBuf) = 0;
-			ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-			ZB_RADIO_RX_ENABLE;
-			return;
+            hwTimerInfoReset(TIMER_FOR_USER);
+            timer_stop(TIMER_FOR_USER);
+//            hwTimerStop(TIMER_FOR_USER);
+//             reg_tmr_sta = (1 << TIMER_FOR_USER);
+            drv_timer_clear_irq(TIMER_FOR_USER);
+            tl_audioDataSendCnfHandler(SUCCESS);
+            *((u32*)rf_rxBuf) = 0;
+            ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+            ZB_RADIO_RX_ENABLE;
+            return;
         }
     }
 #endif
@@ -643,38 +669,40 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 
     u8 beaconFlt = 1;
 #if RF4CE_TARGET
-	beaconFlt = 0;
+    beaconFlt = 0;
 #endif
     if(beaconFlt)
     {
-    	if ((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_BEACON) {
-    		fDrop = 1;
-    	}
-    	else if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND)
-    	{
-    		fDrop = 1;
-    	}
+        if ((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_BEACON) {
+            fDrop = 1;
+        }
+        else if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND)
+        {
+            fDrop = 1;
+        }
     }
     else
     {
-    	if ((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_BEACON) {
-    	    if(mac_getState() == MAC_STATE_SCAN)
-        		fDrop = 0;
-    	    else
-    	    	fDrop = 1;
-    	}
-    	else if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND && ev_buf_getfreeSize()<4)
-		{
-			fDrop = 1;
-		}
+        if ((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_BEACON) {
+            if(mac_getState() == MAC_STATE_SCAN) {
+                fDrop = 0;
+            }
+            else {
+                fDrop = 1;
+            }
+        }
+        else if((fcf1 & MAC_FCF_FRAME_TYPE) == MAC_FRAME_COMMAND && ev_buf_getfreeSize()<4)
+        {
+            fDrop = 1;
+        }
     }
 
-	if (fDrop) {
-		/* Drop the packet and recover the DMA */
-		ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-		ZB_RADIO_RX_ENABLE;
-		return;
-	}
+    if (fDrop) {
+        /* Drop the packet and recover the DMA */
+        ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+        ZB_RADIO_RX_ENABLE;
+        return;
+    }
 
     /*---------------------------------------------------------
      *  Handle ACK Frame
@@ -683,24 +711,24 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
         if (rf_ackCbFunc) {
             rf_ackCbFunc( fcf1&0x10, macPld[2]);
         }
-//    	u16 idx = fcf1&0x10;
-//    	idx |= (macPld[2]<<8);
-//    	tl_taskPost(process_AckCB,idx);
+//        u16 idx = fcf1&0x10;
+//        idx |= (macPld[2]<<8);
+//        tl_taskPost(process_AckCB,idx);
         /* still use the rf_rxBuf to receive */
         ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
         ZB_RADIO_RX_ENABLE;
         return;
     }
 
-	T_rf_rx_irq_handlerCnt[1]++;
+    T_rf_rx_irq_handlerCnt[1]++;
     /*----------------------------------------------------------
      *  Send ACK
      */
     if (fcf1 & MAC_FCF_ACK_REQ_BIT) {
-    	fNeedAck = 1;
-    	T_rf_rx_irq_handlerCnt[2]++;
-    	ZB_RADIO_TX_DONE_CLR;
-    	ZB_RADIO_TRX_SWITCH(RF_STATE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+        fNeedAck = 1;
+        T_rf_rx_irq_handlerCnt[2]++;
+        ZB_RADIO_TX_DONE_CLR;
+        ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
 
         rf_ack_buf[7] = macPld[2];
         rf_ack_buf[5] |= ( rf_framePending<<4 );
@@ -710,33 +738,33 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
     /* Use the backup buffer to receive next packet */
     u8 *nextRxBuf = rf_getRxBuf();
     if(!nextRxBuf){
-    	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-		ZB_RADIO_RX_ENABLE;
-		return;
+        ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+        ZB_RADIO_RX_ENABLE;
+        return;
     }
 
-   	rf_rxBuf = nextRxBuf;
+       rf_rxBuf = nextRxBuf;
     if(fNeedAck){
         ZB_RADIO_TX_START(rf_ack_buf);//Manual Mode
         rf_busyFlag |= (TX_ACKPACKET|TX_BUSY);
         while(!ZB_RADIO_TX_DONE);
     }
-	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-	ZB_RADIO_RX_BUF_SET((u16)(u32)(rf_rxBuf));
-	ZB_RADIO_RX_ENABLE;
+    ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+    ZB_RADIO_RX_BUF_SET(rf_rxBuf);
+    ZB_RADIO_RX_ENABLE;
 
     /*-------------------------------------------------------------------------------
      *  post the message to MAC layer
      */
-	rx_buf_t* pRxEvt  = (rx_buf_t*)ev_buf_getTail(p, sizeof(rx_buf_t));
+    rx_buf_t* pRxEvt  = (rx_buf_t*)ev_buf_getTail(p, sizeof(rx_buf_t));
     // Save necessary informations
-	pRxEvt->rxBuf     = macPld;  //p;
-	pRxEvt->rssi      = ZB_RADION_PKT_RSSI_GET(p);
-	pRxEvt->fPending  = rf_framePending;
-	pRxEvt->timestamp = ZB_RADIO_TIMESTAMP_GET(p);
-	pRxEvt->len = len;
+    pRxEvt->rxBuf     = macPld;  //p;
+    pRxEvt->rssi      = ZB_RADION_PKT_RSSI_GET(p);
+    pRxEvt->fPending  = rf_framePending;
+    pRxEvt->timestamp = ZB_RADIO_TIMESTAMP_GET(p);
+    pRxEvt->len = len;
 
-    buf_message_post((u8 *)p,BUF_ITEM_STATE_PHY2MAC);
+    buf_message_post((u8 *)p, BUF_ITEM_STATE_PHY2MAC);
     T_rf_rx_irq_handlerCnt[3]++;
 }
 
@@ -746,16 +774,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 void process_TxDoneCB(void *arg)
 {
 
-	if (rf_txCbFunc) {
-		rf_txCbFunc ((void*)RF_SUCC);
-	}
+    if (rf_txCbFunc) {
+        rf_txCbFunc ((void*)RF_SUCC);
+    }
 }
-
-
-
-extern int AudioTimeOutTxCb(void* arg);
-extern unsigned long tickPerUs;
-_attribute_ram_code_ u8 GetAudioTxCnt(void);
 
 //extern mac_pib_t macPib;
 /*********************************************************************
@@ -769,38 +791,41 @@ _attribute_ram_code_ u8 GetAudioTxCnt(void);
  */
 _attribute_ram_code_ /*__attribute__((optimize("-Os")))*/ void rf_tx_irq_handler(void)
 {
-	ZB_RADIO_TX_DONE_CLR;
+    ZB_RADIO_TX_DONE_CLR;
 #if  (__PROJECT_ZRC_2_RC__ || __PROJECT_MSO_RC__ )  &&  MODULE_AUDIO_ENABLE
     if(GetAudioTxState()) {
-    	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
-    	if(GetAudioTxCnt() <= macPib.maxFrameRetries) 	{
-    		//timer on
-    		/* Must change to RX mode first, otherwise the next ACK may miss */
-//    		hwTimerStop(TIMER_FOR_USER);
-//    		reg_tmr_sta = (1 << TIMER_FOR_USER);
-    		hwTimerStart(TIMER_FOR_USER);
+        ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+        extern _attribute_ram_code_ u8 GetAudioTxCnt(void);
+        if(GetAudioTxCnt() <= macPib.maxFrameRetries)     {
+            //timer on
+            /* Must change to RX mode first, otherwise the next ACK may miss */
+//            hwTimerStop(TIMER_FOR_USER);
+//            reg_tmr_sta = (1 << TIMER_FOR_USER);
+            drv_timer_clear_irq(TIMER_FOR_USER);
+            hwTimerStart(TIMER_FOR_USER);
 
-    	}else{
-    		tl_audioDataSendCnfHandler(FAILURE);
-    	}
-    	return;
+        }else{
+            tl_audioDataSendCnfHandler(FAILURE);
+        }
+        return;
     }
 #endif
-	/* Must change to RX mode first, otherwise the next ACK may miss */
-	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
-	T_rf_rx_irq_handlerCnt[4]++;
-	rf_busyFlag &= ~TX_BUSY;
+    /* Must change to RX mode first, otherwise the next ACK may miss */
+    ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+    T_rf_rx_irq_handlerCnt[4]++;
+    rf_busyFlag &= ~TX_BUSY;
 
-	if (rf_isAck) {
-		rf_busyFlag &= ~TX_ACKPACKET;
+    if (rf_isAck) {
+        rf_busyFlag &= ~TX_ACKPACKET;
         rf_isAck = 0;
-		rf_ack_buf[5] = 0x02;
-	} else {
+        rf_ack_buf[5] = 0x02;
+    } else {
         /* Direct call the callback to cancel the ACK waiting timer
         more quick. */
-//		tl_taskPost(process_TxDoneCB,NULL);
+//        tl_taskPost(process_TxDoneCB,NULL);
         if (rf_txCbFunc) {
             rf_txCbFunc ((void*)RF_SUCC);
         }
-	}
+    }
 }
+

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>tl_rf4ce_sdk</name>
+	<name>tl_rf4ce_sdk_tc32</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -119,7 +119,7 @@
 		<link>
 			<name>platform/lib</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/lib</locationURI>
+			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>platform/platform_includes.h</name>
@@ -155,6 +155,21 @@
 			<name>platform/boot/8278</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8278</locationURI>
+		</link>
+		<link>
+			<name>platform/lib/libdrivers_8258.a</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/lib/libdrivers_8258.a</locationURI>
+		</link>
+		<link>
+			<name>platform/lib/libdrivers_826x.a</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/lib/libdrivers_826x.a</locationURI>
+		</link>
+		<link>
+			<name>platform/lib/libdrivers_8278.a</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/lib/libdrivers_8278.a</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

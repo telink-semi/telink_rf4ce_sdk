@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mac_const.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -77,7 +77,7 @@
 /**        
  *  @brief This macro converts a channel to a mask
  */
-#define MAC_CHAN_BIT_MASK(chan)         ((u32) 1 << (chan))
+#define MAC_CHAN_BIT_MASK(chan)     ((u32) 1 << (chan))
 
 
 /** @addtogroup mac_channel_mask MAC Channels Mask
@@ -110,9 +110,9 @@
  *  Channel Page
  * @{
  */
-#define MAC_CHANNEL_PAGE_0          0     //!< 2.4 GHz band using O-QPSK
-#define MAC_CHANNEL_PAGE_1          1     //!< 868 and 915 MHz bands using ASK
-#define MAC_CHANNEL_PAGE_2          2     //!< 868 and 915 MHz bands using O-QPSK
+#define MAC_CHANNEL_PAGE_0          0//!< 2.4 GHz band using O-QPSK
+#define MAC_CHANNEL_PAGE_1          1//!< 868 and 915 MHz bands using ASK
+#define MAC_CHANNEL_PAGE_2          2//!< 868 and 915 MHz bands using O-QPSK
 
 /** @} end of group mac_channel_page */
 
@@ -129,12 +129,12 @@
  *  Bit mask of Capability Information
  * @{
  */
-#define MAC_CAPABLE_PAN_COORD       0x01  //!< Device is capable of becoming a PAN coordinator
-#define MAC_CAPABLE_FFD             0x02  //!< Device is an FFD
-#define MAC_CAPABLE_MAINS_POWER     0x04  //!< Device is mains powered rather than battery powered
-#define MAC_CAPABLE_RX_ON_IDLE      0x08  //!< Device has its receiver on when idle
-#define MAC_CAPABLE_SECURITY        0x40  //!< Device is capable of sending and receiving secured frames
-#define MAC_CAPABLE_ALLOC_ADDR      0x80  //!< Request allocation of a short address in the associate procedure
+#define MAC_CAPABLE_PAN_COORD       0x01//!< Device is capable of becoming a PAN coordinator
+#define MAC_CAPABLE_FFD             0x02//!< Device is an FFD
+#define MAC_CAPABLE_MAINS_POWER     0x04//!< Device is mains powered rather than battery powered
+#define MAC_CAPABLE_RX_ON_IDLE      0x08//!< Device has its receiver on when idle
+#define MAC_CAPABLE_SECURITY        0x40//!< Device is capable of sending and receiving secured frames
+#define MAC_CAPABLE_ALLOC_ADDR      0x80//!< Request allocation of a short address in the associate procedure
 
 /** @} end of group mac_capability_info */
 
@@ -145,9 +145,9 @@
  *  Special address values
  * @{
  */
-#define MAC_ADDR_USE_EXT            0xFFFE  //!< Short address value indicating extended address is used
-#define MAC_SHORT_ADDR_BROADCAST    0xFFFF  //!< Broadcast short address
-#define MAC_SHORT_ADDR_NONE         0xFFFF  //!< Short address when there is no short address
+#define MAC_ADDR_USE_EXT            0xFFFE//!< Short address value indicating extended address is used
+#define MAC_SHORT_ADDR_BROADCAST    0xFFFF//!< Broadcast short address
+#define MAC_SHORT_ADDR_NONE         0xFFFF//!< Short address when there is no short address
 
 /** @} end of group mac_special_address */
 
@@ -155,15 +155,15 @@
  *  @brief The default reset value of MAC table
  */
 #define MAC_RESET_VALUE             0xFF
-#define MAC_PEND_ADDR_MAX               7
-#define MAC_BO_NON_BEACON               15
-#define MAC_SO_NONE                     15
-#define MAC_PAN_ID_BROADCAST            0xFFFF
-#define MAC_SYMBOLS_PER_OCTET           2
-#define ZB_PHY_MAX_PACKET_SIZE          127
+#define MAC_PEND_ADDR_MAX           7
+#define MAC_BO_NON_BEACON           15
+#define MAC_SO_NONE                 15
+#define MAC_PAN_ID_BROADCAST        0xFFFF
+#define MAC_SYMBOLS_PER_OCTET       2
+#define ZB_PHY_MAX_PACKET_SIZE      127
 
-#define MAC_A_TURNAROUND_TIME           12
-#define MAC_A_BASE_SLOT_DURATION        3
+#define MAC_A_TURNAROUND_TIME       12
+#define MAC_A_BASE_SLOT_DURATION    3
 #ifdef WIN32
 #define MAC_A_BASE_SUPERFRAME_DURATION  (MAC_A_BASE_SLOT_DURATION * MAC_A_NUM_SUPERFRAME_SLOTS)
 #else
@@ -171,22 +171,22 @@
 #endif
 
 
-#define MAC_A_MAX_BEACON_OVERHEAD       75
-#define MAC_A_MAX_BEACON_PAYLOAD_LENGTH (MAC_A_MAX_PHY_PACKET_SIZE - MAC_A_MAX_BEACON_OVERHEAD)
+#define MAC_A_MAX_BEACON_OVERHEAD                         75
+#define MAC_A_MAX_BEACON_PAYLOAD_LENGTH                   (MAC_A_MAX_PHY_PACKET_SIZE - MAC_A_MAX_BEACON_OVERHEAD)
 
 
-#define MAC_A_GTS_DESC_PERSISTENCE_TIME 4
-#define MAC_A_MAX_FRAME_OVERHEAD        25
-#define MAC_A_MAX_LOST_BEACONS          4
-#define MAC_A_MAX_FRAME_SIZE            (MAC_A_MAX_PHY_PACKET_SIZE - MAC_A_MAX_FRAME_OVERHEAD)
-#define MAC_A_MAX_SIFS_FRAME_SIZE       18
-#define MAC_A_MIN_CAP_LENGTH            440
-#define MAC_A_MIN_LIFS_PERIOD           40
-#define MAC_A_MIN_SIFS_PERIOD           12
-#define MAC_A_NUM_SUPERFRAME_SLOTS      16
+#define MAC_A_GTS_DESC_PERSISTENCE_TIME                   4
+#define MAC_A_MAX_FRAME_OVERHEAD                          25
+#define MAC_A_MAX_LOST_BEACONS                            4
+#define MAC_A_MAX_FRAME_SIZE                              (MAC_A_MAX_PHY_PACKET_SIZE - MAC_A_MAX_FRAME_OVERHEAD)
+#define MAC_A_MAX_SIFS_FRAME_SIZE                         18
+#define MAC_A_MIN_CAP_LENGTH                              440
+#define MAC_A_MIN_LIFS_PERIOD                             40
+#define MAC_A_MIN_SIFS_PERIOD                             12
+#define MAC_A_NUM_SUPERFRAME_SLOTS                        16
 
-#define MAC_A_UNIT_BACKOFF_PERIOD       20
-#define MAC_SPEC_ED_MAX                 0xFF
+#define MAC_A_UNIT_BACKOFF_PERIOD                         20
+#define MAC_SPEC_ED_MAX                                   0xFF
 #define MAC_SPEC_ED_MIN_DBM_ABOVE_RECEIVER_SENSITIVITY    10
 
 
@@ -194,17 +194,18 @@
  *  @brief values specific to 2450 MHz PHY
  */
 
-#define MAC_SPEC_MIN_RECEIVER_SENSITIVITY   -85
-#define MAC_SPEC_PREAMBLE_FIELD_LENGTH      8
-#define MAC_SPEC_SFD_FIELD_LENGTH           2
-#define MAC_SPEC_USECS_PER_SYMBOL           16
-#define MAC_SPEC_USECS_PER_BACKOFF          (MAC_SPEC_USECS_PER_SYMBOL * MAC_A_UNIT_BACKOFF_PERIOD)
-#define MAC_SPEC_OCTETS_PER_SYMBOL          2
+#define MAC_SPEC_MIN_RECEIVER_SENSITIVITY                 -85
+#define MAC_SPEC_PREAMBLE_FIELD_LENGTH                    8
+#define MAC_SPEC_SFD_FIELD_LENGTH                         2
+#define MAC_SPEC_USECS_PER_SYMBOL                         16
+#define MAC_SPEC_USECS_PER_BACKOFF                        (MAC_SPEC_USECS_PER_SYMBOL * MAC_A_UNIT_BACKOFF_PERIOD)
+#define MAC_SPEC_OCTETS_PER_SYMBOL                        2
 
 /**  @} end of group MAC_Constant */
 
 /**  @} end of group MAC_Module */
 
 /**  @} end of group TELINK_RF4CE_STACK */
+
 
 

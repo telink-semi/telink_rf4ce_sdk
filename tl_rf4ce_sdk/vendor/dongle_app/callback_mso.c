@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for callback_mso.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -90,7 +90,6 @@ void tl_audioProfileInit(u8 profileId);
 /**********************************************************************
  * GLOBAL VARIABLES
  */
-extern u8 ota_enableFlag;
 
 /**********************************************************************
  * LOCAL VARIABLES
@@ -98,8 +97,8 @@ extern u8 ota_enableFlag;
 
 
 const appVendInfo_t app_vendor_info_list[APP_VID_SUPPPORT_MAX] = {
-	/* Telink */
-	{APP_VENDOR_ID_LIST, {'T', 'L', 0, 0, 0, 0, 0},			  {'T', 'e', 'l', 'i', 'n', 'k', 0, 0, 0},},
+    /* Telink */
+    {APP_VENDOR_ID_LIST, {'T', 'L', 0, 0, 0, 0, 0},              {'T', 'e', 'l', 'i', 'n', 'k', 0, 0, 0},},
 
 };
 
@@ -113,21 +112,21 @@ static const profile_cbFunc_t mso_profileCmdCallbacks =
 {
     mso_startCnfCb,                     // start stack confirm command
     mso_pairCnfCb,
-	NULL,
-	mso_unPairIndCb,
+    NULL,
+    mso_unPairIndCb,
 };
 
 static const mso_userCbFunc_t mso_cmdCallbacks =
 {
-	NULL,             			//check validation resp
-	mso_ckValiReq,              //check validation ind
-	NULL,                       //set attr resp
-	mso_setAttrInd,             //set attr ind
-	mso_getAttrResp,            //get attr resp
-	mso_bindCnf,                //bind confirm
-	mso_cmdRecvedCb,            //cmd recv
-	NULL,               		//cmd send cb
-	mso_validationKeyCb,        //validation code recv
+    NULL,                         //check validation resp
+    mso_ckValiReq,              //check validation ind
+    NULL,                       //set attr resp
+    mso_setAttrInd,             //set attr ind
+    mso_getAttrResp,            //get attr resp
+    mso_bindCnf,                //bind confirm
+    mso_cmdRecvedCb,            //cmd recv
+    NULL,                       //cmd send cb
+    mso_validationKeyCb,        //validation code recv
     mso_appDataIndCb,
 };
 
@@ -147,64 +146,64 @@ static const mso_userCbFunc_t mso_cmdCallbacks =
 u8 mso_ckValiReq(u8 pairingRef)
 {
 #if DONGLE_TEST_MODE
-	if ( msoApp_state == MSO_APP_START_VALIDATION ) {
-		t_verifyTimes = 0;
-		msoApp_state = MSO_APP_VALIDATING_STATE;
-	}
-	if ( msoApp_state == MSO_APP_VALIDATING_STATE ) {
-		if(t_verifyTimes++ >= 3){
-			msoApp_state = MSO_APP_VALIDATED_STATE;
-		}
-		return MSO_PENDING;
-	} else {
-		return MSO_SUCC;
-	}
+    if ( msoApp_state == MSO_APP_START_VALIDATION ) {
+        t_verifyTimes = 0;
+        msoApp_state = MSO_APP_VALIDATING_STATE;
+    }
+    if ( msoApp_state == MSO_APP_VALIDATING_STATE ) {
+        if(t_verifyTimes++ >= 3){
+            msoApp_state = MSO_APP_VALIDATED_STATE;
+        }
+        return MSO_PENDING;
+    } else {
+        return MSO_SUCC;
+    }
 #else
-	//return MSO_SUCC;
-	if ( msoApp_state == MSO_APP_START_VALIDATION ) {
-		drv_generateRandomData(validationCode, 4);
+    //return MSO_SUCC;
+    if ( msoApp_state == MSO_APP_START_VALIDATION ) {
+        drv_generateRandomData(validationCode, 4);
 
-		validationCode[0] = rand() % 10;
-		validationCode[1] = rand() % 10;
-		validationCode[2] = rand() % 10;
+        validationCode[0] = rand() % 10;
+        validationCode[1] = rand() % 10;
+        validationCode[2] = rand() % 10;
 
-		usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
-		if (!uartBuf) {
-			while(1);
-		}
+        usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+        if (!uartBuf) {
+            while(1);
+        }
 
-		uartBuf->data[0] = 4;//msoCode;
-		uartBuf->data[1] = MSO_APP_ID_PARING_KEYCODE;
-		uartBuf->data[2] = validationCode[0];//msoCode;
-		uartBuf->data[3] = validationCode[1];
-		uartBuf->data[4] = validationCode[2];
-		uartBuf->len = uartBuf->data[0] + 1;
-		sendCmdToTH(uartBuf);
+        uartBuf->data[0] = 4;//msoCode;
+        uartBuf->data[1] = MSO_APP_ID_PARING_KEYCODE;
+        uartBuf->data[2] = validationCode[0];//msoCode;
+        uartBuf->data[3] = validationCode[1];
+        uartBuf->data[4] = validationCode[2];
+        uartBuf->len = uartBuf->data[0] + 1;
+        sendCmdToTH(uartBuf);
 
-		msoApp_state = MSO_APP_VALIDATING_STATE;
-		validationIndex = 0;
-		t_verifyTimes = 0;
-	}
+        msoApp_state = MSO_APP_VALIDATING_STATE;
+        validationIndex = 0;
+        t_verifyTimes = 0;
+    }
 
-	if ( t_verifyTimes >= 10 ) {
-		/*u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
-		if (!uartBuf) {
-			while(1);
-		}
-		uartBuf[0] = 3;
-		uartBuf[1] = OTA_CMD_VALID_KEYCODE;//msoCode;
-		uartBuf[2] = MSO_APP_VALIDATION_FAIL_IND;//msoCode;
-		uartBuf[3] = MSO_COLLISION;
+    if ( t_verifyTimes >= 10 ) {
+        /*u8 *uartBuf = ev_buf_allocate(SMALL_BUFFER);
+        if (!uartBuf) {
+            while(1);
+        }
+        uartBuf[0] = 3;
+        uartBuf[1] = OTA_CMD_VALID_KEYCODE;//msoCode;
+        uartBuf[2] = MSO_APP_VALIDATION_FAIL_IND;//msoCode;
+        uartBuf[3] = MSO_COLLISION;
 
-		sendCmdToTH(uartBuf, uartBuf[0] + 1);*/
-		return MSO_FAILURE;
-	}
+        sendCmdToTH(uartBuf, uartBuf[0] + 1);*/
+        return MSO_FAILURE;
+    }
 
-	if ( msoApp_state == MSO_APP_VALIDATING_STATE ) {
-		return MSO_PENDING;
-	} else {
-		return MSO_SUCC;
-	}
+    if ( msoApp_state == MSO_APP_VALIDATING_STATE ) {
+        return MSO_PENDING;
+    } else {
+        return MSO_SUCC;
+    }
 #endif
 }
 
@@ -252,31 +251,31 @@ void mso_getAttrResp(u8 pairingRef, u8 attrib, u8 index, u8 status, u8 len, u8 *
   */
 void mso_setAttrInd(u8 pairingRef, u8 attrib, u8 index, u8 len, u8 *val, u8 lqi)
 {
-	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
-	if (!uartBuf) {
-		while(1);
-	}
-	uartBuf->data[0] = len + 7;
-	uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
-	uartBuf->data[2] = MSO_APP_SET_ATTR_IND;
-	uartBuf->data[3] = pairingRef;
-	uartBuf->data[4] = attrib;
-	uartBuf->data[5] = index;
-	uartBuf->data[6] = len;
-	uartBuf->data[7] = lqi;
-	memcpy(uartBuf+8, val, len);
-	uartBuf->len = uartBuf->data[0] + 1;
-	sendCmdToTH(uartBuf);
+    usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+    if (!uartBuf) {
+        while(1);
+    }
+    uartBuf->data[0] = len + 7;
+    uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
+    uartBuf->data[2] = MSO_APP_SET_ATTR_IND;
+    uartBuf->data[3] = pairingRef;
+    uartBuf->data[4] = attrib;
+    uartBuf->data[5] = index;
+    uartBuf->data[6] = len;
+    uartBuf->data[7] = lqi;
+    memcpy(uartBuf+8, val, len);
+    uartBuf->len = uartBuf->data[0] + 1;
+    sendCmdToTH(uartBuf);
 #if 0
-	if ( mso_otaTimer == NULL ) {
-		mso_otaTimer = (ev_time_event_t *)ev_buf_allocate(sizeof(ev_time_event_t));
-		if ( mso_otaTimer == NULL ) {
-			while(1);
-		}
-	}
-	mso_otaTimer->cb = mso_startOTA;
-	mso_otaTimer->data = (void*)pairingRef;
-	ev_on_timer(mso_otaTimer,NULL, 80 * 1000);
+    if ( mso_otaTimer == NULL ) {
+        mso_otaTimer = (ev_time_event_t *)ev_buf_allocate(sizeof(ev_time_event_t));
+        if ( mso_otaTimer == NULL ) {
+            while(1);
+        }
+    }
+    mso_otaTimer->cb = mso_startOTA;
+    mso_otaTimer->data = (void*)pairingRef;
+    ev_on_timer(mso_otaTimer,NULL, 80 * 1000);
 #endif
 }
 
@@ -299,35 +298,35 @@ u32 T_failCnt = 0;
 #endif
 void mso_bindCnf(u8 pairingRef, u8 status,u8 lqi)
 {
-	lqi = lqi;
-	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
-	if (!uartBuf) {
-		while(1);
-	}
-	uartBuf->data[0] = 3;
-	uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
-	uartBuf->data[2] = MSO_APP_BOND_IND;//msoCode;
-	uartBuf->data[3] = status;
-	uartBuf->len = uartBuf->data[0] + 1;
-	sendCmdToTH(uartBuf);
+    lqi = lqi;
+    usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+    if (!uartBuf) {
+        while(1);
+    }
+    uartBuf->data[0] = 3;
+    uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
+    uartBuf->data[2] = MSO_APP_BOND_IND;//msoCode;
+    uartBuf->data[3] = status;
+    uartBuf->len = uartBuf->data[0] + 1;
+    sendCmdToTH(uartBuf);
 
-	msoApp_state = MSO_APP_NORMAL_STATE;
+    msoApp_state = MSO_APP_NORMAL_STATE;
 
-	ev_on_timer(mso_doPair, 0, 500*1000);
+    ev_on_timer(mso_doPair, 0, 500*1000);
 
-	if ( status == RF4CE_NWK_DISCOVERY_ABORT ) {
-		return;
-	}
-	if ( status == MSO_SUCC ) {
-		mso_saveFlash(NULL);
+    if ( status == RF4CE_NWK_DISCOVERY_ABORT ) {
+        return;
+    }
+    if ( status == MSO_SUCC ) {
+        mso_saveFlash(NULL);
 #if (__DEBUG__ )
         T_succCnt++;
 #endif
-	}
+    }
 #if (__DEBUG__ )
-	else{
-		T_failCnt++;
-	}
+    else{
+        T_failCnt++;
+    }
 #endif
 }
 
@@ -344,13 +343,13 @@ void mso_bindCnf(u8 pairingRef, u8 status,u8 lqi)
  */
 void mso_startCnfCb(u8 status)
 {
-	if ( status == SUCCESS ) {
+    if ( status == SUCCESS ) {
 #if 1 || !DONGLE_TEST_MODE
-		ev_on_timer(mso_doPair,0, 500*1000);
+        ev_on_timer(mso_doPair,0, 500*1000);
 #endif
-	}
-	u8 value = 15;
-	nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
+    }
+    u8 value = 15;
+    nwk_nlmeSetReq(NWK_BASE_CHANNEL, 0, &value);
 }
 
 
@@ -370,14 +369,14 @@ volatile int T_mso_pairCnfErrCnt = 0;
 volatile int T_mso_pairCnfOkCnt = 0;
 void mso_pairCnfCb(u8 pairingRef, u8 status, u8 profileSize, u8 *profileList)
 {
-	if ( status == RF4CE_NWK_DISCOVERY_ABORT ) {
-		return;
-	}
-	if ( status == SUCCESS ) {
-		T_mso_pairCnfOkCnt++;
-		msoApp_state = MSO_APP_START_VALIDATION;
-	} else {
-		//EV_SCHEDULE_TASK(mso_doPair, 0);
+    if ( status == RF4CE_NWK_DISCOVERY_ABORT ) {
+        return;
+    }
+    if ( status == SUCCESS ) {
+        T_mso_pairCnfOkCnt++;
+        msoApp_state = MSO_APP_START_VALIDATION;
+    } else {
+        //EV_SCHEDULE_TASK(mso_doPair, 0);
         //mso_doPair(0);
 
 #if !DONGLE_TEST_MODE
@@ -387,7 +386,7 @@ void mso_pairCnfCb(u8 pairingRef, u8 status, u8 profileSize, u8 *profileList)
         ev_on_timer(mso_doPair,0, 500);
         msoApp_state = MSO_APP_INVALID_STATE;
 #endif
-	}
+    }
 }
 
 
@@ -411,43 +410,43 @@ void mso_pairCnfCb(u8 pairingRef, u8 status, u8 profileSize, u8 *profileList)
 void mso_validationKeyCb(u8 pairingRef, u16 vendorId, u8 rxFlags, u8 lqi, u8 cmdCode)
 {
 #if DONGLE_TEST_MODE
-	return;
+    return;
 #endif
 
-	if ( validationCode[validationIndex] == cmdCode - ZRCmdRC_Numpad0_or_10 ) {
-		validationIndex++;
-	} else {
-		validationIndex = 0;
-	}
-	if ( validationIndex == 3 ) {
-		msoApp_state = MSO_APP_VALIDATED_STATE;
+    if ( validationCode[validationIndex] == cmdCode - ZRCmdRC_Numpad0_or_10 ) {
+        validationIndex++;
+    } else {
+        validationIndex = 0;
+    }
+    if ( validationIndex == 3 ) {
+        msoApp_state = MSO_APP_VALIDATED_STATE;
 
 #if 0
-		uartBuf[0] = 5;// Pair OK;
-		uartBuf[1] = OTA_CMD_VALID_KEYCODE;
-		uartBuf[2] = MSO_APP_VALIDATION_SUCC_IND;// Pair OK;
-		uartBuf[3] = msoApp_state;
-		uartBuf[4] = lqi;
-		uartBuf[5] = 0x00;
+        uartBuf[0] = 5;// Pair OK;
+        uartBuf[1] = OTA_CMD_VALID_KEYCODE;
+        uartBuf[2] = MSO_APP_VALIDATION_SUCC_IND;// Pair OK;
+        uartBuf[3] = msoApp_state;
+        uartBuf[4] = lqi;
+        uartBuf[5] = 0x00;
 
-		sendCmdToTH(uartBuf, uartBuf[0] + 1);
-		return;
+        sendCmdToTH(uartBuf, uartBuf[0] + 1);
+        return;
 #endif
-	}
-	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
-	if (!uartBuf) {
-		while(1);
-	}
+    }
+    usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+    if (!uartBuf) {
+        while(1);
+    }
 
-	uartBuf->data[0] = 6;
-	uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
-	uartBuf->data[2] = MSO_APP_CMD_CODE_IND;
-	uartBuf->data[3] = cmdCode;
-	uartBuf->data[4] = cmdCode - ZRCmdRC_Numpad0_or_10;
-	uartBuf->data[5] = 1;
-	uartBuf->data[6] = lqi;
-	uartBuf->len = uartBuf->data[0] + 1;
-	sendCmdToTH(uartBuf);
+    uartBuf->data[0] = 6;
+    uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
+    uartBuf->data[2] = MSO_APP_CMD_CODE_IND;
+    uartBuf->data[3] = cmdCode;
+    uartBuf->data[4] = cmdCode - ZRCmdRC_Numpad0_or_10;
+    uartBuf->data[5] = 1;
+    uartBuf->data[6] = lqi;
+    uartBuf->len = uartBuf->data[0] + 1;
+    sendCmdToTH(uartBuf);
 }
 
 
@@ -476,44 +475,44 @@ void mso_validationKeyCb(u8 pairingRef, u16 vendorId, u8 rxFlags, u8 lqi, u8 cmd
 volatile int T_mso_cmdRecvedCbCnt;
 void mso_cmdRecvedCb(u8 pairingRef, u16 vendorId, u8 rxFlags, u8 lqi, u8 msoCode, u8 cmdCode, u8 cmdPayloadLen, u8 *payload)
 {
-	u8 len = 6;
-	T_mso_cmdRecvedCbCnt++;
+    u8 len = 6;
+    T_mso_cmdRecvedCbCnt++;
 
 #if USB_CDC_ENABLE
-	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
-	if (!uartBuf) {
-		while(1);
-	}
+    usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+    if (!uartBuf) {
+        while(1);
+    }
 
-	uartBuf->data[0] = len;//msoCode;
-	uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
-	uartBuf->data[2] = MSO_APP_CMD_CODE_IND;//msoCode;
-	uartBuf->data[3] = msoCode;
-	uartBuf->data[4] = cmdCode;
-	uartBuf->data[5] = cmdPayloadLen;
-	uartBuf->data[6] = lqi;
-	uartBuf->len = uartBuf->data[0] + 1;
-	sendCmdToTH(uartBuf);
+    uartBuf->data[0] = len;//msoCode;
+    uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
+    uartBuf->data[2] = MSO_APP_CMD_CODE_IND;//msoCode;
+    uartBuf->data[3] = msoCode;
+    uartBuf->data[4] = cmdCode;
+    uartBuf->data[5] = cmdPayloadLen;
+    uartBuf->data[6] = lqi;
+    uartBuf->len = uartBuf->data[0] + 1;
+    sendCmdToTH(uartBuf);
 #elif USB_KEYBOARD_ENABLE
-	kb_data_t keyData;
-	keyData.cnt = 1;
-	keyData.ctrl_key = 0;
-	keyData.keycode[0] = 0xff;
+    kb_data_t keyData;
+    keyData.cnt = 1;
+    keyData.ctrl_key = 0;
+    keyData.keycode[0] = 0xff;
 
-	if(action->actionControl.byte == 0){
-		keyData.cnt = 0;
-	}
+    if(action->actionControl.byte == 0){
+        keyData.cnt = 0;
+    }
 
-	for(s32 i = 0; i < sizeof(rf4ce2hidKeyMapping)/2; i++){
-		if(action->actionCode == rf4ce2hidKeyMapping[i][0]){
-			keyData.keycode[0] = rf4ce2hidKeyMapping[i][1];
-			break;
-		}
-	}
+    for(s32 i = 0; i < sizeof(rf4ce2hidKeyMapping)/2; i++){
+        if(action->actionCode == rf4ce2hidKeyMapping[i][0]){
+            keyData.keycode[0] = rf4ce2hidKeyMapping[i][1];
+            break;
+        }
+    }
 
-	if(keyData.keycode[0] != 0xff){
-		usbkb_hid_report(&keyData);
-	}
+    if(keyData.keycode[0] != 0xff){
+        usbkb_hid_report(&keyData);
+    }
 #endif
 }
 
@@ -529,23 +528,23 @@ void mso_cmdRecvedCb(u8 pairingRef, u16 vendorId, u8 rxFlags, u8 lqi, u8 msoCode
  */
 void mso_unPairIndCb(u8 pairingRef)
 {
-	usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
-	if (!uartBuf) {
-		while(1);
-	}
-	uartBuf->data[0] = 3;
-	uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
-	uartBuf->data[2] = MSO_APP_UNPIAR_IND;
-	uartBuf->data[3] = pairingRef;
-	uartBuf->len = uartBuf->data[0] + 1;
-	sendCmdToTH(uartBuf);
+    usbcdc_txBuf_t *uartBuf = (usbcdc_txBuf_t *)ev_buf_allocate(SMALL_BUFFER);
+    if (!uartBuf) {
+        while(1);
+    }
+    uartBuf->data[0] = 3;
+    uartBuf->data[1] = MSO_APP_ID_NORMAL_KEY;
+    uartBuf->data[2] = MSO_APP_UNPIAR_IND;
+    uartBuf->data[3] = pairingRef;
+    uartBuf->len = uartBuf->data[0] + 1;
+    sendCmdToTH(uartBuf);
 
-	//EV_SCHEDULE_TASK(mso_doPair, NULL);
-	//mso_doPair(NULL);
+    //EV_SCHEDULE_TASK(mso_doPair, NULL);
+    //mso_doPair(NULL);
 #if !DONGLE_TEST_MODE
-	ev_on_timer(mso_doPair,0, 500);
+    ev_on_timer(mso_doPair,0, 500);
 #else
-	 msoApp_state = MSO_APP_INVALID_STATE;
+     msoApp_state = MSO_APP_INVALID_STATE;
 #endif
 }
 
@@ -563,14 +562,14 @@ void mso_unPairIndCb(u8 pairingRef)
 volatile int T_mso_doPairNum[2] = {0};
 int mso_doPair(void *arg)
 {
-	T_mso_doPairNum[0]++;
+    T_mso_doPairNum[0]++;
     if ( SUCCESS != profile_startPair(1, 0xff, 3, 0) ) {
-		//EV_SCHEDULE_TASK(mso_doPair, NULL);
-		//mso_doPair(NULL);
-    	T_mso_doPairNum[1]++;
-    	msoApp_state = MSO_APP_INVALID_STATE;
-		return 0;
-	}
+        //EV_SCHEDULE_TASK(mso_doPair, NULL);
+        //mso_doPair(NULL);
+        T_mso_doPairNum[1]++;
+        msoApp_state = MSO_APP_INVALID_STATE;
+        return 0;
+    }
 
     msoApp_state = MSO_APP_START_BINDING_STATE;
     return -1;
@@ -594,31 +593,31 @@ void msoApp_reset(void *arg)
  */
 void mso_saveFlash(void *arg)
 {
-	u8 r = irq_disable();
+    u8 r = irq_disable();
 #if (MODULE_FLASH_ENABLE)
-		if ( SUCCESS != mac_savePibToFlash() ) {
-			nv_resetModule(DS_MAC_PHY_MODULE);
-			mac_savePibToFlash();
-		}
+        if ( SUCCESS != mac_savePibToFlash() ) {
+            nv_resetModule(DS_MAC_PHY_MODULE);
+            mac_savePibToFlash();
+        }
 
-		if ( SUCCESS != nwk_savePibToFlash() || SUCCESS != nwk_savePairTblToFlash() ) {
-			nv_resetModule(DS_NWK_MODULE);
-			nwk_savePairTblToFlash();
-			nwk_savePibToFlash();
-		}
+        if ( SUCCESS != nwk_savePibToFlash() || SUCCESS != nwk_savePairTblToFlash() ) {
+            nv_resetModule(DS_NWK_MODULE);
+            nwk_savePairTblToFlash();
+            nwk_savePibToFlash();
+        }
 
-		if ( (SUCCESS != mso_saveTgtRcTblToFlash())
-			//|| (SUCCESS != mso_saveRibToFlash())
-			//|| (SUCCESS != mso_saveAttrToFlash())
-			)
-		{
-			nv_resetModule(DS_PROFILE_MODULE);
-			mso_saveTgtRcTblToFlash();
-			mso_saveRibToFlash();
-			mso_saveAttrToFlash();
-		}
+        if ( (SUCCESS != mso_saveTgtRcTblToFlash())
+            //|| (SUCCESS != mso_saveRibToFlash())
+            //|| (SUCCESS != mso_saveAttrToFlash())
+            )
+        {
+            nv_resetModule(DS_PROFILE_MODULE);
+            mso_saveTgtRcTblToFlash();
+            mso_saveRibToFlash();
+            mso_saveAttrToFlash();
+        }
 #endif
-	irq_restore(r);
+    irq_restore(r);
 
 }
 
@@ -640,7 +639,7 @@ void mso_saveFlash(void *arg)
 void msoApp_initPib(void)
 {
 
-	/* Set the LQI threshold to 1 means a very low value */
+    /* Set the LQI threshold to 1 means a very low value */
     u8 value = 0x1;
     nwk_nlmeSetReq(NWK_DISCOVERY_LQI_THRESHOLD, 0, &value);
 
@@ -651,26 +650,26 @@ void msoApp_initPib(void)
     }
     nwk_nlmeSetReq(NWK_NODE_CAPABILITIES, 0, &value);
 
-	/* Default discovery reception interval, 1 second. (0xf424 * 16)us */
+    /* Default discovery reception interval, 1 second. (0xf424 * 16)us */
     u32 respWaitTime = 0xF424;
     nwk_nlmeSetReq(NWK_DISCOVERY_REPETITION_INTERVAL, 0, (u8*)&respWaitTime);
 
-	/* Default response waiting timer, 100 millsecond. (0x186a * 16)us */
+    /* Default response waiting timer, 100 millsecond. (0x186a * 16)us */
     respWaitTime = 0x186a;
     nwk_nlmeSetReq(NWK_RESPONSE_WAIT_TIME, 0, (u8*)&respWaitTime);
 
-	/* Default discovery repetitions */
+    /* Default discovery repetitions */
     value = 0x1E;
     nwk_nlmeSetReq(NWK_MAX_DISCOVERY_REPETITIONS, 0, &value);
 
     value = 0x01;
     nwk_nlmeSetReq(NWK_MAX_REPORTED_NODE_DESCRIPTORS, 0, &value);
 
-	u16 vendId = app_vendor_info_list[0].vendId;
-	nwk_nlmeSetReq(NWK_VENDOR_IDENTIFIER, 0, (u8*)&vendId);
-	nwk_nlmeSetReq(NWK_VENDOR_STRING, 0, (u8 *)app_vendor_info_list[0].vendString);
+    u16 vendId = app_vendor_info_list[0].vendId;
+    nwk_nlmeSetReq(NWK_VENDOR_IDENTIFIER, 0, (u8*)&vendId);
+    nwk_nlmeSetReq(NWK_VENDOR_STRING, 0, (u8 *)app_vendor_info_list[0].vendString);
 
-	nwk_nlmeSetReq(NWK_USER_STRING, 0, (u8 *)app_vendor_info_list[0].userString);
+    nwk_nlmeSetReq(NWK_USER_STRING, 0, (u8 *)app_vendor_info_list[0].userString);
 }
 
 
@@ -679,18 +678,18 @@ u8 uart_recv_flag = 0;
 u8 aaa_uart_buf[64] = {0};
 volatile int aaa_uart_recv_num = 0;
 s32 msoApp_uartRecvCb(u8 *pdata){
-	memcpy(aaa_uart_buf, pdata, 64);
-	ev_buf_free(pdata);
-	uart_recv_flag = 1;
+    memcpy(aaa_uart_buf, pdata, 64);
+    ev_buf_free(pdata);
+    uart_recv_flag = 1;
 
-	/*u32 *p_sent = (u32 *)aaa_uart_buf;
-	*p_sent = aaa_uart_recv_num++;
-	usbcdc_txBuf_t* p = (usbcdc_txBuf_t *)ev_buf_allocate(LARGE_BUFFER);
-	memcpy(p->data, aaa_uart_buf, 64);
-	p->len = 64;
-	//sendCmdToTH(p, 64);
-	extern void ota_cmd_parsing(u8 *p_ota);*/
-	return -1;
+    /*u32 *p_sent = (u32 *)aaa_uart_buf;
+    *p_sent = aaa_uart_recv_num++;
+    usbcdc_txBuf_t* p = (usbcdc_txBuf_t *)ev_buf_allocate(LARGE_BUFFER);
+    memcpy(p->data, aaa_uart_buf, 64);
+    p->len = 64;
+    //sendCmdToTH(p, 64);
+    extern void ota_cmd_parsing(u8 *p_ota);*/
+    return -1;
 }
 
 
@@ -705,14 +704,14 @@ s32 msoApp_uartRecvCb(u8 *pdata){
  */
 void msoApp_init(void)
 {
-	/* Initialize NWK PIB */
-	msoApp_initPib();
+    /* Initialize NWK PIB */
+    msoApp_initPib();
 
 #if USB_CDC_ENABLE
-	TH_trxInit(msoApp_uartRecvCb);//mso_uartRecv
+    TH_trxInit(msoApp_uartRecvCb);//mso_uartRecv
 #endif
 
-	msoApp_state = MSO_APP_INVALID_STATE;
+    msoApp_state = MSO_APP_INVALID_STATE;
 }
 
 /*********************************************************************
@@ -728,23 +727,23 @@ extern const profile_cbFunc_t mso_profileCmdCallbacks;
 extern const mso_userCbFunc_t mso_cmdCallbacks;
 void user_init(void){
 #if (USB_MIC_ENABLE)
-	audio_decInit();
+    audio_decInit();
 #endif
 
-	tl_audioProfileInit(PROFILE_MSO);
+    tl_audioProfileInit(PROFILE_MSO);
 
 #if (POWER_DETECT_ENABLE)
-	drv_adc_init();
+    drv_adc_init();
 
-	/* init ADC for battery detection */
-	drv_adc_battery_detect_init();
+    /* init ADC for battery detection */
+    drv_adc_battery_detect_init();
 
     /* start battery detection */
     app_powerDetect();
 
     checkWhenPowerOn();
 #endif
-	/* Initialize stack */
+    /* Initialize stack */
     profile_init();
 
     /* Initialize mso app */
@@ -763,16 +762,16 @@ extern u32 tick_usb_enum;
 void app_idle_handler(void)
 {
 #if USB_KEYBOARD_ENABLE
-	extern void usbkb_release_check(void);
-	usbkb_release_check();
+    extern void usbkb_release_check(void);
+    usbkb_release_check();
 #endif
 
 #if POWER_DETECT_ENABLE
-	if(ev_isTaskDone()&&(clock_time_exceed(tick_usb_enum,10*1000)))
-	{
-		tick_usb_enum = clock_time ();
-		voltage_detect();
-	}
+    if(ev_isTaskDone()&&(clock_time_exceed(tick_usb_enum,10*1000)))
+    {
+        tick_usb_enum = clock_time ();
+        voltage_detect();
+    }
 #endif
 
 }
@@ -785,59 +784,59 @@ void gpio_user_irq_handler(void){
 
 
 void insert(u16 *a,int n){
-	int i,j,temp;
-	for(i = 1; i < n; i++) {
-		temp = a[i];
-		j = i - 1;
+    int i,j,temp;
+    for(i = 1; i < n; i++) {
+        temp = a[i];
+        j = i - 1;
 
-		while(j >= 0 && temp < a[j]) {
-			a[j+1] = a[j];
-			j--;
-		}
-		a[j+1] = temp;
-	}
+        while(j >= 0 && temp < a[j]) {
+            a[j+1] = a[j];
+            j--;
+        }
+        a[j+1] = temp;
+    }
 }
 
 u8 battSta = 0;
 volatile u16 batteryCap=0;
 u32 app_powerDetect(void){
-	u32 ret = 0;
+    u32 ret = 0;
 
 #if POWER_DETECT_ENABLE
-	u32 battMatrix = sizeof(batteryVoltage)/sizeof(u16);
-	u16 battThres[5] = {0};
-	u8 r = irq_disable();
-	u32 i = 0;
-	u32 battery_value1 = 0;
-	static u16 battBuf[12] = {0};
+    u32 battMatrix = sizeof(batteryVoltage)/sizeof(u16);
+    u16 battThres[5] = {0};
+    u8 r = irq_disable();
+    u32 i = 0;
+    u32 battery_value1 = 0;
+    static u16 battBuf[12] = {0};
 
-	for(i = 0; i < 12; i++){
-		battBuf[i] = drv_get_adc_data();
-		WaitUs(5);
-	}
-	insert(battBuf, 12);
+    for(i = 0; i < 12; i++){
+        battBuf[i] = drv_get_adc_data();
+        WaitUs(5);
+    }
+    insert(battBuf, 12);
 
-	battery_value1 += battBuf[4];
-	for(i = 5; i < 8; i++){
-		if(abs(battBuf[i] - battBuf[i-1]) > 30){
-			irq_restore(r);
-			return 0;
-		}
-		battery_value1 += battBuf[i];
-	}
-	battery_value1 /= 4;
+    battery_value1 += battBuf[4];
+    for(i = 5; i < 8; i++){
+        if(abs(battBuf[i] - battBuf[i-1]) > 30){
+            irq_restore(r);
+            return 0;
+        }
+        battery_value1 += battBuf[i];
+    }
+    battery_value1 /= 4;
 
-	for (i=0; i<battMatrix; i++ ) {
-		if ( battery_value1 > (batteryVoltage[i] + battThres[i]) ) {
-			break;
-		}
-	}
+    for (i=0; i<battMatrix; i++ ) {
+        if ( battery_value1 > (batteryVoltage[i] + battThres[i]) ) {
+            break;
+        }
+    }
 
-	batteryCap = battery_value1;
-	battSta = i;
-	irq_restore(r);
+    batteryCap = battery_value1;
+    battSta = i;
+    irq_restore(r);
 #endif
-	return ret;
+    return ret;
 }
 
 
@@ -849,16 +848,18 @@ u32 app_powerDetect(void){
  * @param   None
  *
  * @return  1:battery level is great than or equal to volThreshold
- * 		    0:battery level is less than volThreshold
+ *             0:battery level is less than volThreshold
  */
 u8 checkPowerServiceLoop(u8 volThreshold){
 #if POWER_DETECT_ENABLE
-	if(battSta>=volThreshold)
-	return 0;
-	else
-	return 1;
+    if(battSta>=volThreshold) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
 #else
-	return 1;
+    return 1;
 #endif
 }
 
@@ -872,46 +873,51 @@ u8 checkPowerServiceLoop(u8 volThreshold){
  * @param   None
  *
  * @return  1:power level is great than or equal to BAT_LEVEL_CUTOFF
- * 		    0:power level is less than BAT_LEVEL_CUTOFF
+ *             0:power level is less than BAT_LEVEL_CUTOFF
  */
 void checkWhenPowerOn(void){
 #if POWER_DETECT_ENABLE
-	voltage_detect();
+    voltage_detect();
 #endif
-#if (!FLASH_PROTECT)
-	flash_unlock();
+
+#if (!FLASH_PROTECT_ENABLE)
+    flash_unlock();
+#else
+    flash_loadOpt();
+    flash_lock();
 #endif
 }
 
 void voltage_detect(void)
 {
 #if POWER_DETECT_ENABLE
-	u16 voltage = 0;
-	u32 curTick = clock_time();
-	u32 battMatrix =  sizeof(batteryVoltage)/sizeof(u16);
-	u8  i=0;
-	//printf("VDD: %d\n", voltage);
-	while(1)
-	{
-		voltage = drv_get_adc_data();
-		for (i=0; i<battMatrix; i++ )
-		{
-			if ( voltage > batteryVoltage[i])
-			{
-				break;
-			}
-		}
+    u16 voltage = 0;
+    u32 curTick = clock_time();
+    u32 battMatrix =  sizeof(batteryVoltage)/sizeof(u16);
+    u8  i=0;
+    //printf("VDD: %d\n", voltage);
+    while(1)
+    {
+        voltage = drv_get_adc_data();
+        for (i=0; i<battMatrix; i++ )
+        {
+            if ( voltage > batteryVoltage[i])
+            {
+                break;
+            }
+        }
 
-		if(i<=PWR_THRESHOLD_RESET)
-			break;
+        if(i<=PWR_THRESHOLD_RESET) {
+            break;
+        }
 
-		if(clock_time_exceed(curTick, 1000 * 1000))
-		{
-			SYSTEM_RESET();
-		}
-	}
-	batteryCap = voltage;
-	battSta = i;
+        if(clock_time_exceed(curTick, 1000 * 1000))
+        {
+            SYSTEM_RESET();
+        }
+    }
+    batteryCap = voltage;
+    battSta = i;
 #endif
 }
 

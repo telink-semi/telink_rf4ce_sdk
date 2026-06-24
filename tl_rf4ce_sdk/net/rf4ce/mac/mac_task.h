@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mac_task.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -44,14 +44,14 @@ typedef enum {
 
 
 typedef struct {
-    u8 primitive;
-    u8 request[1];
+    u8    primitive;
+    u8    request[1];
 } mac_generalReq_t;
 
 typedef struct {
-    u8 primitive;
-    u8 status;
-    u8 data[1];
+    u8    primitive;
+    u8    status;
+    u8    data[1];
 } mac_generalCnf_t;
 
 typedef void ( *mac_evHandler_t )( u8* pData );
@@ -59,10 +59,10 @@ typedef void ( *mac_evHandler_t )( u8* pData );
 /** @brief  MAC state machine */
 typedef struct
 {
-    mac_state_t curState;            /*! The MAC State in which the event handler can be used */
-    u8 primitive;                    /*! The primitive id for which the event handler is to be invoked */
-    mac_state_t nxtState;            /*! The MAC State in which the event handler can be used */
-    mac_evHandler_t evHandlerFunc;   /*! The corresponding event handler */
+        mac_state_t    curState;    /*! The MAC State in which the event handler can be used */
+                 u8    primitive;    /*! The primitive id for which the event handler is to be invoked */
+        mac_state_t    nxtState;    /*! The MAC State in which the event handler can be used */
+    mac_evHandler_t    evHandlerFunc;    /*! The corresponding event handler */
 } mac_stateMachine_t;
 
 
@@ -76,3 +76,4 @@ u8 mac_getPanCoord(void);
 void mac_getCoordAddr(addr_t *pAddr);
 u8 mac_getSelfAddrMode(void);
 void mac_genCommStatusInd(u8* pData, u8 status, addr_t* pSrcAddr, addr_t*pDstAddr);
+

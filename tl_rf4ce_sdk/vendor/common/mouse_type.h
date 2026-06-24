@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mouse_type.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,16 +29,17 @@
 #define MOUSE_FRAME_DATA_NUM   4
 /*
 typedef struct {
-	//u8 buff_id;
-	u8 btn;
-	s8 x;
-	s8 y;
-	s8 wheel;
-	//s8 tl_wheel;
-	//u8 hotkey;
+    //u8 buff_id;
+    u8    btn;
+    s8    x;
+    s8    y;
+    s8    wheel;
+    //s8 tl_wheel;
+    //u8 hotkey;
 }mouse_data_t;
 */
 
 
 
 #endif /* MOUSE_TYPE_H_ */
+

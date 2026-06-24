@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for CDCClassDevice.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -35,37 +35,38 @@
 
 
 typedef struct{
-	struct{
-		u8       ControlInterfaceNumber;
-		u8       DataINEndpointNumber;
-		u16      DataINEndpointSize;
-		bool     DataINEndpointDoubleBank;
+    struct{
+            u8    ControlInterfaceNumber;
+            u8    DataINEndpointNumber;
+           u16    DataINEndpointSize;
+          bool    DataINEndpointDoubleBank;
 
-		u8       DataOUTEndpointNumber;
-		u16      DataOUTEndpointSize;
-		bool     DataOUTEndpointDoubleBank;
+            u8    DataOUTEndpointNumber;
+           u16    DataOUTEndpointSize;
+          bool    DataOUTEndpointDoubleBank;
 
-		u8       NotificationEndpointNumber;
-		u16      NotificationEndpointSize;
-		bool     NotificationEndpointDoubleBank;
-	} Config;
+            u8    NotificationEndpointNumber;
+           u16    NotificationEndpointSize;
+          bool    NotificationEndpointDoubleBank;
+    } Config;
 
-	struct{
-		struct{
-			u16      HostToDevice;
-			u16      DeviceToHost;
-		} ControlLineStates;
-		CDC_LineEncoding_t LineEncoding;
-	} State;
+    struct{
+        struct{
+                       u16    HostToDevice;
+                       u16    DeviceToHost;
+        } ControlLineStates;
+        CDC_LineEncoding_t    LineEncoding;
+    } State;
 
 } USB_ClassInfo_CDC_Device_t;
 
 
 #if defined(__cplusplus)
-	}
+    }
 #endif
 
 #endif
 
 /** @} */
+
 

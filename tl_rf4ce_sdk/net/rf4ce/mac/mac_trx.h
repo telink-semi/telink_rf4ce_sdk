@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mac_trx.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -55,12 +55,12 @@ typedef enum {
 } mac_txEvt_t;
 
 typedef enum{
-	RX_BUSY = BIT(0),
-	TX_BUSY = BIT(1),
-	TX_ACKPACKET = BIT(2),
-	RX_WAITINGACK = BIT(3),
-	RX_DATAPENDING	= BIT(4),
-	TX_UNDERWAY = BIT(5)
+    RX_BUSY = BIT(0),
+    TX_BUSY = BIT(1),
+    TX_ACKPACKET = BIT(2),
+    RX_WAITINGACK = BIT(3),
+    RX_DATAPENDING    = BIT(4),
+    TX_UNDERWAY = BIT(5)
 }rf_trxds_st_e;
 
 

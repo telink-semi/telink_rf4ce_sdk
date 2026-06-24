@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mso.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -36,55 +36,55 @@
 #include "mso_api.h"
 #include "../../../../proj/common/types.h"
 
-#define MSO_aplcMaxKeyRepeatInterval                     120  //ms
-#define MSO_aplcMaxRIBAttributeSize                      92
-#define MSO_aplcResponseIdleTime                         30
-#define MSO_aplcBlackOutTime                             114  //ms
-#define MSO_aplcMinKeyExchangeTransferCount              3
+#define MSO_aplcMaxKeyRepeatInterval           120//ms
+#define MSO_aplcMaxRIBAttributeSize            92
+#define MSO_aplcResponseIdleTime               30
+#define MSO_aplcBlackOutTime                   114//ms
+#define MSO_aplcMinKeyExchangeTransferCount    3
 
-#define MAX_MSO_ATTR_NUM                       			 7
-#define MAX_MSO_IR_RF_KEY_DATABASE_NUM         			 40
+#define MAX_MSO_ATTR_NUM                       7
+#define MAX_MSO_IR_RF_KEY_DATABASE_NUM         40
 
 
-#define MSO_USE_NODE_IF_DUPLICATE              			 0
-#define MSO_REMOVE_NODE_IF_DUPLICATE           			 1
-#define MSO_RECLASSIFY_IF_DUPLICATE            			 2
-#define MSO_ABORT_BINDING_IF_DUPLICATE         			 3
+#define MSO_USE_NODE_IF_DUPLICATE              0
+#define MSO_REMOVE_NODE_IF_DUPLICATE           1
+#define MSO_RECLASSIFY_IF_DUPLICATE            2
+#define MSO_ABORT_BINDING_IF_DUPLICATE         3
 
-#define MSO_PRIMARY_CLASS_DESCRIPTOR           			 0
-#define MSO_SECONDARY_CLASS_DESCRIPTOR         			 1
-#define MSO_TERTIARY_CLASS_DESCRIPTOR          			 2
+#define MSO_PRIMARY_CLASS_DESCRIPTOR           0
+#define MSO_SECONDARY_CLASS_DESCRIPTOR         1
+#define MSO_TERTIARY_CLASS_DESCRIPTOR          2
 
 
 
 typedef struct {
-	union {
+    union {
         struct {
-            u8 classNum         : 4;     /* vendor sending packet */
-            u8 duplicateHandle  : 2;
-			u8 applyStrictLqiTh : 1;
-			u8 enableReqAutoVali: 1;
+        u8    classNum : 4;    /* vendor sending packet */
+        u8    duplicateHandle : 2;
+        u8    applyStrictLqiTh : 1;
+        u8    enableReqAutoVali : 1;
         } bf;
-        u8 val;
+        u8    val;
     } flags; 
 } mso_classDesc_t;
 
 typedef struct {
-	u8 mso_userStr[9];
-	u8 reserved;
-	mso_classDesc_t teriaryCD;
-	mso_classDesc_t secCD;
-	mso_classDesc_t priCD;
-	u8 strictLqiTh;
-	u8 basicLqiTh;
+                 u8    mso_userStr[9];
+                 u8    reserved;
+    mso_classDesc_t    teriaryCD;
+    mso_classDesc_t    secCD;
+    mso_classDesc_t    priCD;
+                 u8    strictLqiTh;
+                 u8    basicLqiTh;
 } mso_userStr_t;
 
 
 typedef struct {
-	addrExt_t ieee;
-	u16 panId;
-	u8 ch;
-	u8 autoReq;
+    addrExt_t    ieee;
+          u16    panId;
+           u8    ch;
+           u8    autoReq;
 } mso_nodeInfo_t;
 
 /**
@@ -92,26 +92,26 @@ typedef struct {
  */
 typedef struct mso_evItem_t{
     struct mso_evItem_t *next;
-    u8 evt;
-    u8 *pData;
+    u8    evt;
+    u8    *pData;
 } mso_evItem_t;
 
 /**
  *  @brief  Definition for attribute record format
  */
 typedef struct {
-    u8 id;             /*!< Attribute ID */
-    u8 len;            /*!< Attribute length */
-    u8 accessCtl;      /*!< Attribute access control, Get/Push/Pull/Set - bit field */
-    u8 offset;           /*!< Pointer to data field */
+    u8    id;    /*!< Attribute ID */
+    u8    len;    /*!< Attribute length */
+    u8    accessCtl;    /*!< Attribute access control, Get/Push/Pull/Set - bit field */
+    u8    offset;    /*!< Pointer to data field */
 } mso_attr_t;
 
 /** @brief  MSO state machine */
 typedef struct
 {
-    u8            curState;            /*! The ZID State in which the event handler can be used */
-    u8            event;               /*! The event for which the event handler is to be invoked */
-    fn_ptr        evHandlerFunc;       /*! The corresponding event handler */
+        u8    curState;    /*! The ZID State in which the event handler can be used */
+        u8    event;    /*! The event for which the event handler is to be invoked */
+    fn_ptr    evHandlerFunc;    /*! The corresponding event handler */
 } mso_stateMachine_t;
 
 extern mso_userCbFunc_t *mso_userCb;
@@ -156,3 +156,4 @@ u8 mso_restorePairEntry(void);
 u8 mso_bondWithTargetIndex(void);
 nv_sts_t mso_savePairEntry(u8 len, u8 *val);
 nv_sts_t mso_loadPairEntry(u8 len, u8 *val);
+

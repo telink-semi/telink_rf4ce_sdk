@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for user_config.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,11 +24,11 @@
 #pragma once
 
 #if (__PROJECT_ZRC_2_RC__) || (__PROJECT_MSO_RC__)
-	#include "../rc_app/app_config.h"
+    #include "../rc_app/app_config.h"
 #elif (__PROJECT_ZRC_2_DONGLE__) ||(__PROJECT_MSO_DONGLE__)
-	#include "../dongle_app/app_config.h"
+    #include "../dongle_app/app_config.h"
 #else
-	#include "user_config_common.h"
+    #include "user_config_common.h"
 #endif
 
 

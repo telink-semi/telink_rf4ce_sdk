@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for profile_api.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -55,11 +55,11 @@
  * Definition for Profile ID
  * @{
  */
-#define PROFILE_GDP                               0x00              /*!< Profile ID for GDP */
-#define PROFILE_ZRC                               0x01              /*!< Profile ID for ZRC (ZigBee Remote Control) */
-#define PROFILE_ZID                               0x02              /*!< Profile ID for ZID (ZigBee Input Device) */
-#define PROFILE_MSO                               0xc0              /*!< Profile ID for MSO */
-#define PROFILE_ZRC2                              0x03              /*!< Profile ID for ZRC2.0 */
+#define PROFILE_GDP             0x00              /*!< Profile ID for GDP */
+#define PROFILE_ZRC             0x01              /*!< Profile ID for ZRC (ZigBee Remote Control) */
+#define PROFILE_ZID             0x02              /*!< Profile ID for ZID (ZigBee Input Device) */
+#define PROFILE_MSO             0xc0              /*!< Profile ID for MSO */
+#define PROFILE_ZRC2            0x03              /*!< Profile ID for ZRC2.0 */
 /** @} end of group profile_id_definition */
 
 /**
@@ -67,13 +67,13 @@
  *          according to different configuration
  */
 
-#define PROFILE_NUM                           0x03
+#define PROFILE_NUM             0x03
 
 /**
  *  @brief  Definition for Profile Configuration Function Number
  */
 
-#define PROFILE_CFG_FUNC_NUM                  (PROFILE_NUM)
+#define PROFILE_CFG_FUNC_NUM    (PROFILE_NUM)
 
 
 
@@ -93,7 +93,7 @@ typedef enum {
 
 // NWK Data handle for profile of ZRC
 enum {
-    RF4CE_ZRC_SPECIFIC_DATA_REQ_HANDLE	=	0xA0,
+    RF4CE_ZRC_SPECIFIC_DATA_REQ_HANDLE    =    0xA0,
     RF4CE_ZRC_STANTARD_KEYCODE_HANDLE,
     RF4CE_ZRC_STANTARD_DATA_PRESS_HANDLE,
     RF4CE_ZRC_STANTARD_DATA_REPEAT_HANDLE,
@@ -104,7 +104,7 @@ enum {
     RF4CE_ZRC_GET_ATTR_REQ_HANDLE,
     RF4CE_ZRC_CFG_COMPLETE_HANDLE,
 
-    RF4CE_ZRC_SPECIFIC_DATA_RESP_HANDLE	=	0xB0,
+    RF4CE_ZRC_SPECIFIC_DATA_RESP_HANDLE    =    0xB0,
     RF4CE_ZRC_STANTARD_DATA_RESP_HANDLE,
     RF4CE_ZRC_PULL_ATTR_RESP_HANDLE,
     RF4CE_ZRC_PUSH_ATTR_RESP_HANDLE,
@@ -163,10 +163,10 @@ typedef void ( *profile_unpairInd_cbFunc_t)(u8 pairingRef);
  *  @brief  Structure Definition user callback functions, NULL for not use the callback
  */
 typedef struct {
-    profile_startCnf_cbFunc_t     pStartCnfFn;          //!< Function pointer to the start stack confirm command
-    profile_pairCnf_cbFunc_t      pPairCnfFn;           //!< Function pointer to the pairing confirm command
-    profile_unpairCnf_cbFunc_t    pUnpairCnfFn;         //!< Function pointer to the unpair confirm command
-    profile_unpairInd_cbFunc_t    pUnpairIndFn;         //!< Function pointer to the unpair indication command
+     profile_startCnf_cbFunc_t    pStartCnfFn;    //!< Function pointer to the start stack confirm command
+      profile_pairCnf_cbFunc_t    pPairCnfFn;    //!< Function pointer to the pairing confirm command
+    profile_unpairCnf_cbFunc_t    pUnpairCnfFn;    //!< Function pointer to the unpair confirm command
+    profile_unpairInd_cbFunc_t    pUnpairIndFn;    //!< Function pointer to the unpair indication command
 } profile_cbFunc_t;
 
 /** @} end of group Profile_Type */
@@ -257,6 +257,7 @@ u8 profile_getTxStatus(void);
 /**  @} end of group Profile_Module */
 
 /**  @} end of group TELINK_RF4CE_STACK */
+
 
 
 

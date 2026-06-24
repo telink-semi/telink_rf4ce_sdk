@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for usbmouse.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -30,13 +30,13 @@
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-	extern "C" {
+    extern "C" {
 #endif
 
 
-#define MEDIAKEY_REPORT_DATA_LEN	2
-#define MOUSE_REPORT_DATA_LEN     (sizeof(mouse_data_t))
-#define SPECIAL_REPORT_DATA_LEN	  2
+#define MEDIAKEY_REPORT_DATA_LEN    2
+#define MOUSE_REPORT_DATA_LEN       (sizeof(mouse_data_t))
+#define SPECIAL_REPORT_DATA_LEN     2
 
 
 int usbmouse_hid_report(u8 report_id, u8 *data, int cnt);
@@ -44,5 +44,6 @@ int usbmouse_hid_report(u8 report_id, u8 *data, int cnt);
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-	}
+    }
 #endif
+

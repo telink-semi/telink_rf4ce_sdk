@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for drv_pm.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -27,22 +27,20 @@
 #include "../common/compiler.h"
 #include "../../net/rf4ce/mac/mac_phy.h"
 typedef enum{
-	PLATFORM_MODE_SUSPEND,
-	PLATFORM_MODE_DEEPSLEEP,
-	PLATFORM_MODE_MCU_STALL,
+    PLATFORM_MODE_SUSPEND,
+    PLATFORM_MODE_DEEPSLEEP,
+    PLATFORM_MODE_MCU_STALL,
 }platform_mode_e;
 
 typedef enum{
-	PLATFORM_WAKEUP_PAD = (1 << 0),
-	PLATFORM_WAKEUP_TIMER = (1 << 1),
+    PLATFORM_WAKEUP_PAD = (1 << 0),
+    PLATFORM_WAKEUP_TIMER = (1 << 1),
 }platform_wakeup_e;
 
 typedef enum{
-	PLATFORM_WAKEUP_LEVEL_LOW,
-	PLATFORM_WAKEUP_LEVEL_HIGH,
+    PLATFORM_WAKEUP_LEVEL_LOW,
+    PLATFORM_WAKEUP_LEVEL_HIGH,
 }platform_wakeup_level_e;
-
-void platform_wakeup_init(void);
 
 void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en);
 

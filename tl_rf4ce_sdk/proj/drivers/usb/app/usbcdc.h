@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for usbcdc.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -38,8 +38,8 @@
 typedef void ( *cdc_handlerFn_t)( u8* pData);
 
 typedef struct {
-    u8 len;
-    u8 data[1];
+    u8    len;
+    u8    data[1];
 } usbcdc_txBuf_t;
 
 
@@ -68,3 +68,4 @@ void usbcdc_setRxBuf(u8 *buf);
 #if defined(__cplusplus)
     }
 #endif
+

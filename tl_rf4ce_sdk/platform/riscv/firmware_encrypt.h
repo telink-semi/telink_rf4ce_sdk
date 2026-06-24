@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	firmware_encrypt.h
+ * @file    firmware_encrypt.h
  *
- * @brief	This is the header file of firmware_encrypt for b91m
+ * @brief    This is the header file of firmware_encrypt for b91m
  *
- * @author	Driver Group
- * @date	2019
+ * @author    Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.

@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	drv_timer.c
+ * @file    drv_timer.c
  *
- * @brief	This is the source file for drv_timer
+ * @brief    This is the source file for drv_timer
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee GROUP
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -46,23 +46,23 @@
 #include "../tl_common.h"
 
 
-#define TIMER_SAFE_BOUNDARY_IN_US(v)		(10 * v)
-#define TIMER_OVERFLOW_VALUE        		(0xFFFFFFFE)
+#define TIMER_SAFE_BOUNDARY_IN_US(v)    (10 * v)
+#define TIMER_OVERFLOW_VALUE            (0xFFFFFFFE)
 
 
 typedef struct{
     /* Expire time and callback parameters */
-    ext_clk_t expireInfo;
-    timerCb_t cb;
-    void	  *arg;
+    ext_clk_t    expireInfo;
+    timerCb_t    cb;
+         void    *arg;
 
     /* Flags for useful information */
     union{
         struct{
-            u32 status:2;
-            u32 reserved:30;
+          u32    status : 2;
+          u32    reserved : 30;
         }bf;
-        u32 byteVal;
+          u32    byteVal;
     }flags;
 }hwTmr_info_t;
 
@@ -77,64 +77,86 @@ hwTmr_ctrl_t hwTmr_vars;
 static void hwTimerInit(u8 tmrIdx, u8 mode)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	if(tmrIdx < TIMER_IDX_3){
-		timer_set_init_tick(tmrIdx, 0);
-		timer_set_mode(tmrIdx, mode);
-		timer_irq_enable(tmrIdx);
-	}else{
-		stimer_irq_enable();
-	}
+    if(tmrIdx < TIMER_IDX_3){
+        timer_set_init_tick(tmrIdx, 0);
+        timer_set_mode(tmrIdx, mode);
+        timer_irq_enable(tmrIdx);
+    }else{
+        stimer_irq_enable();
+    }
 #elif defined(MCU_CORE_B92)
-	if(tmrIdx < TIMER_IDX_3){
-		timer_set_init_tick(tmrIdx, 0);
-		timer_set_mode(tmrIdx, mode);
-		if(tmrIdx == TIMER_IDX_0){
-			plic_interrupt_enable(IRQ4_TIMER0);
-		}else if(tmrIdx == TIMER_IDX_1){
-			plic_interrupt_enable(IRQ3_TIMER1);
-		}
-	}else{
-		plic_interrupt_enable(IRQ1_SYSTIMER);
-	}
+    if(tmrIdx < TIMER_IDX_3){
+        timer_set_init_tick(tmrIdx, 0);
+        timer_set_mode(tmrIdx, mode);
+        if(tmrIdx == TIMER_IDX_0){
+            plic_interrupt_enable(IRQ4_TIMER0);
+        }else if(tmrIdx == TIMER_IDX_1){
+            plic_interrupt_enable(IRQ3_TIMER1);
+        }
+    }else{
+        plic_interrupt_enable(IRQ1_SYSTIMER);
+    }
+#elif defined(MCU_CORE_TL321X)
+    if(tmrIdx < TIMER_IDX_3){
+        timer_set_init_tick(tmrIdx, 0);
+        timer_set_mode(tmrIdx, mode);
+        if(tmrIdx == TIMER_IDX_0){
+            timer_set_irq_mask(FLD_TMR0_MODE_IRQ);
+            plic_interrupt_enable(IRQ_TIMER0);
+        }else if(tmrIdx == TIMER_IDX_1){
+            timer_set_irq_mask(FLD_TMR1_MODE_IRQ);
+            plic_interrupt_enable(IRQ_TIMER1);
+        }
+    }else{
+        plic_interrupt_enable(IRQ_SYSTIMER);
+    }
 #endif
 }
 
 static void hwTimerSet(u8 tmrIdx, u32 tick)
 {
-	/* Set capture tick value */
-	if(tmrIdx < TIMER_IDX_3){
-		timer_set_cap_tick(tmrIdx, tick);
-	}else{
-		stimer_set_irq_capture(tick + clock_time());
-	}
+    /* Set capture tick value */
+    if(tmrIdx < TIMER_IDX_3){
+        timer_set_cap_tick(tmrIdx, tick);
+    }else{
+        stimer_set_irq_capture(tick + clock_time());
+    }
 }
 
 void hwTimerStart(u8 tmrIdx)
 {
-	if(tmrIdx < TIMER_IDX_3){
-		timer_set_init_tick(tmrIdx,0);
-		reg_tmr_sta = (1 << tmrIdx);
-		timer_start(tmrIdx);
-	}else{
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-		stimer_set_irq_mask();
-#elif defined(MCU_CORE_B92)
-		stimer_set_irq_mask(FLD_SYSTEM_IRQ);
+    if(tmrIdx < TIMER_IDX_3){
+        timer_set_init_tick(tmrIdx,0);
+#if defined(MCU_CORE_TL321X)
+        reg_tmr_sta1 = (1 << tmrIdx);
+#else
+        reg_tmr_sta = (1 << tmrIdx);
 #endif
-	}
+        timer_start(tmrIdx);
+    }else{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+        stimer_set_irq_mask();
+#elif defined(MCU_CORE_B92)
+        stimer_set_irq_mask(FLD_SYSTEM_IRQ);
+#elif defined(MCU_CORE_TL321X)
+        stimer_set_irq_mask(FLD_SYSTEM_IRQ_MASK);
+#endif
+    }
 }
 
 void hwTimerStop(u8 tmrIdx)
 {
-	if(tmrIdx < TIMER_IDX_3){
-		timer_stop(tmrIdx);
-	}else{
+    if(tmrIdx < TIMER_IDX_3){
+        timer_stop(tmrIdx);
+    }else{
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-		stimer_clr_irq_mask();
+        stimer_clr_irq_mask();
 #elif defined(MCU_CORE_B92)
-		stimer_clr_irq_mask(FLD_SYSTEM_IRQ);
+        stimer_clr_irq_mask(FLD_SYSTEM_IRQ);
+#elif defined(MCU_CORE_TL321X)
+        stimer_clr_irq_mask(FLD_SYSTEM_IRQ_MASK);
 #endif
-	}
+    }
 }
 
 
@@ -159,15 +181,15 @@ static hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t *absTimer, timerCb_t fun
 
     /* Safety Check - If time is already past, set timer as Expired */
     if(!pTimer->expireInfo.high && pTimer->expireInfo.low < TIMER_SAFE_BOUNDARY_IN_US(TIMER_TICK_1US_GET(tmrIdx))){
-    	irq_restore(r);
+        irq_restore(r);
         memset(pTimer, 0, sizeof(hwTmr_info_t));
-		if(func){
+        if(func){
             func(arg);
-		}
+        }
         return 0xf3;//HW_TIMER_SUCC
     }else{
-    	hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
-//    	hwTimerStart(tmrIdx);
+        hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+        hwTimerStart(tmrIdx);
     }
 
     irq_restore(r);
@@ -182,31 +204,31 @@ static void drv_hwTmr_irq_process(u8 tmrIdx)
     if(TIMER_WTO == pTimer->flags.bf.status){
         /* Expired, callback */
         if(pTimer->cb){
-        	int t;
+            int t;
 
-        	t = pTimer->cb(pTimer->arg);
+            t = pTimer->cb(pTimer->arg);
 
-        	if(t < 0){
-        		hwTimerStop(tmrIdx);
-//        		memset(pTimer, 0, sizeof(hwTmr_info_t));
-        	}else if(t == 0){
-        		if(tmrIdx < TIMER_IDX_3){
-					/* do nothing, use the previous configuration. */
-        		}else{
-        			/* STimer need set capture tick again. */
-					hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
-        		}
-        	}else{
-        		pTimer->expireInfo.low = t * TIMER_TICK_1US_GET(tmrIdx);
+            if(t < 0){
+                hwTimerStop(tmrIdx);
+//                memset(pTimer, 0, sizeof(hwTmr_info_t));
+            }else if(t == 0){
+                if(tmrIdx < TIMER_IDX_3){
+                    /* do nothing, use the previous configuration. */
+                }else{
+                    /* STimer need set capture tick again. */
+                    hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+                }
+            }else{
+                pTimer->expireInfo.low = t * TIMER_TICK_1US_GET(tmrIdx);
 
-        		hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
-        	}
+                hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+            }
         }
     }else{
         if(--pTimer->expireInfo.high){
-        	hwTimerSet(tmrIdx, TIMER_OVERFLOW_VALUE);
+            hwTimerSet(tmrIdx, TIMER_OVERFLOW_VALUE);
         }else{
-        	hwTimerSet(tmrIdx, pTimer->expireInfo.low);
+            hwTimerSet(tmrIdx, pTimer->expireInfo.low);
 
             pTimer->flags.bf.status = TIMER_WTO;
         }
@@ -215,40 +237,40 @@ static void drv_hwTmr_irq_process(u8 tmrIdx)
 
 void hwTimerInfoReset(u8 tmrIdx)
 {
-	memset((u8*)&hwTmr_vars.timerInfo[tmrIdx], 0, sizeof(hwTmr_info_t));
+    memset((u8*)&hwTmr_vars.timerInfo[tmrIdx], 0, sizeof(hwTmr_info_t));
 }
 
 void drv_hwTmr_init(u8 tmrIdx, u8 mode)
 {
-	if(tmrIdx >= TIMER_NUM){
-		return;
-	}
+    if(tmrIdx >= TIMER_NUM){
+        return;
+    }
 
-	hwTimerInfoReset(tmrIdx);
-	hwTimerInit(tmrIdx, mode);
+    hwTimerInfoReset(tmrIdx);
+    hwTimerInit(tmrIdx, mode);
 }
 
 void drv_hwTmr_cancel(u8 tmrIdx)
 {
-	if(tmrIdx >= TIMER_NUM){
-		return;
-	}
+    if(tmrIdx >= TIMER_NUM){
+        return;
+    }
 
-	u32 r = irq_disable();
+    u32 r = irq_disable();
 
-	hwTimerStop(tmrIdx);
+    hwTimerStop(tmrIdx);
 
-	hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
-	memset(pTimer, 0, sizeof(hwTmr_info_t));
+    hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
+    memset(pTimer, 0, sizeof(hwTmr_info_t));
 
-	irq_restore(r);
+    irq_restore(r);
 }
 
 hw_timer_sts_t drv_hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void *arg)
 {
-	if(tmrIdx >= TIMER_NUM){
-		return HW_TIMER_INVALID;
-	}
+    if(tmrIdx >= TIMER_NUM){
+        return HW_TIMER_INVALID;
+    }
 
     ext_clk_t t;
     t.high = 0;
@@ -257,25 +279,41 @@ hw_timer_sts_t drv_hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void *arg)
     return hwTmr_setAbs(tmrIdx, &t, func, arg);
 }
 
+_attribute_ram_code_ void drv_timer_clear_irq(u8 tmrIdx)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+    reg_tmr_sta = BIT(tmrIdx);
+#elif defined(MCU_CORE_B92)
+    timer_clr_irq_status(BIT(tmrIdx));
+#elif defined(MCU_CORE_TL321X)
+    if (tmrIdx == TIMER_IDX_0) {
+        timer_clr_irq_status(FLD_TMR0_MODE_IRQ);
+    } else if (tmrIdx == TIMER_IDX_1) {
+        timer_clr_irq_status(FLD_TMR1_MODE_IRQ);
+    }
+#endif
+}
+
 
 
 void drv_timer_irq0_handler(void)
 {
-	drv_hwTmr_irq_process(TIMER_IDX_0);
+    drv_hwTmr_irq_process(TIMER_IDX_0);
 }
 
 void drv_timer_irq1_handler(void)
 {
-	drv_hwTmr_irq_process(TIMER_IDX_1);
+    drv_hwTmr_irq_process(TIMER_IDX_1);
 }
 
 void drv_timer_irq2_handler(void)
 {
-	drv_hwTmr_irq_process(TIMER_IDX_2);
+    drv_hwTmr_irq_process(TIMER_IDX_2);
 }
 
 void drv_timer_irq3_handler(void)
 {
-	drv_hwTmr_irq_process(TIMER_IDX_3);
+    drv_hwTmr_irq_process(TIMER_IDX_3);
 }
+
 

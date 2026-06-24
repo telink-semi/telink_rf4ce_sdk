@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for drv_adc.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -31,8 +31,8 @@
 * brief: ADC initiate function, set the ADC clock details (4MHz) and start the ADC clock.
 * param[in] null
 *
-* @return	  1: set success ;
-*             0: set error
+* @return      1: set success ;
+*              0: set error
 */
 unsigned char drv_adc_init();
 
@@ -51,8 +51,8 @@ unsigned short drv_get_adc_data(void);
 #if defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
 
 typedef enum{
-	Drv_ADC_BASE_MODE,
-	Drv_ADC_VBAT_MODE,
+    Drv_ADC_BASE_MODE,
+    Drv_ADC_VBAT_MODE,
 }Drv_ADC_Mode;
 
 /****
@@ -78,15 +78,15 @@ void drv_adc_enable(bool enable);
 #else
 
 typedef enum{
-	Drv_ADC_LEFT_CHN 	= BIT(0),
-	Drv_ADC_RIGHT_CHN	= BIT(1),
-	Drv_ADC_MISC_CHN	= BIT(2),
-	Drv_ADC_RNS_CHN		= BIT(3),
+    Drv_ADC_LEFT_CHN     = BIT(0),
+    Drv_ADC_RIGHT_CHN    = BIT(1),
+    Drv_ADC_MISC_CHN    = BIT(2),
+    Drv_ADC_RNS_CHN        = BIT(3),
 }Drv_ADC_ChTypeDef;
 
 typedef enum{
-	Drv_SINGLE_ENDED_MODE = 0,  //single-ended mode
-	Drv_DIFFERENTIAL_MODE = 1,  //differential mode
+    Drv_SINGLE_ENDED_MODE = 0,  //single-ended mode
+    Drv_DIFFERENTIAL_MODE = 1,  //differential mode
 }DRV_ADC_InputModeTypeDef;
 
 /****

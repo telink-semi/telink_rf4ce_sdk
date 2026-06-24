@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for drv_pwm.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -26,9 +26,13 @@
 #include "../common/types.h"
 #include "../common/compiler.h"
 
-#if(MCU_CORE_B92)
-#define     PWM_PCLK_SPEED				16000000 //pwm clock 12M.
-#define  	DMA_CHN   					DMA5
+#if defined(MCU_CORE_B92)
+#define PWM_PCLK_SPEED    16000000//pwm clock 12M.
+#define DMA_CHN           DMA5
+#elif defined(MCU_CORE_TL321X)
+#define PWM_PCLK_SPEED         (sys_clk.pclk * 1000 * 1000)
+#define CLOCK_PWM_CLOCK_1US    (PWM_PCLK_SPEED / 1000000)
+#define DMA_CHN                DMA5
 #endif
 
 void drv_pwm_init(void);
@@ -36,20 +40,22 @@ void drv_pwm_init(void);
 void drv_pwm_cfg(u32  pwmId, unsigned short cmp_tick, unsigned short cycle_tick);
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-#define drv_pwm_start(pwmId)		pwm_start(pwmId)
-#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
-#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
-#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
+#define drv_pwm_start(pwmId)       pwm_start(pwmId)
+#define drv_pwm_stop(pwmId)        pwm_stop(pwmId)
+#define drv_pwm_invert(pwmId)      pwm_revert(pwmId)
+#define drv_pwm_n_invert(pwmId)    pwm_n_revert(pwmId)
 #else
-#define drv_pwm_start(pwmId)		pwm_Start(pwmId)
-#define drv_pwm_stop(pwmId)			pwm_Stop(pwmId)
-#define drv_pwm_invert(pwmId)		pwm_Invert(pwmId)
-#define drv_pwm_n_invert(pwmId)		pwm_INVInvert(pwmId)
+#define drv_pwm_start(pwmId)       pwm_Start(pwmId)
+#define drv_pwm_stop(pwmId)        pwm_Stop(pwmId)
+#define drv_pwm_invert(pwmId)      pwm_Invert(pwmId)
+#define drv_pwm_n_invert(pwmId)    pwm_INVInvert(pwmId)
 #endif
 
 void drv_ir_dma_start(void);
+void drv_ir_dma_stop(void);
 unsigned short drv_ir_dma_plus_config(unsigned short plus_num,unsigned char carrien);
 void drv_ir_dma_set_buffer(void *buf);
 void drv_ir_dma_enable_irq(void);
 void drv_ir_dma_disable_irq(void);
 void drv_ir_pwm_cfg(u32  pwmId, u32 hz, u32 low_duty);
+

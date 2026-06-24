@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for utility.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -156,13 +156,13 @@ static const unsigned int crc32_table[] = {
 };
 
 unsigned int xcrc32 (unsigned char *buf, int len, unsigned int init){
-	unsigned int crc = init;
-	while (len--)
-	{
-		crc = (crc >> 8) ^ crc32_table[(crc ^ *buf) & 0xff];
-		buf++;
-	}
-	return crc;
+    unsigned int crc = init;
+    while (len--)
+    {
+        crc = (crc >> 8) ^ crc32_table[(crc ^ *buf) & 0xff];
+        buf++;
+    }
+    return crc;
 }
 
 #endif

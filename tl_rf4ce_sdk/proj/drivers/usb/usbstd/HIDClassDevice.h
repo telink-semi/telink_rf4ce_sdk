@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for HIDClassDevice.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -28,26 +28,26 @@
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-	extern "C" {
+    extern "C" {
 #endif
 
 
 /* Type Defines: */
 typedef struct usbhid_config_t{
-	u8  InterfaceNumber;
-	u8  ReportINEndpointNumber;
-	u16 ReportINEndpointSize;
-	bool ReportINEndpointDoubleBank;
-	void* PrevReportINBuffer;
-	u8  PrevReportINBufferSize;
+      u8    InterfaceNumber;
+      u8    ReportINEndpointNumber;
+     u16    ReportINEndpointSize;
+    bool    ReportINEndpointDoubleBank;
+    void    *PrevReportINBuffer;
+      u8    PrevReportINBufferSize;
 } usbhid_config_t;
 
 
 struct usbhid_state_t{
-	bool UsingReportProtocol;
-	u16 PrevFrameNum;
-	u16 IdleCount;
-	u16 IdleMSRemaining;
+    bool    UsingReportProtocol;
+     u16    PrevFrameNum;
+     u16    IdleCount;
+     u16    IdleMSRemaining;
 } usbhid_state_t;
 
 typedef struct{
@@ -56,9 +56,10 @@ typedef struct{
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-	}
+    }
 #endif
 
 /** @} */
+
 
 

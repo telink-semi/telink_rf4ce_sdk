@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for CHIP_MODEL
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -38,6 +38,7 @@
 #include "./tlsr_826x/i2c_826x.h"
 #include "./tlsr_826x/bsp_826x.h"
 #include "./tlsr_826x/flash_826x.h"
+#include "./tlsr_826x/flash/flash_type.h"
 #include "./tlsr_826x/audio_826x.h"
 #include "./tlsr_826x/spi_826x.h"
 #include "./tlsr_826x/putchar.h"
@@ -49,6 +50,9 @@
 
 #elif MCU_CORE_B92
 #include "./tlsr_b92/driver.h"
-
+#include "./tlsr_b92/gpio_default.h"
+#elif MCU_CORE_TL321X
+#include "./tl321x/gpio_default.h"
+#include "./tl321x/driver.h"
 #endif
 

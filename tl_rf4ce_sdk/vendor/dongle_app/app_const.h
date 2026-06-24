@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for app_const.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -65,21 +65,21 @@ enum {
 };
 
 static const u16 batteryVoltage[] = {
-		3000,
-		2600,
-		2400,
-		2000,
+        3000,
+        2600,
+        2400,
+        2000,
 };
 
 enum{
-	PWR_LEVEL_FULL = 0,
-	PWR_LEVEL_2P6_UP,
-	PWR_LEVEL_2P4_6,
-	PWR_LEVEL_CUTOFF  // <2.0v
+    PWR_LEVEL_FULL = 0,
+    PWR_LEVEL_2P6_UP,
+    PWR_LEVEL_2P4_6,
+    PWR_LEVEL_CUTOFF  // <2.0v
 };
 
-#define 	PWR_THRESHOLD_NORMAL	PWR_LEVEL_2P6_UP
-#define 	PWR_THRESHOLD_RESET		PWR_LEVEL_2P4_6
+#define PWR_THRESHOLD_NORMAL    PWR_LEVEL_2P6_UP
+#define PWR_THRESHOLD_RESET     PWR_LEVEL_2P4_6
 
 
 #if  RF4CE_MSO_ENABLE
@@ -111,14 +111,15 @@ typedef enum {
     MSO_APP_START_BINDING_STATE,
 }mso_target_state;
 
-#define APP_VID_SUPPPORT_MAX	3
+#define APP_VID_SUPPPORT_MAX    3
 
 typedef struct{
-	u16 vendId;
-	u8  vendString[7];
-	u8  userString[15];
+    u16    vendId;
+     u8    vendString[7];
+     u8    userString[15];
 }appVendInfo_t;
 extern const appVendInfo_t app_vendor_info_list[];
 #endif
+
 
 

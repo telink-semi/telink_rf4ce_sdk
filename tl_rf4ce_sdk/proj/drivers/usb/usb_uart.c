@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for usb_uart.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -46,8 +46,8 @@
  * LOCAL TYPES
  */
 typedef struct {
-    u8* txBuf;
-    u8  len;
+    u8    *txBuf;
+    u8    len;
 } usb_uart_txPendingEvt_t;
 
 
@@ -80,20 +80,20 @@ usb_uart_txPendingEvt_t usb_uart_txPendingEvt_v;
   */
 static void usb_uart_rxHandler(u8* pData)
 {
-	u8* pBuf;
+    u8* pBuf;
 
-	/* Post task to handle the received command */
-	//EV_SCHEDULE_TASK((ev_task_callback_t)usb_uart_cbFn, pData);
-	usb_uart_cbFn(pData);
-	//ev_on_timer(usb_uart_cbFn,pData, 1);
-	/* Set the USB RX buffer again */
+    /* Post task to handle the received command */
+    //EV_SCHEDULE_TASK((ev_task_callback_t)usb_uart_cbFn, pData);
+    usb_uart_cbFn(pData);
+    //ev_on_timer(usb_uart_cbFn,pData, 1);
+    /* Set the USB RX buffer again */
     pBuf = ev_buf_allocate(LARGE_BUFFER);
-	if (!pBuf) {
-		while(1);
-	}
+    if (!pBuf) {
+        while(1);
+    }
 
     memset(pBuf, 0, 150);
-	usbcdc_setRxBuf(pBuf);
+    usbcdc_setRxBuf(pBuf);
 }
 
 /*********************************************************************
@@ -127,20 +127,20 @@ static void usb_uart_tXFinishCb(u8* pData)
   */
 void usb_uart_open(u32 baudrate, uart_recvCb_t cb)
 {
-	u8* pBuf;
+    u8* pBuf;
 
-	/* Initialize USB-UART */
+    /* Initialize USB-UART */
     usbcdc_setCB(usb_uart_rxHandler, usb_uart_tXFinishCb);
-	pBuf = ev_buf_allocate(LARGE_BUFFER);
-	if (!pBuf) {
-		while(1);
-	}
+    pBuf = ev_buf_allocate(LARGE_BUFFER);
+    if (!pBuf) {
+        while(1);
+    }
 
-	/* Set RX buffer to USB-CDC */
-	usbcdc_setRxBuf(pBuf);
+    /* Set RX buffer to USB-CDC */
+    usbcdc_setRxBuf(pBuf);
 
-	/* Register callback to handle received command */
-	usb_uart_cbFn = cb;
+    /* Register callback to handle received command */
+    usb_uart_cbFn = cb;
 
     /* Initialize USB tx pending Queue */
     ev_queue_init(&usb_uart_txPendingQ, NULL);
@@ -164,11 +164,11 @@ usbcdc_sts_t usb_uart_write(usbcdc_txBuf_t *pTxBuf)
     if (usbcdc_isAvailable()) {
         return usbcdc_sendData(pTxBuf);
     } else {
-    	if(usb_uart_txPendingQ.curNum>=3)//limit the audio occupies 3 buffers
-    	{
-			u8 *pData = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
-			ev_buf_free(pData);
-    	}
+        if(usb_uart_txPendingQ.curNum>=3)//limit the audio occupies 3 buffers
+        {
+            u8 *pData = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
+            ev_buf_free(pData);
+        }
         ev_queue_push(&usb_uart_txPendingQ, (u8*)pTxBuf);
         return USB_MULTIBLOCK;
     }
@@ -185,15 +185,15 @@ usbcdc_sts_t usb_uart_write(usbcdc_txBuf_t *pTxBuf)
   */
 void usb_uart_clearQ(void)
 {
-	u8 size = usb_uart_txPendingQ.curNum;
-	if(size)
-	{
-		for(u32 i=0;i<size;i++)
-		{
-		        u8 *pData = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
-			    ev_buf_free(pData);
-		}
-	}
+    u8 size = usb_uart_txPendingQ.curNum;
+    if(size)
+    {
+        for(u32 i=0;i<size;i++)
+        {
+            u8 *pData = (u8 *)ev_queue_pop(&usb_uart_txPendingQ);
+            ev_buf_free(pData);
+        }
+    }
 }
 
 /*********************************************************************
@@ -218,3 +218,4 @@ void usb_uart_loopQ(void)
 
 
 #endif  /* USB_CDC_ENABLE */
+

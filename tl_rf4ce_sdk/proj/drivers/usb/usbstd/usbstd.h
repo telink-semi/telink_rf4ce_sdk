@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	usbstd.h
+ * @file    usbstd.h
  *
- * @brief	This is the header file for usbstd
+ * @brief    This is the header file for usbstd
  *
- * @author	Driver & Zigbee Group
- * @date	2019
+ * @author    Driver & Zigbee Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.

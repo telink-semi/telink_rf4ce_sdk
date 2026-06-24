@@ -28,6 +28,7 @@
 #include "analog.h"
 #include "aes.h"
 #include "flash.h"
+#include "flash/flash_type.h"
 #include "timer.h"
 #include "clock.h"
 #include "timer.h"

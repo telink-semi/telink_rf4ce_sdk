@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for nwk_api.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -48,38 +48,38 @@
  * @{
  */
 
-#define RF4CE_NLDE_DATA_REQ                   0x70             //!< NLDE Data Request
-#define RF4CE_NLDE_DATA_CONF                  0x71             //!< NLDE Data Confirm
-#define RF4CE_NLDE_DATA_IND                   0x72             //!< NLDE Data Indication
-#define RF4CE_NLME_START_REQ                  0x73             //!< NLME Start Request
-#define RF4CE_NLME_START_CONF                 0x74             //!< NLME Start Confirm
-#define RF4CE_NLME_PAIR_REQ                   0x75             //!< NLME Pair Request
-#define RF4CE_NLME_PAIR_CONF                  0x76             //!< NLME Pair Confirm
-#define RF4CE_NLME_PAIR_IND                   0x77             //!< NLME Pair Indication
-#define RF4CE_NLME_PAIR_RESP                  0x78             //!< NLME Pair Response
-#define RF4CE_NLME_UNPAIR_REQ                 0x79             //!< NLME Unpair Request
-#define RF4CE_NLME_UNPAIR_CONF                0x7a             //!< NLME Unpair Confirm
-#define RF4CE_NLME_UNPAIR_IND                 0x7b             //!< NLME Unpair Indication
-#define RF4CE_NLME_UNPAIR_RESP                0x7c             //!< NLME Unpair Response
-#define RF4CE_NLME_GET_REQ                    0x7d             //!< NLME Get Request
-#define RF4CE_NLME_GET_CONF                   0x7e             //!< NLME Get Confirm
-#define RF4CE_NLME_SET_REQ                    0x7f             //!< NLME Set Request
-#define RF4CE_NLME_SET_CONF                   0x80             //!< NLME Set Confirm
-#define RF4CE_NLME_DISCOVERY_REQ              0x81             //!< NLME Discovery Request
-#define RF4CE_NLME_DISCOVERY_CONF             0x82             //!< NLME Discovery Confirm
-#define RF4CE_NLME_DISCOVERY_IND              0x83             //!< NLME Discovery Indication
-#define RF4CE_NLME_DISCOVERY_RESP             0x84             //!< NLME Discovery Response
-#define RF4CE_NLME_AUTO_DISCOVERY_REQ         0x85             //!< NLME Auto Discovery Request
-#define RF4CE_NLME_AUTO_DISCOVERY_CONF        0x86             //!< NLME Auto Discovery Confirm
-#define RF4CE_NLME_RESET_REQ                  0x87             //!< NLME Reset Request
-#define RF4CE_NLME_RESET_CONF                 0x88             //!< NLME Reset Confirm
-#define RF4CE_NLME_COMM_STATUS_IND            0x89             //!< NLME Comm Status Indication
-#define RF4CE_NLME_RX_ENABLE_REQ              0x8a             //!< NLME Rx Enable Request
-#define RF4CE_NLME_RX_ENABLE_CONF             0x8b             //!< NLME Rx Enable Confirm
-#define RF4CE_NLME_UPDATE_KEY_REQ             0x8c             //!< NLME Update Key Request
-#define RF4CE_NLME_UPDATE_KEY_CONF            0x8d             //!< NLME Update Key Confirm
-#define RF4CE_NLME_PING_REQ                   0x8e             //!< NLME Ping Request
-#define RF4CE_NLME_PING_RESP                  0x8f             //!< NLME Ping Response
+#define RF4CE_NLDE_DATA_REQ                   0x70//!< NLDE Data Request
+#define RF4CE_NLDE_DATA_CONF                  0x71//!< NLDE Data Confirm
+#define RF4CE_NLDE_DATA_IND                   0x72//!< NLDE Data Indication
+#define RF4CE_NLME_START_REQ                  0x73//!< NLME Start Request
+#define RF4CE_NLME_START_CONF                 0x74//!< NLME Start Confirm
+#define RF4CE_NLME_PAIR_REQ                   0x75//!< NLME Pair Request
+#define RF4CE_NLME_PAIR_CONF                  0x76//!< NLME Pair Confirm
+#define RF4CE_NLME_PAIR_IND                   0x77//!< NLME Pair Indication
+#define RF4CE_NLME_PAIR_RESP                  0x78//!< NLME Pair Response
+#define RF4CE_NLME_UNPAIR_REQ                 0x79//!< NLME Unpair Request
+#define RF4CE_NLME_UNPAIR_CONF                0x7a//!< NLME Unpair Confirm
+#define RF4CE_NLME_UNPAIR_IND                 0x7b//!< NLME Unpair Indication
+#define RF4CE_NLME_UNPAIR_RESP                0x7c//!< NLME Unpair Response
+#define RF4CE_NLME_GET_REQ                    0x7d//!< NLME Get Request
+#define RF4CE_NLME_GET_CONF                   0x7e//!< NLME Get Confirm
+#define RF4CE_NLME_SET_REQ                    0x7f//!< NLME Set Request
+#define RF4CE_NLME_SET_CONF                   0x80//!< NLME Set Confirm
+#define RF4CE_NLME_DISCOVERY_REQ              0x81//!< NLME Discovery Request
+#define RF4CE_NLME_DISCOVERY_CONF             0x82//!< NLME Discovery Confirm
+#define RF4CE_NLME_DISCOVERY_IND              0x83//!< NLME Discovery Indication
+#define RF4CE_NLME_DISCOVERY_RESP             0x84//!< NLME Discovery Response
+#define RF4CE_NLME_AUTO_DISCOVERY_REQ         0x85//!< NLME Auto Discovery Request
+#define RF4CE_NLME_AUTO_DISCOVERY_CONF        0x86//!< NLME Auto Discovery Confirm
+#define RF4CE_NLME_RESET_REQ                  0x87//!< NLME Reset Request
+#define RF4CE_NLME_RESET_CONF                 0x88//!< NLME Reset Confirm
+#define RF4CE_NLME_COMM_STATUS_IND            0x89//!< NLME Comm Status Indication
+#define RF4CE_NLME_RX_ENABLE_REQ              0x8a//!< NLME Rx Enable Request
+#define RF4CE_NLME_RX_ENABLE_CONF             0x8b//!< NLME Rx Enable Confirm
+#define RF4CE_NLME_UPDATE_KEY_REQ             0x8c//!< NLME Update Key Request
+#define RF4CE_NLME_UPDATE_KEY_CONF            0x8d//!< NLME Update Key Confirm
+#define RF4CE_NLME_PING_REQ                   0x8e//!< NLME Ping Request
+#define RF4CE_NLME_PING_RESP                  0x8f//!< NLME Ping Response
 
 /** @} end of group nwk_primitive_id */
 
@@ -88,26 +88,26 @@
  * Definition of NWK layer status
  * @{
  */
-#define RF4CE_NWK_SUCCESS                     0x00            //!< Operation successful
-#define RF4CE_NWK_NO_ORG_CAPACITY             0xb0            //!< The originator's pairing table is full
-#define RF4CE_NWK_NO_REC_CAPACITY             0xb1            //!< The recipient's pairing table is full
-#define RF4CE_NWK_NO_PAIRING                  0xb2            //!< A pairing table entry could not be found
-#define RF4CE_NWK_NO_RESPONSE                 0xb3            //!< A response frame was not received within nwkResponseWaitTime.
-#define RF4CE_NWK_NOT_PERMITTED               0xb4            //!< A pairing request was denied
-#define RF4CE_NWK_DUPLICATE_PAIRING           0xb5            //!< A duplicate pairing table entry was detected
-#define RF4CE_NWK_FRAME_COUNTER_EXPIRED       0xb6            //!< The frame counter has reached its maximum value
-#define RF4CE_NWK_DISCOVERY_ERROR             0xb7            //!< Too many unique matched discovery request or valid response command frames were received than requested
-#define RF4CE_NWK_DISCOVERY_TIMEOUT           0xb8            //!< No discovery request or response command frames were received during discovery
-#define RF4CE_NWK_SECURITY_TIMEOUT            0xb9            //!< The security link key exchange or recovery procedure did not complete within the required time
-#define RF4CE_NWK_SECURITY_FAILURE            0xba            //!< A security link key was not successfully established between both ends of a pairing link
-#define RF4CE_NWK_INVALID_PARAMETER           0xe8            //!< A parameter in the primitive is either not supported or is out of the valid range
-#define RF4CE_NWK_UNSUPPORTED_ATTRIBUTE       0xf4            //!< A SET/GET request was issued with the identifier of a NIB attribute that is not supported
-#define RF4CE_NWK_INVALID_INDEX               0xf9            //!< The specified table index was out of range
+#define RF4CE_NWK_SUCCESS                     0x00//!< Operation successful
+#define RF4CE_NWK_NO_ORG_CAPACITY             0xb0//!< The originator's pairing table is full
+#define RF4CE_NWK_NO_REC_CAPACITY             0xb1//!< The recipient's pairing table is full
+#define RF4CE_NWK_NO_PAIRING                  0xb2//!< A pairing table entry could not be found
+#define RF4CE_NWK_NO_RESPONSE                 0xb3//!< A response frame was not received within nwkResponseWaitTime.
+#define RF4CE_NWK_NOT_PERMITTED               0xb4//!< A pairing request was denied
+#define RF4CE_NWK_DUPLICATE_PAIRING           0xb5//!< A duplicate pairing table entry was detected
+#define RF4CE_NWK_FRAME_COUNTER_EXPIRED       0xb6//!< The frame counter has reached its maximum value
+#define RF4CE_NWK_DISCOVERY_ERROR             0xb7//!< Too many unique matched discovery request or valid response command frames were received than requested
+#define RF4CE_NWK_DISCOVERY_TIMEOUT           0xb8//!< No discovery request or response command frames were received during discovery
+#define RF4CE_NWK_SECURITY_TIMEOUT            0xb9//!< The security link key exchange or recovery procedure did not complete within the required time
+#define RF4CE_NWK_SECURITY_FAILURE            0xba//!< A security link key was not successfully established between both ends of a pairing link
+#define RF4CE_NWK_INVALID_PARAMETER           0xe8//!< A parameter in the primitive is either not supported or is out of the valid range
+#define RF4CE_NWK_UNSUPPORTED_ATTRIBUTE       0xf4//!< A SET/GET request was issued with the identifier of a NIB attribute that is not supported
+#define RF4CE_NWK_INVALID_INDEX               0xf9//!< The specified table index was out of range
 
-#define RF4CE_NWK_DISCOVERY_ABORT             0xc0            //!< Abort the discovery procedure by user
-#define RF4CE_NWK_NO_BUFFER                   0xc1            //!< There is no buffer during allocate in NWK layer
-#define RF4CE_NWK_INVALID_REQUEST             0xc2            //!< The invalid request since no security key is established. 
-#define RF4CE_NWK_BAD_CCM_OUTPUT              0xce            //!< The encryption/decryption is error
+#define RF4CE_NWK_DISCOVERY_ABORT             0xc0//!< Abort the discovery procedure by user
+#define RF4CE_NWK_NO_BUFFER                   0xc1//!< There is no buffer during allocate in NWK layer
+#define RF4CE_NWK_INVALID_REQUEST             0xc2//!< The invalid request since no security key is established. 
+#define RF4CE_NWK_BAD_CCM_OUTPUT              0xce//!< The encryption/decryption is error
 
 /** @} end of group nwk_status_id */
 
@@ -115,30 +115,30 @@
  * Definition of NWK TX Option bit mask
  * @{
  */
-#define  NWK_TXOPTION_BROADCAST               0x01            //!< Bit mask for broadcast transmission
-#define  NWK_TXOPTION_IEEEADDR                0x02            //!< Bit mask for use destination IEEE address
-#define  NWK_TXOPTION_ACK                     0x04            //!< Bit mask for acknowledged transmission
-#define  NWK_TXOPTION_SECURITY                0x08            //!< Bit mask for transmit with security
-#define  NWK_TXOPTION_SINGLE_CHANNEL          0x10            //!< Bit mask for use single channel operation
-#define  NWK_TXOPTION_CHANNEL_NORMALIZATION   0x20            //!< Bit mask for specify channel designator
-#define  NWK_TXOPTION_VENDOR_SPECIFIC         0x40            //!< Bit mask for data is vendor-specific
+#define NWK_TXOPTION_BROADCAST                0x01//!< Bit mask for broadcast transmission
+#define NWK_TXOPTION_IEEEADDR                 0x02//!< Bit mask for use destination IEEE address
+#define NWK_TXOPTION_ACK                      0x04//!< Bit mask for acknowledged transmission
+#define NWK_TXOPTION_SECURITY                 0x08//!< Bit mask for transmit with security
+#define NWK_TXOPTION_SINGLE_CHANNEL           0x10//!< Bit mask for use single channel operation
+#define NWK_TXOPTION_CHANNEL_NORMALIZATION    0x20//!< Bit mask for specify channel designator
+#define NWK_TXOPTION_VENDOR_SPECIFIC          0x40//!< Bit mask for data is vendor-specific
 
  /** @} end of group nwk_tx_option */
 
 /**        
  *  @brief RF4CE max device type number 
  */
-#define RF4CE_MAX_NUM_DEV_TYPES         3
+#define RF4CE_MAX_NUM_DEV_TYPES               3
 
 /**        
  *  @brief RF4CE max profile ID number
  */
-#define RF4CE_MAX_NUM_PROFILE_IDS       7
+#define RF4CE_MAX_NUM_PROFILE_IDS             7
 
 /**        
  *  @brief Length of reserved bytes for MAC
  */
-#define RESERVED_MAC_BYTES_LEN         45
+#define RESERVED_MAC_BYTES_LEN                45
  
 /** @} end of group NWK_Constant */
 
@@ -158,15 +158,15 @@ typedef void ( *nwk_cb_t )( u8* pData );
  *  @brief Definition for pair table entry 
  */
 typedef struct {   
-    u8 destIEEEAddr[8];         //!< The IEEE address of the destination device
-    u16 destNwkAddr;            //!< The network address of the destination device 
-    u16 srcAddr;                //!< The network address to be assumed by the source device 
-    u16 destPanId;              //!< The PAN identifier of the destination device 
-    u16 destVendorId;              //!< The vendorId identifier of the destination device
-    u8 linkKey[16];             //!< A valid 128-bit key The link key to be used to secure this pairing link
-    u32 destFrameCounter;       //!< The frame counter last received from the recipient node
-    u8 destChannel;             //!< The expected channel of the destination device
-    u8 destNodeCap;             //!< The node capabilities of the recipient node 
+     u8    destIEEEAddr[8];    //!< The IEEE address of the destination device
+    u16    destNwkAddr;    //!< The network address of the destination device 
+    u16    srcAddr;    //!< The network address to be assumed by the source device 
+    u16    destPanId;    //!< The PAN identifier of the destination device 
+    u16    destVendorId;    //!< The vendorId identifier of the destination device
+     u8    linkKey[16];    //!< A valid 128-bit key The link key to be used to secure this pairing link
+    u32    destFrameCounter;    //!< The frame counter last received from the recipient node
+     u8    destChannel;    //!< The expected channel of the destination device
+     u8    destNodeCap;    //!< The node capabilities of the recipient node 
 } pairTable_t; 
 
 
@@ -176,17 +176,17 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            u8 userStrSpecified : 1;                   //!< User string specified 
-            u8 numDevType       : 2;                   //!< Number of supported device types 
-            u8 reserved1        : 1;                   //!< Reserved bytes 
-            u8 numProfile       : 3;                   //!< Number of supported profiles 
-            u8 reserved2        : 1;                   //!< Reserved bytes 
+    u8    userStrSpecified : 1;    //!< User string specified 
+    u8    numDevType : 2;    //!< Number of supported device types 
+    u8    reserved1 : 1;    //!< Reserved bytes 
+    u8    numProfile : 3;    //!< Number of supported profiles 
+    u8    reserved2 : 1;    //!< Reserved bytes 
         } bf;
-        u8 val;        
+    u8    val;    
     } appCap;
-    u8 userStr[15];                                    //!< The user defined identification string of the responding node 
-    u8 devTypeList[RF4CE_MAX_NUM_DEV_TYPES];           //!< The list of device types supported by the responding node 
-    u8 profileIdList[RF4CE_MAX_NUM_PROFILE_IDS];       //!< The list of profile identifiers supported by the responding node 
+    u8    userStr[15];    //!< The user defined identification string of the responding node 
+    u8    devTypeList[RF4CE_MAX_NUM_DEV_TYPES];    //!< The list of device types supported by the responding node 
+    u8    profileIdList[RF4CE_MAX_NUM_PROFILE_IDS];    //!< The list of profile identifiers supported by the responding node 
 } nwk_appInfo_t; 
 
 
@@ -195,15 +195,15 @@ typedef struct {
  *  @brief Definition for node descriptor
  */
 typedef struct {
-    u8 status;                                         //!< The status of the discovery request as reported by the responding device 
-    u8 logicalChannel;                                 //!< The logical channel of the responding device 
-    u16 panId;                                         //!< The PAN identifier of the responding device 
-    u8 IEEEAddr[8];                                    //!< The IEEE address of the responding device 
-    u8 nodeCapabilities;                               //!< The capabilities of the responding node 
-    u16 vendorId;                                      //!< The vendor identifier of the responding node 
-    u8 vendorString[7];                                //!< The vendor string of the responding node 
-    nwk_appInfo_t appInfo;                             //!< Application parameters 
-    u8 discReqLQI;                                     //!< The LQI of the discovery request command frame reported by the responding device 
+               u8    status;    //!< The status of the discovery request as reported by the responding device 
+               u8    logicalChannel;    //!< The logical channel of the responding device 
+              u16    panId;    //!< The PAN identifier of the responding device 
+               u8    IEEEAddr[8];    //!< The IEEE address of the responding device 
+               u8    nodeCapabilities;    //!< The capabilities of the responding node 
+              u16    vendorId;    //!< The vendor identifier of the responding node 
+               u8    vendorString[7];    //!< The vendor string of the responding node 
+    nwk_appInfo_t    appInfo;    //!< Application parameters 
+               u8    discReqLQI;    //!< The LQI of the discovery request command frame reported by the responding device 
 } nwk_nodeDesc_t; 
 
 
@@ -212,13 +212,13 @@ typedef struct {
  */
 typedef union {
     struct {
-        u8      transMode           : 1;  //!< 0x01 for broadcast transmission, 0x00 for unicast transmission 
-        u8      dstAddrMode         : 1;  //!< 0x01 for use destination IEEE address, 0x00 for use destination network address 
-        u8      ackMode             : 1;  //!< 0x01 for acknowledged transmission, 0x00 for unacknowledged transmission 
-        u8      securityMode        : 1;  //!< 0x01 for transmit with security, 0x00 for transmit without security 
-        u8      agilityMode         : 1;  //!< 0x01 for use single channel operation, 0x00 for use multiple channel operation 
-        u8      chNormalizationMode : 1;  //!< 0x01 for specify channel designator, 0x00 for do not specify channel designator 
-        u8      payloadMode         : 1;  //!< 0x01 for data is vendor-specific, 0x00 for data is not vendor-specific 
+        u8    transMode : 1;    //!< 0x01 for broadcast transmission, 0x00 for unicast transmission 
+        u8    dstAddrMode : 1;    //!< 0x01 for use destination IEEE address, 0x00 for use destination network address 
+        u8    ackMode : 1;    //!< 0x01 for acknowledged transmission, 0x00 for unacknowledged transmission 
+        u8    securityMode : 1;    //!< 0x01 for transmit with security, 0x00 for transmit without security 
+        u8    agilityMode : 1;    //!< 0x01 for use single channel operation, 0x00 for use multiple channel operation 
+        u8    chNormalizationMode : 1;    //!< 0x01 for specify channel designator, 0x00 for do not specify channel designator 
+        u8    payloadMode : 1;    //!< 0x01 for data is vendor-specific, 0x00 for data is not vendor-specific 
     } bf;
     u8 byte;
 } txOption_t;
@@ -235,29 +235,29 @@ typedef union {
  *  @brief  Define Data request parameters type
  */    
 typedef struct {
-    u8     primitive;                                 //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
-    u8     reserved[RESERVED_MAC_BYTES_LEN];          //!< Reserved bytes for MAC layer    
-    u8     pairingRef;                                //!< Reference into the pairing table which contains the information required to transmit the NPDU. It is ignored if in a broadcast transmission 
-    u8     profileId;                                 //!< The identifier of the profile indicating the format of the transmitted data @ref profile_id_definition 
-    u16    vendorId;                                  //!< If the TxOptions parameter specifies that the data is vendor specific, it specifies the vendor identifier. Otherwise, it's ignored     
-    u8     nsduLength;                                //!< The number of octets contained in the NPDU to be transmitted by the NLDE      
-    u8     nsduHandle;                                //!< The handle associated with the NLDE to be transmitted       
-    txOption_t   txOptions;                           //!< The transmission options for the NLDE        
-    u8     nsdu[1];                                   //!< The set of octets forming the NPDU to be transmitted by the NLDE       
+            u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
+            u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer    
+            u8    pairingRef;    //!< Reference into the pairing table which contains the information required to transmit the NPDU. It is ignored if in a broadcast transmission 
+            u8    profileId;    //!< The identifier of the profile indicating the format of the transmitted data @ref profile_id_definition 
+           u16    vendorId;    //!< If the TxOptions parameter specifies that the data is vendor specific, it specifies the vendor identifier. Otherwise, it's ignored     
+            u8    nsduLength;    //!< The number of octets contained in the NPDU to be transmitted by the NLDE      
+            u8    nsduHandle;    //!< The handle associated with the NLDE to be transmitted       
+    txOption_t    txOptions;    //!< The transmission options for the NLDE        
+            u8    nsdu[1];    //!< The set of octets forming the NPDU to be transmitted by the NLDE       
 } nwk_dataReq_t;
 
 /**
  *  @brief  Define Data indication parameters type
  */
 typedef struct {
-    u8     primitive;                                //!< Primitive id of NLDE Data Request @ref nwk_primitive_id              
-    u8     pairingRef;                               //!< Reference into the pairing table which matched the information contained in the received NPDU                 
-    u8     profileId;                                //!< The identifier of the profile indicating the format of the received data       
-    u16    vendorId;                                 //!< If the RxFlags parameter specifies that the data is vendor specific, it specifies the vendor identifier. Otherwise, it's ignored       
-    u8     nsduLength;                               //!< The number of octets contained in the NSDU received by the NLDE     
-    u8     rxLinkQuality;                            //!< LQI value measured during the reception of the NPDU.  Lower values represent lower LQI       
-    u8     rxFlags;                                  //!< Reception indication flags for this NSDU @ref nwk_rx_flags    
-    u8     *nsdu;                                    //!< The set of octets forming the NSDU received by the NLDE 
+     u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id              
+     u8    pairingRef;    //!< Reference into the pairing table which matched the information contained in the received NPDU                 
+     u8    profileId;    //!< The identifier of the profile indicating the format of the received data       
+    u16    vendorId;    //!< If the RxFlags parameter specifies that the data is vendor specific, it specifies the vendor identifier. Otherwise, it's ignored       
+     u8    nsduLength;    //!< The number of octets contained in the NSDU received by the NLDE     
+     u8    rxLinkQuality;    //!< LQI value measured during the reception of the NPDU.  Lower values represent lower LQI       
+     u8    rxFlags;    //!< Reception indication flags for this NSDU @ref nwk_rx_flags    
+     u8    *nsdu;    //!< The set of octets forming the NSDU received by the NLDE 
 } nwk_dataInd_t;
 
 
@@ -265,27 +265,27 @@ typedef struct {
  *  @brief  Define Data confirm parameters type
  */
 typedef struct {
-   u8 primitive;                                   //!< Primitive id of NLDE Data Request @ref nwk_primitive_id      
-   u8 nsduhandle;                                  //!< The handle associated with the NPDU being confirmed      
-   u8 pairingRef;                                  //!< Reference into the pairing table which matched the information contained in the received NPDU       
-   u8 status;                                      //!< The status of the last NSDU transmission   
+   u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id      
+   u8    nsduhandle;    //!< The handle associated with the NPDU being confirmed      
+   u8    pairingRef;    //!< Reference into the pairing table which matched the information contained in the received NPDU       
+   u8    status;    //!< The status of the last NSDU transmission   
 } nwk_dataCnf_t;                                      
 
 /**
  *  @brief  Define Auto discovery request parameters type
  */
 typedef struct {
-    u8 primitive;                                 //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    nwk_appInfo_t recAppCapa;                     //!< The application info parameter             
-    u32 autoDiscDuration;                         //!< The maximum number of MAC symbols NLME will be in auto discovery response mode         
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+    nwk_appInfo_t    recAppCapa;    //!< The application info parameter             
+              u32    autoDiscDuration;    //!< The maximum number of MAC symbols NLME will be in auto discovery response mode         
 } nwk_autoDiscReq_t;
     
 /**
  *  @brief  Define Rx on enable request parameters type
  */
 typedef struct {
-    u8 primitive;                                 //!< Primitive id of NLME Request @ref nwk_primitive_id 
-    u32 rxOnDuration;                             //!< The maximum number of MAC symbols in rx On.          
+     u8    primitive;    //!< Primitive id of NLME Request @ref nwk_primitive_id 
+    u32    rxOnDuration;    //!< The maximum number of MAC symbols in rx On.          
 } nwk_rxOnEnableReq_t;
 
 
@@ -293,17 +293,17 @@ typedef struct {
  *  @brief  Define Rx on enable request parameters type
  */
 typedef struct {
-    u8 primitive;                                 //!< Primitive id of NLME Request @ref nwk_primitive_id 
-    u8 status;                                    //!< The status of rx on enable primitvie.          
+    u8    primitive;    //!< Primitive id of NLME Request @ref nwk_primitive_id 
+    u8    status;    //!< The status of rx on enable primitvie.          
 } nwk_rxOnEnableCnf_t;
         
 /**
  *  @brief  Define Auto discovery confirm parameters type
  */
 typedef struct {
-    u8 primitive;                                 //!< Primitive id of NLDE Data Request @ref nwk_primitive_id    
-    u8 status;                                    //!< The status of the auto discovery response mode  
-    u8 srcIEEEAddr[8];                            //!< The IEEE address to which the discovery response was sent          
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id    
+    u8    status;    //!< The status of the auto discovery response mode  
+    u8    srcIEEEAddr[8];    //!< The IEEE address to which the discovery response was sent          
 } nwk_autoDiscCnf_t;
 
 
@@ -312,15 +312,15 @@ typedef struct {
  *  @brief  Define Discovery request parameters type
  */
 typedef struct {
-    u8 primitive;                                       //!< Primitive id of NLDE Data Request @ref nwk_primitive_id                     
-    u8 reserved[RESERVED_MAC_BYTES_LEN];                //!< Reserved bytes for MAC layer                                            
-    u16 dstPanId;                                       //!< The PAN identifier of the destination device for the discovery                     
-    u16 dstNwkAddr;                                     //!< The address of the destination device for the discovery                       
-    u8 searchDevType;                                   //!< The device type to discover. This value can be set to 0xff to indicate a wildcard                        
-    u8 discProfileIdListSize;                           //!< The number of profile identifiers contained in the DiscProfileIdList parameter                                 
-    u8 discProfileIdList[RF4CE_MAX_NUM_PROFILE_IDS];    //!< The list of profile identifiers                                                        
-    u32 discDuration;                                   //!< The maximum number of MAC symbols to wait for discovery responses on each channel                          
-    nwk_appInfo_t orgAppCap;                            //!< The application info parameter                                 
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id                     
+               u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                                            
+              u16    dstPanId;    //!< The PAN identifier of the destination device for the discovery                     
+              u16    dstNwkAddr;    //!< The address of the destination device for the discovery                       
+               u8    searchDevType;    //!< The device type to discover. This value can be set to 0xff to indicate a wildcard                        
+               u8    discProfileIdListSize;    //!< The number of profile identifiers contained in the DiscProfileIdList parameter                                 
+               u8    discProfileIdList[RF4CE_MAX_NUM_PROFILE_IDS];    //!< The list of profile identifiers                                                        
+              u32    discDuration;    //!< The maximum number of MAC symbols to wait for discovery responses on each channel                          
+    nwk_appInfo_t    orgAppCap;    //!< The application info parameter                                 
 } nwk_discReq_t;
 
 
@@ -328,15 +328,15 @@ typedef struct {
  *  @brief  Define Discovery indication parameters type
  */
 typedef struct {
-    u8 primitive;                               //!< Primitive id of NLDE Data Request @ref nwk_primitive_id      
-    u8 status;                                  //!< The status of the pairing table       
-    u8 srcIEEEAddr[8];                          //!< The IEEE address of the device requesting the discovery               
-    u8 orgNodeCap;                              //!< The capabilities of the originator of the discovery request           
-    u16 orgVendorId;                            //!< The vendor identifier of the originator of the discovery request          
-    u8 orgVendorStr[7];                         //!< The vendor string of the originator of the discovery request               
-    nwk_appInfo_t orgAppCap;                    //!< The application info parameter                   
-    u8 searchDevType;                           //!< The device type being discovered           
-    u8 rxLinkQuality;                           //!< LQI value          
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id      
+               u8    status;    //!< The status of the pairing table       
+               u8    srcIEEEAddr[8];    //!< The IEEE address of the device requesting the discovery               
+               u8    orgNodeCap;    //!< The capabilities of the originator of the discovery request           
+              u16    orgVendorId;    //!< The vendor identifier of the originator of the discovery request          
+               u8    orgVendorStr[7];    //!< The vendor string of the originator of the discovery request               
+    nwk_appInfo_t    orgAppCap;    //!< The application info parameter                   
+               u8    searchDevType;    //!< The device type being discovered           
+               u8    rxLinkQuality;    //!< LQI value          
 } nwk_discInd_t; 
 
 
@@ -344,22 +344,22 @@ typedef struct {
  *  @brief  Define Discovery response parameters type
  */
 typedef struct {
-    u8 primitive;                              //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
-    u8 reserved[RESERVED_MAC_BYTES_LEN];       //!< Reserved bytes for MAC layer                           
-    u8 status;                                 //!< The status of the discovery request 
-    u8 dstIEEEAddr[8];                         //!< The IEEE address of the device requesting discovery          
-    nwk_appInfo_t recAppCap;                   //!< The application info parameter                
-    u8 discReqLQI;                             //!< The LQI value from the associated NLME-DISCOVERY.indication primitive     
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
+               u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                           
+               u8    status;    //!< The status of the discovery request 
+               u8    dstIEEEAddr[8];    //!< The IEEE address of the device requesting discovery          
+    nwk_appInfo_t    recAppCap;    //!< The application info parameter                
+               u8    discReqLQI;    //!< The LQI value from the associated NLME-DISCOVERY.indication primitive     
 } nwk_discResp_t; 
 
 /**
  *  @brief  Define Data request parameters type
  */
 typedef struct {
-    u8 primitive;                                            //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    u8 status;                                               //!< The status of the network discovery attempt 
-    u8 numNodes;                                             //!< The number of discovered nodes in the NodeDescList parameter  
-    nwk_nodeDesc_t nodeDesc[RF4CE_MAX_NODE_DESC_LIST_NUM];   //!< The list of node descriptors discovered                                              
+                u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+                u8    status;    //!< The status of the network discovery attempt 
+                u8    numNodes;    //!< The number of discovered nodes in the NodeDescList parameter  
+    nwk_nodeDesc_t    nodeDesc[RF4CE_MAX_NODE_DESC_LIST_NUM];    //!< The list of node descriptors discovered                                              
 } nwk_discCnf_t; 
 
 
@@ -368,13 +368,13 @@ typedef struct {
  *  @brief  Define Pair request parameters type
  */
 typedef struct {
-    u8 primitive;                             //!< Primitive id of NLDE Data Request @ref nwk_primitive_id  
-    u8 reserved[RESERVED_MAC_BYTES_LEN];      //!< Reserved bytes for MAC layer                         
-    u8 logicalChannel;                        //!< The logical channel of the device with which to pair        
-    u8 dstIEEEAddr[8];                        //!< The IEEE address of the device with which to pair         
-    u8 keyExTransferCount;                    //!< The number of transfers the target should use to exchange the link key with the pairing originator            
-    u16 dstPanId;                             //!< The PAN identifier of the device with which to pair     
-    nwk_appInfo_t orgAppCap;                  //!< The application info parameter              
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id  
+               u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                         
+               u8    logicalChannel;    //!< The logical channel of the device with which to pair        
+               u8    dstIEEEAddr[8];    //!< The IEEE address of the device with which to pair         
+               u8    keyExTransferCount;    //!< The number of transfers the target should use to exchange the link key with the pairing originator            
+              u16    dstPanId;    //!< The PAN identifier of the device with which to pair     
+    nwk_appInfo_t    orgAppCap;    //!< The application info parameter              
 } nwk_pairReq_t; 
 
 
@@ -382,13 +382,13 @@ typedef struct {
  *  @brief  Define Pair response parameters type
  */
 typedef struct {
-    u8 primitive;                           //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
-    u8 reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                           
-    nwk_appInfo_t recAppCap;                //!< The application info parameter                
-    u8 status;                              //!< The status of the pairing request 
-    u16 dstPanId;                           //!< The PAN identifier of the device requesting the pair    
-    u8 dstIEEEAddr[8];                      //!< The IEEE address of the device requesting the pair        
-    u8 provPairingRef;                      //!< The reference to the provisional pairing entry if the pair was accepted or 0xff otherwise          
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
+               u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                           
+    nwk_appInfo_t    recAppCap;    //!< The application info parameter                
+               u8    status;    //!< The status of the pairing request 
+              u16    dstPanId;    //!< The PAN identifier of the device requesting the pair    
+               u8    dstIEEEAddr[8];    //!< The IEEE address of the device requesting the pair        
+               u8    provPairingRef;    //!< The reference to the provisional pairing entry if the pair was accepted or 0xff otherwise          
 } nwk_pairResp_t;
 
 
@@ -397,16 +397,16 @@ typedef struct {
  *  @brief  Define Pair indication parameters type
  */
 typedef struct {
-    u8 primitive;                          //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
-    u8 status;                             //!< The status of the provisional pairing 
-    u8 srcIEEEAddr[8];                     //!< The IEEE address of the device requesting the pair
-    u16 srcPanId;                          //!< The PAN identifier of the device requesting the pair    
-    u16 orgVendorId;                       //!< The vendor identifier of the originator of the pair request
-    u8 orgNodeCap;                         //!< The capabilities of the originator of the pair request     
-    u8 orgVendorString[7];                 //!< The vendor string of the originator of the pair request             
-    u8 provPairingRef;                     //!< The pairing reference that will be used           
-    u8 keyExTransferCount;                 //!< The number of transfers the target should use to exchange the link key with the pairing originator                  
-    nwk_appInfo_t orgAppCap;               //!< The application info parameter                
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
+               u8    status;    //!< The status of the provisional pairing 
+               u8    srcIEEEAddr[8];    //!< The IEEE address of the device requesting the pair
+              u16    srcPanId;    //!< The PAN identifier of the device requesting the pair    
+              u16    orgVendorId;    //!< The vendor identifier of the originator of the pair request
+               u8    orgNodeCap;    //!< The capabilities of the originator of the pair request     
+               u8    orgVendorString[7];    //!< The vendor string of the originator of the pair request             
+               u8    provPairingRef;    //!< The pairing reference that will be used           
+               u8    keyExTransferCount;    //!< The number of transfers the target should use to exchange the link key with the pairing originator                  
+    nwk_appInfo_t    orgAppCap;    //!< The application info parameter                
 } nwk_pairInd_t;
 
 
@@ -414,12 +414,12 @@ typedef struct {
  *  @brief  Define Pair confirm parameters type
  */
 typedef struct {
-    u8 primitive;                          //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
-    u8 status;                             //!< The status of the pair attempt 
-    u8 pairingRef;                         //!< The pairing table reference for this pairing link     
-    u16 recVendorId;                       //!< The vendor identifier of the originator of the pair response      
-    u8 recVendorStr[7];                    //!< The vendor string of the originator of the pair response         
-    nwk_appInfo_t recAppCap;               //!< The application info parameter               
+               u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
+               u8    status;    //!< The status of the pair attempt 
+               u8    pairingRef;    //!< The pairing table reference for this pairing link     
+              u16    recVendorId;    //!< The vendor identifier of the originator of the pair response      
+               u8    recVendorStr[7];    //!< The vendor string of the originator of the pair response         
+    nwk_appInfo_t    recAppCap;    //!< The application info parameter               
 } nwk_pairCnf_t; 
 
 
@@ -427,12 +427,12 @@ typedef struct {
  *  @brief  Define Ping request parameters type
  */
 typedef struct {
-    u8 primitive;                          //!< Primitive id of NLDE Data Request @ref nwk_primitive_id    
-    u8 reserved[RESERVED_MAC_BYTES_LEN];   //!< Reserved bytes for MAC layer                           
-    u8 dstIEEEAddr[8];                     //!< The IEEE address of the device requesting the ping       
-    u8 options;                            //!< The ping requset option  
-    u8 pingPayloadLen;                     //!< The payload length of ping request           
-    u8 pingPayload[1];                     //!< The payload of the ping request              
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id    
+    u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                           
+    u8    dstIEEEAddr[8];    //!< The IEEE address of the device requesting the ping       
+    u8    options;    //!< The ping requset option  
+    u8    pingPayloadLen;    //!< The payload length of ping request           
+    u8    pingPayload[1];    //!< The payload of the ping request              
 } nwk_pingReq_t; 
 
 
@@ -440,9 +440,9 @@ typedef struct {
  *  @brief  Define Rx-enable request parameters type
  */
 typedef struct {
-    u8 primitive;                          //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
-    u8 reserved[RESERVED_MAC_BYTES_LEN];   //!< Reserved bytes for MAC layer                            
-    u32 rxOnDuration;                      //!< The number of MAC symbols for which the receiver is to be enabled         
+     u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id   
+     u8    reserved[RESERVED_MAC_BYTES_LEN];    //!< Reserved bytes for MAC layer                            
+    u32    rxOnDuration;    //!< The number of MAC symbols for which the receiver is to be enabled         
 } nwk_rxEnableReq_t;
 
 
@@ -450,8 +450,8 @@ typedef struct {
  *  @brief  Define Rx-enable confirm parameters type
  */
 typedef struct {
-    u8 primitive;                         //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
-    u8 status;                            //!< The result of the request to enable or disable the receiver
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
+    u8    status;    //!< The result of the request to enable or disable the receiver
 } nwk_rxEnableCnf_t;
 
 
@@ -468,8 +468,8 @@ typedef struct {
  *  @brief  Define Start confirm parameters type
  */
 typedef struct {
-    u8 primitive;                        //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    u8 status;                           //!< The status of the start attempt  
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+    u8    status;    //!< The status of the start attempt  
 } nwk_startCnf_t;
 
 
@@ -477,8 +477,8 @@ typedef struct {
  *  @brief  Define Reset request parameters type
  */
 typedef struct {
-    u8 primitive;                        //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    u8 setDefaultNIB;                    //!< If TRUE, reset all NIB attributes to their default values     
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+    u8    setDefaultNIB;    //!< If TRUE, reset all NIB attributes to their default values     
 } nwk_resetReq_t;
 
 
@@ -486,8 +486,8 @@ typedef struct {
  *  @brief  Define Reset confirm parameters type
  */
 typedef struct {
-    u8 primitive;                        //!< Primitive id of NLDE Data Request @ref nwk_primitive_id      
-    u8 status;                           //!< The status of the reset request   
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id      
+    u8    status;    //!< The status of the reset request   
 } nwk_resetCnf_t;
 
 
@@ -495,16 +495,16 @@ typedef struct {
  *  @brief  Define Unpair request parameters type
  */
 typedef struct {
-    u8 primitive;                       //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    u8 pairingRef;                      //!< The reference into the local pairing table of the entry that is to be removed 
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+    u8    pairingRef;    //!< The reference into the local pairing table of the entry that is to be removed 
 } nwk_unpairReq_t;
 
 /**
  *  @brief  Define Unpair response parameters type
  */
 typedef struct {
-    u8 primitive;                      //!< Primitive id of NLDE Data Request @ref nwk_primitive_id  
-    u8 pairingRef;                     //!< The reference into the local pairing table of the entry that is to be removed 
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id  
+    u8    pairingRef;    //!< The reference into the local pairing table of the entry that is to be removed 
 } nwk_unpairResp_t;
 
 
@@ -512,8 +512,8 @@ typedef struct {
  *  @brief  Define Unpair indication parameters type
  */
 typedef struct {
-    u8 primitive;                      //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    u8 pairingRef;                     //!< The pairing table reference that has been removed from the pairing table 
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+    u8    pairingRef;    //!< The pairing table reference that has been removed from the pairing table 
 } nwk_unpairInd_t;
 
 
@@ -521,9 +521,9 @@ typedef struct {
  *  @brief  Define Unpair confirm parameters type
  */
 typedef struct {
-    u8 primitive;                     //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
-    u8 status;                        //!< The status of the unpair attempt  
-    u8 pairingRef;                    //!< The pairing table reference for this pairing link      
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
+    u8    status;    //!< The status of the unpair attempt  
+    u8    pairingRef;    //!< The pairing table reference for this pairing link      
 } nwk_unpairCnf_t;
 
 
@@ -531,18 +531,18 @@ typedef struct {
  *  @brief  Define Update key request parameters type
  */
 typedef struct {
-    u8 primitive;                     //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
-    u8 pairingRef;                    //!< The reference into the local pairing table of the entry whose key is to be updated  
-    u8 newLinkKey[16];                //!< The security link key to replace the key in the pairing table     
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id 
+    u8    pairingRef;    //!< The reference into the local pairing table of the entry whose key is to be updated  
+    u8    newLinkKey[16];    //!< The security link key to replace the key in the pairing table     
 } nwk_updateKeyReq_t;
 
 /**
  *  @brief  Define Update key confirm parameters type
  */
 typedef struct {
-    u8 primitive;                    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
-    u8 status;                       //!< The status of the request to update the security link key  
-    u8 pairingRef;                   //!< The reference into the local pairing table of the entry whose key is to be updated      
+    u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
+    u8    status;    //!< The status of the request to update the security link key  
+    u8    pairingRef;    //!< The reference into the local pairing table of the entry whose key is to be updated      
 } nwk_updateKeyCnf_t;
 
 
@@ -550,12 +550,12 @@ typedef struct {
  *  @brief  Define Comm status indication parameters type
  */
 typedef struct {
-    u8 primitive;                  //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
-    u8 pairingRef;                 //!< Reference into the pairing table indicating the recipient node      
-    u16 dstPanId;                  //!< The PAN identifier of the destination device     
-    u8 dstAddrMode;                //!< The addressing mode used in the DstAddr parameter      
-    Addr_t dstAddr;                //!< The address of the destination device       
-    u8 status;                     //!< The status of the transmission  
+        u8    primitive;    //!< Primitive id of NLDE Data Request @ref nwk_primitive_id     
+        u8    pairingRef;    //!< Reference into the pairing table indicating the recipient node      
+       u16    dstPanId;    //!< The PAN identifier of the destination device     
+        u8    dstAddrMode;    //!< The addressing mode used in the DstAddr parameter      
+    Addr_t    dstAddr;    //!< The address of the destination device       
+        u8    status;    //!< The status of the transmission  
 } nwk_commStatusInd_t;
 
 /** @} end of group NWK_TYPE */
@@ -837,10 +837,10 @@ u8 nwk_profileAudioDataSend(u8 *data, u8 len, u8 profileId);
 
 /**
  * @brief      Call this function to filter the packets that format is data
- * 			   and insecurity and filtering flag is true
+ *                and insecurity and filtering flag is true
  *
  * @param[in]   flag - filtering flag, if it is set to ture the packet will be filter
- * 					   or won't be filter
+ *                        or won't be filter
  *
  * @return      none
  */
@@ -851,3 +851,4 @@ void nwk_setDataPktFilterFlag(bool flag);
 /**  @} end of group NWK_Module */
 
 /**  @} end of group TELINK_RF4CE_STACK */
+

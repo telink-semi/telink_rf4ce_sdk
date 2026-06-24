@@ -49,81 +49,73 @@
 
 
 /**********************************************************************************************************************
- *                                     gpio  compatibility                                                  		  *
+ *                                     gpio  compatibility                                                            *
  *********************************************************************************************************************/
 
 /**
  * @brief     This function set the pin's output level.
  * @param[in] pin - the pin needs to set its output level
  * @param[in] value - value of the output level(1: high 0: low)
- * @author	  BLE group .
+ * @author    BLE group .
  * @return    none
  */
-#define gpio_write(pin,value)       gpio_set_level(pin,value)
+#define gpio_write(pin, value) gpio_set_level(pin, value)
 
 
 /**
  * @brief      This function enable the output function of a pin.
  * @param[in]  pin - the pin needs to set the output function(1: enable,0: disable)
- * @author	   BLE group .
+ * @author     BLE group .
  * @return     none
  */
-#define gpio_set_output_en(pin,value)  gpio_set_output(pin,value)
+#define gpio_set_output_en(pin, value) gpio_set_output(pin, value)
 
 
 /**
  * @brief     This function read the pin's input/output level.
  * @param[in] pin - the pin needs to read its level
- * @author	  BLE group .
+ * @author    BLE group .
  * @return    the pin's level(1: high 0: low)
  */
-#define  gpio_read(pin)   gpio_get_level(pin)
+#define gpio_read(pin) gpio_get_level(pin)
 
 
 /**
  * @brief      This function servers to enable gpio function.
  * @param[in]  pin - the selected pin.
- * @author	   BLE group .
+ * @author     BLE group .
  * @return     none
  */
-#define  gpio_set_gpio_en(pin)   gpio_function_en(pin)
+#define gpio_set_gpio_en(pin) gpio_function_en(pin)
 
 /**
  * @brief      This function set the input function of a pin.
  * @param[in]  pin - the pin needs to set the input function
  * @param[in]  value - enable or disable the pin's input function(1: enable,0: disable )
- * @author	   BLE group .
+ * @author     BLE group .
  * @return     none
  */
-#define  gpio_set_input_en(pin,value)  gpio_set_input (pin,value)
+#define gpio_set_input_en(pin, value) gpio_set_input(pin, value)
 
 
 /**********************************************************************************************************************
- *                                     stimer  compatibility                                                  		  *
+ *                                     stimer  compatibility                                                          *
  *********************************************************************************************************************/
-
-/**
- * @brief      This function read all the pins' input level.
- * @param[out] p - the buffer used to store all the pins' input level
- * @return     none
- */
-inline void gpio_read_all(unsigned char *p)
-{
-	p[0] = REG_ADDR8(0x140300);
-	p[1] = REG_ADDR8(0x140308);
-	p[2] = REG_ADDR8(0x140310);
-	p[3] = REG_ADDR8(0x140318);
-	p[4] = REG_ADDR8(0x140320);
-}
-
-
 
 /*
  * @brief     This function performs to get system timer tick.
  * @return    system timer tick value.
- * @author	  BLE group .
+ * @author    BLE group .
  */
-#define  clock_time  stimer_get_tick
+#define clock_time stimer_get_tick
 
+#define IOBASE     REG_RW_BASE_ADDR
+
+#define clock_time stimer_get_tick
+
+#define analog_read  analog_read_reg8
+#define analog_write  analog_write_reg8
+
+#define gpio_read_all gpio_get_level_all
 
 #endif

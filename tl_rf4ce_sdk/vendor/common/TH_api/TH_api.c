@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for TH_api.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -58,15 +58,15 @@ int sendCmdToTH(usbcdc_txBuf_t *buf)
     usb_uart_write(buf);
 #else
     //usb
-	usb_command_t *p_usbCmd = (usb_command_t *)0x808004;
+    usb_command_t *p_usbCmd = (usb_command_t *)0x808004;
     if(!p_usbCmd->device_cmdID && !p_usbCmd->host_cmdId){
-    	p_usbCmd->len = buf->len - 1;
-    	if(p_usbCmd->len < 8){
-    		p_usbCmd->device_cmdID = buf->data[1];
-    		memcpy(&p_usbCmd->param[0], &buf[2], p_usbCmd->len);
-    	}    	
+        p_usbCmd->len = buf->len - 1;
+        if(p_usbCmd->len < 8){
+            p_usbCmd->device_cmdID = buf->data[1];
+            memcpy(&p_usbCmd->param[0], &buf[2], p_usbCmd->len);
+        }        
     }
-	ev_buf_free((u8 *)buf);
+    ev_buf_free((u8 *)buf);
 #endif
     return 0;
 #endif
@@ -82,7 +82,7 @@ void TH_trxInit(uart_recvCb_t cb)
     socket_param_init(TEST_SOCKET);
 #else
 #if USB_CDC_ENABLE
-	usb_init();
+    usb_init();
     /* Init USB-UART Transceiver */
     usb_uart_open(DFLT_BAUD_RATE, cb);
 #endif

@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	drv_usb.h
+ * @file    drv_usb.h
  *
- * @brief	This is the header file for drv_usb
+ * @brief    This is the header file for drv_usb
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee GROUP
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -44,36 +44,50 @@
  *
  *******************************************************************************************************/
 #pragma once
-#include "tl_common.h"
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 
 static inline u8 usb_is_irq_reset(void){
-	return reg_irq_src & FLD_IRQ_USB_RST_EN;
+    return reg_irq_src & FLD_IRQ_USB_RST_EN;
 }
 
 static inline void usb_clear_irq_reset(void){
-	reg_irq_src = FLD_IRQ_USB_RST_EN;
+    reg_irq_src = FLD_IRQ_USB_RST_EN;
 }
 
 #elif defined(MCU_CORE_B92)
 
 static inline u8 usb_is_irq_reset(void) {
-	return reg_usb_irq_mask & USB_IRQ_RESET_STATUS;
+    return reg_usb_irq_mask & USB_IRQ_RESET_STATUS;
 }
 
 static inline void usb_clear_irq_reset(void) {
-	reg_usb_irq_mask |= USB_IRQ_RESET_STATUS;
+    reg_usb_irq_mask |= USB_IRQ_RESET_STATUS;
 }
 
-static inline void usb_edp_en(void) {
-	usbhw_set_eps_en( FLD_USB_EDP8_EN |
-					  FLD_USB_EDP1_EN |
-					  FLD_USB_EDP2_EN |
-					  FLD_USB_EDP3_EN |
-					  FLD_USB_EDP4_EN |
-					  FLD_USB_EDP5_EN |
-					  FLD_USB_EDP6_EN |
-					  FLD_USB_EDP7_EN );
-	usbhw_set_irq_mask(USB_IRQ_RESET_MASK | USB_IRQ_SUSPEND_MASK);
+static inline void usb_edp_en(void){
+    usbhw_set_eps_en( FLD_USB_EDP8_EN |
+                      FLD_USB_EDP1_EN |
+                      FLD_USB_EDP2_EN |
+                      FLD_USB_EDP3_EN |
+                      FLD_USB_EDP4_EN |
+                      FLD_USB_EDP5_EN |
+                      FLD_USB_EDP6_EN |
+                      FLD_USB_EDP7_EN );
+    usbhw_set_irq_mask(USB_IRQ_RESET_MASK | USB_IRQ_SUSPEND_MASK);
+}
+#elif defined(MCU_CORE_TL321X)
+static inline void usb_edp_en(void)
+{
+    usbhw_init();
+    usbhw_set_ctrl_ep_size(SIZE_64_BYTE);
+
+    usbhw_set_eps_en(FLD_USB_EDP8_EN |
+                     FLD_USB_EDP1_EN |
+                     FLD_USB_EDP2_EN |
+                     FLD_USB_EDP3_EN |
+                     FLD_USB_EDP4_EN |
+                     FLD_USB_EDP5_EN |
+                     FLD_USB_EDP6_EN |
+                     FLD_USB_EDP7_EN);
 }
 #endif

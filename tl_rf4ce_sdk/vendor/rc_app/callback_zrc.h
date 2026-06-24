@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for callback_zrc.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -23,12 +23,12 @@
 
 #pragma once
 
-#define    PROFILE_DEFAULT_KEY_TYPE			ZRC2_ACTION_TYPE_ATOMIC
+#define    PROFILE_DEFAULT_KEY_TYPE            ZRC2_ACTION_TYPE_ATOMIC
 
 #if  (RF4CE_ZRC2_ENABLE)
-#define    profile_doUnpair					zrc_doUnpair
-#define    profile_doPair					zrc_doPair
-#define    profile_PowerStatusPush			zrc_PowerStatusPush
+#define    profile_doUnpair                    zrc_doUnpair
+#define    profile_doPair                      zrc_doPair
+#define    profile_PowerStatusPush             zrc_PowerStatusPush
 #endif
 
 
@@ -60,3 +60,4 @@ zrc_sts_t zrc_PowerStatusPush(u8 status);
 void stack_init(void);
 void stack_saveProfileInfo(void *arg);
 void zrcApp_initPib(void);
+

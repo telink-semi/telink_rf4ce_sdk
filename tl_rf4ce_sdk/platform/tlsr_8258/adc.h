@@ -35,21 +35,17 @@
  */
 typedef enum{
 	ADC_SAMPLE_RATE_23K,
-	ADC_SAMPLE_RATE_96K
+	ADC_SAMPLE_RATE_96K,
+	ADC_SAMPLE_RATE_192K
 }ADC_SampleRateTypeDef;
 
-#define ADC_SAMPLE_RATE_SELECT        ADC_SAMPLE_RATE_23K
+#define   ADC_SAMPLE_RATE_SELECT        ADC_SAMPLE_RATE_23K
 
 
 
-//ADC reference voltage cfg
-typedef struct {
-	unsigned short adc_vref; //default: 1175 mV
-	unsigned short adc_calib_en;
-}adc_vref_ctr_t;
 
-extern adc_vref_ctr_t adc_vref_cfg;
 
+extern GPIO_PinTypeDef ADC_GPIO_tab[10];
 
 /**
  *  ADC reference voltage
@@ -60,6 +56,8 @@ typedef enum{
 	ADC_VREF_1P2V,
 	ADC_VREF_VBAT_N,
 }ADC_RefVolTypeDef;
+
+
 
 /**
  *  ADC Vbat divider
@@ -88,7 +86,7 @@ typedef enum {
 	C5N,
 	PGA0N,
 	PGA1N,
-	TEMSENSORN,
+	TEMPERATURE_SENSOR_N,
 	RSVD_N,
 	GND,
 }ADC_InputNchTypeDef;
@@ -110,7 +108,7 @@ typedef enum {
 	C5P,
 	PGA0P,
 	PGA1P,
-	TEMSENSORP,
+	TEMPERATURE_SENSOR_P,
 	RSVD_P,
 	VBAT,
 }ADC_InputPchTypeDef;
@@ -218,22 +216,14 @@ typedef enum {
 	CLOCLK_UPDATA      = BIT(4),
 }RNG_UpdataTypeDef;
 
-/**
- * @brief       This function enable adc reference voltage calibration
- * @param[in] en - 1 enable  0 disable
- * @return     none.
- */
-static inline void adc_calib_vref_enable(unsigned char en)
-{
-	adc_vref_cfg.adc_calib_en = en;
-}
+
 
 /**
  * @brief      This function reset adc module
  * @param[in]  none.
  * @return     none.
  */
-static inline void adc_reset_adc_module(void)
+static inline void	adc_reset_adc_module (void)
 {
 	reg_rst1 = FLD_RST1_ADC;
 	reg_rst1 = 0;
@@ -244,18 +234,17 @@ static inline void adc_reset_adc_module(void)
  * @param[in]  en - variable of source clock state 1: enable;  0: disable.
  * @return     none.
  */
-static inline void adc_enable_clk_24m_to_sar_adc(unsigned int en)
+static inline void adc_enable_clk_24m_to_sar_adc (unsigned int en)
 {
 	if(en)
 	{
-		analog_write(areg_clk_setting, analog_read(areg_clk_setting) | FLD_CLK_24M_TO_SAR_EN);
+		analog_write(areg_clk_setting	, analog_read(areg_clk_setting	) | FLD_CLK_24M_TO_SAR_EN);
 	}
 	else
 	{
-		analog_write(areg_clk_setting, analog_read(areg_clk_setting) & ~FLD_CLK_24M_TO_SAR_EN);
+		analog_write(areg_clk_setting	, analog_read(areg_clk_setting	) & ~FLD_CLK_24M_TO_SAR_EN);
 	}
 }
-
 /**************************************************************************************
 afe_0xF4
     BIT<2:0>  adc_clk_div
@@ -276,7 +265,7 @@ enum{
 static inline void adc_set_sample_clk(unsigned char div)
 {
 	//afe_0xF4<7:3> is reserved, so no need to care its value (confirmed by junwei & congqing 20190805)
-	analog_write(areg_adc_sampling_clk_div, div & 0x07 );
+	analog_write(areg_adc_sampling_clk_div,  div & 0x07 );
 }
 
 /**************************************************************************************
@@ -315,7 +304,7 @@ enum{
  */
 static inline void adc_set_vref(ADC_RefVolTypeDef vRef_L, ADC_RefVolTypeDef vRef_R, ADC_RefVolTypeDef vRef_M)
 {
-	analog_write(areg_adc_vref, vRef_L | vRef_R << 2 | vRef_M << 4);
+	analog_write(areg_adc_vref, vRef_L | vRef_R<<2 | vRef_M<<4);
 }
 
 /**
@@ -325,7 +314,7 @@ static inline void adc_set_vref(ADC_RefVolTypeDef vRef_L, ADC_RefVolTypeDef vRef
  */
 static inline void adc_set_vref_chn_left(ADC_RefVolTypeDef v_ref)
 {
-	analog_write(areg_adc_vref, ((analog_read(areg_adc_vref) & (~FLD_ADC_VREF_CHN_L)) | (v_ref)));
+	analog_write(areg_adc_vref, ((analog_read(areg_adc_vref)&(~FLD_ADC_VREF_CHN_L)) | (v_ref)) );
 }
 
 /**
@@ -334,8 +323,9 @@ static inline void adc_set_vref_chn_left(ADC_RefVolTypeDef v_ref)
  * @return     none
  */
 static inline void adc_set_vref_chn_right(ADC_RefVolTypeDef v_ref)
+
 {
-	analog_write(areg_adc_vref, ((analog_read(areg_adc_vref) & (~FLD_ADC_VREF_CHN_R)) | (v_ref << 2)));
+	analog_write(areg_adc_vref, ((analog_read(areg_adc_vref)&(~FLD_ADC_VREF_CHN_R)) | (v_ref<<2) ));
 }
 
 /**
@@ -344,8 +334,9 @@ static inline void adc_set_vref_chn_right(ADC_RefVolTypeDef v_ref)
  * @return     none
  */
 static inline void adc_set_vref_chn_misc(ADC_RefVolTypeDef v_ref)
+
 {
-	analog_write(areg_adc_vref, ((analog_read(areg_adc_vref) & (~FLD_ADC_VREF_CHN_M)) | (v_ref << 4)));
+	analog_write(areg_adc_vref, ((analog_read(areg_adc_vref)&(~FLD_ADC_VREF_CHN_M)) | (v_ref<<4)) );
 }
 
 /**
@@ -369,7 +360,7 @@ enum{
  */
 static inline void adc_set_vref_vbat_divider(ADC_VbatDivTypeDef vbat_div)
 {
-	analog_write(areg_adc_vref_vbat_div, (analog_read(areg_adc_vref_vbat_div) & (~FLD_ADC_VREF_VBAT_DIV)) | (vbat_div << 2));
+	analog_write (areg_adc_vref_vbat_div, (analog_read(areg_adc_vref_vbat_div)&(~FLD_ADC_VREF_VBAT_DIV)) | (vbat_div<<2) );
 }
 
 
@@ -431,7 +422,7 @@ enum{
  */
 static inline void adc_set_ain_chn_misc(ADC_InputPchTypeDef p_ain, ADC_InputNchTypeDef n_ain)
 {
-	analog_write(areg_adc_ain_chn_misc, n_ain | p_ain << 4);
+	analog_write (areg_adc_ain_chn_misc	, n_ain | p_ain<<4 );
 }
 
 /**
@@ -442,7 +433,7 @@ static inline void adc_set_ain_chn_misc(ADC_InputPchTypeDef p_ain, ADC_InputNchT
  */
 static inline void adc_set_ain_chn_left(ADC_InputPchTypeDef p_ain, ADC_InputNchTypeDef n_ain)
 {
-	analog_write(areg_adc_ain_chn_left, n_ain | p_ain << 4);
+	analog_write (areg_adc_ain_chn_left, n_ain | p_ain<<4 );
 }
 
 /**
@@ -453,7 +444,7 @@ static inline void adc_set_ain_chn_left(ADC_InputPchTypeDef p_ain, ADC_InputNchT
  */
 static inline void adc_set_ain_chn_right(ADC_InputPchTypeDef p_ain, ADC_InputNchTypeDef n_ain)
 {
-	analog_write(areg_adc_ain_chn_right, n_ain | p_ain << 4);
+	analog_write (areg_adc_ain_chn_right, n_ain | p_ain<<4 );
 }
 
 /**
@@ -463,7 +454,7 @@ static inline void adc_set_ain_chn_right(ADC_InputPchTypeDef p_ain, ADC_InputNch
  */
 static inline void adc_set_ain_negative_chn_misc(ADC_InputNchTypeDef v_ain)
 {
-	analog_write(areg_adc_ain_chn_misc, (analog_read(areg_adc_ain_chn_misc) & (~FLD_ADC_AIN_NEGATIVE)) | (v_ain));
+	analog_write (areg_adc_ain_chn_misc	, (analog_read(areg_adc_ain_chn_misc	)&(~FLD_ADC_AIN_NEGATIVE)) | (v_ain) );
 }
 
 /**
@@ -473,7 +464,7 @@ static inline void adc_set_ain_negative_chn_misc(ADC_InputNchTypeDef v_ain)
  */
 static inline void adc_set_ain_positive_chn_misc(ADC_InputPchTypeDef v_ain)
 {
-	analog_write(areg_adc_ain_chn_misc, (analog_read(areg_adc_ain_chn_misc) & (~FLD_ADC_AIN_POSITIVE)) | (v_ain << 4));
+	analog_write (areg_adc_ain_chn_misc	, (analog_read(areg_adc_ain_chn_misc	)&(~FLD_ADC_AIN_POSITIVE)) | (v_ain<<4) );
 }
 
 /**
@@ -483,7 +474,7 @@ static inline void adc_set_ain_positive_chn_misc(ADC_InputPchTypeDef v_ain)
  */
 static inline void adc_set_ain_negative_chn_left(ADC_InputNchTypeDef v_ain)
 {
-	analog_write (areg_adc_ain_chn_left, (analog_read(areg_adc_ain_chn_left) & (~FLD_ADC_AIN_NEGATIVE)) | (v_ain));
+	analog_write (areg_adc_ain_chn_left, (analog_read(areg_adc_ain_chn_left)&(~FLD_ADC_AIN_NEGATIVE)) | (v_ain) );
 }
 
 /**
@@ -493,7 +484,7 @@ static inline void adc_set_ain_negative_chn_left(ADC_InputNchTypeDef v_ain)
  */
 static inline void adc_set_ain_positive_chn_left(ADC_InputPchTypeDef v_ain)
 {
-	analog_write (areg_adc_ain_chn_left, (analog_read(areg_adc_ain_chn_left) & (~FLD_ADC_AIN_POSITIVE)) | (v_ain << 4));
+	analog_write (areg_adc_ain_chn_left, (analog_read(areg_adc_ain_chn_left)&(~FLD_ADC_AIN_POSITIVE)) | (v_ain<<4) );
 }
 
 /**
@@ -503,7 +494,7 @@ static inline void adc_set_ain_positive_chn_left(ADC_InputPchTypeDef v_ain)
  */
 static inline void adc_set_ain_negative_chn_right(ADC_InputNchTypeDef v_ain)
 {
-	analog_write (areg_adc_ain_chn_right, (analog_read(areg_adc_ain_chn_right) & (~FLD_ADC_AIN_NEGATIVE)) | (v_ain));
+    analog_write (areg_adc_ain_chn_right, (analog_read(areg_adc_ain_chn_right)&(~FLD_ADC_AIN_NEGATIVE)) | (v_ain) );
 }
 
 /**
@@ -513,7 +504,7 @@ static inline void adc_set_ain_negative_chn_right(ADC_InputNchTypeDef v_ain)
  */
 static inline void adc_set_ain_positive_chn_right(ADC_InputPchTypeDef v_ain)
 {
-	analog_write (areg_adc_ain_chn_right, (analog_read(areg_adc_ain_chn_right) & (~FLD_ADC_AIN_POSITIVE)) | (v_ain << 4));
+	analog_write (areg_adc_ain_chn_right, (analog_read(areg_adc_ain_chn_right)&(~FLD_ADC_AIN_POSITIVE)) | (v_ain<<4) );
 }
 
 /**************************************************************************************
@@ -1109,17 +1100,31 @@ void adc_set_ain_pre_scaler(ADC_PreScalingTypeDef v_scl);
  * @param[in]   none
  * @return none
  */
-void adc_init(void);
+void adc_init(void );
+/**
+ * @brief This function is used to calib ADC 1.2V vref for GPIO.
+ * @param[in] data - GPIO sampling calibration value.
+ * @return none
+ */
+void adc_set_gpio_calib_vref(unsigned short data);
+/**
+ * @brief This function is used to calib ADC 1.2V vref offset for GPIO two-point.
+ * @param[in] offset - GPIO sampling two-point calibration value offset.
+ * @return none
+ */
+void adc_set_gpio_two_point_calib_offset(signed char offset);
 
 /**
  * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
+ *        This interface can be used to switch sampling IO without reinitializing the ADC.
  * @param[in]  pin - GPIO_PinTypeDef
  * @return none
  */
 void adc_base_pin_init(GPIO_PinTypeDef pin);
 
 /**
- * @brief This function is used for IO port configuration of ADC supply voltage sampling.
+ * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
+ *        This interface can be used to switch sampling IO without reinitializing the ADC.
  * @param[in]  pin - GPIO_PinTypeDef
  * @return none
  */
@@ -1148,18 +1153,18 @@ void adc_vbat_init(GPIO_PinTypeDef pin);
  * @return the result of sampling.
  */
 unsigned int adc_sample_and_get_result(void);
-
-
-
-/**
- * @brief This function serves to set adc sampling and get results.
- * @param[in]  none.
- * @return the result of sampling.
- */
-unsigned int adc_sample_and_get_result(void);
+/**************************************************************************************
+afe_0xF3<0>  	NOT_SAMPLE_ADC_DATA   		0:sample adc data to afe_0xf8,afe_0xf7 1:not sample adc data to afe_0xf8,afe_0xf7
+ *************************************************************************************/
+#define adc_data_sample_control		0xf3
+enum{
+	NOT_SAMPLE_ADC_DATA 		= BIT(0),
+};
 
 /**
- * @brief This function serves to set adc sampling, get results and the voltage fluctuation.
+ * @brief      This function serves to set adc sampling and get results in manual mode for Base and Vbat mode.
+ *             If you want to get the sampling results twice in succession,
+ *             Must ensure that the sampling interval is more than 2 times the sampling period.
  * @param[in]  none.
  * @return the result of sampling.
  */

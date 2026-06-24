@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for board_dongle_826x.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -28,7 +28,7 @@
  * ADC PIN configuration
  *
  * */
-	#define ZRC_APP_ADC_PIN                  GPIO_PB7
+    #define ZRC_APP_ADC_PIN                  GPIO_PB7
 
 
 
@@ -38,7 +38,8 @@
  *
  * */
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PB4//print
-	#define PB4_OUTPUT_ENABLE		1
-	#define PB4_INPUT_ENABLE		0
+    #define DEBUG_INFO_TX_PIN    GPIO_PB4//print
+    #define PB4_OUTPUT_ENABLE    1
+    #define PB4_INPUT_ENABLE     0
 #endif
+

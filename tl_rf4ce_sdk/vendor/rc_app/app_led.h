@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for app_led.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,9 +24,9 @@
 #pragma once
   
 typedef struct{
-	u32 onInterval;
-	u32 offIntervalList[5];
-	u8  modeNum;
+    u32    onInterval;
+    u32    offIntervalList[5];
+     u8    modeNum;
 }app_ledFlushInfo_t;
 
 
@@ -39,3 +39,4 @@ void led_On(u8 ledIndex);
 void led_Off(u8 ledIndex);
 void led_stopAll(u8 ledIndex);
 void led_startBind(void *arg);
+

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for board_dongle_8258.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,10 +24,10 @@
 #pragma  once
 
 #if (MODULE_USB_ENABLE)
-#define	PA5_FUNC				AS_USB
-#define	PA6_FUNC				AS_USB
-#define PA5_INPUT_ENABLE		1
-#define PA6_INPUT_ENABLE		1
+#define PA5_FUNC            AS_USB
+#define PA6_FUNC            AS_USB
+#define PA5_INPUT_ENABLE    1
+#define PA6_INPUT_ENABLE    1
 #endif
 
 
@@ -37,9 +37,9 @@
  *
  * */
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PB4//print
-	#define PB4_OUTPUT_ENABLE		1
-	#define PB4_INPUT_ENABLE		0
+    #define DEBUG_INFO_TX_PIN    GPIO_PB4//print
+    #define PB4_OUTPUT_ENABLE    1
+    #define PB4_INPUT_ENABLE     0
 #endif
 
 
@@ -47,7 +47,8 @@
  * ADC PIN configuration
  *
  * */
-	#define ZRC_APP_ADC_PIN                  GPIO_PB7
+    #define ZRC_APP_ADC_PIN                  GPIO_PB7
+
 
 
 

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for ir.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,12 +24,12 @@
 #include "../../tl_common.h"
 
 #if IR_DMA_FIFO_EN
-#define IR_DMA_SERIES_CNT1		247//(125*2 )
+#define IR_DMA_SERIES_CNT1        247//(125*2 )
 typedef struct{
-	u32 series_freq;
-	u32 series_tick;
-	u32 series_cnt;
-	u16 series_tm[IR_DMA_SERIES_CNT1]; // the same as length of ir learn
+    u32    series_freq;
+    u32    series_tmax_us;
+    u32    series_cnt;
+    u16    series_tm[IR_DMA_SERIES_CNT1];    // the same as length of ir learn
 }ir_dma_serial_t;
 
 u8 Get_CarrierCycleTick(u32 freq);
@@ -39,23 +39,23 @@ u8 Get_CarrierCycleTick(u32 freq);
 
 
 #if(IR_PROTOCOL == IR_PROTOCOL_NEC)
-#define IR_HIGH_CARR_TIME			565			// in us
-#define IR_HIGH_NO_CARR_TIME		1685
-#define IR_LOW_CARR_TIME			560
-#define IR_LOW_NO_CARR_TIME			565
-#define IR_INTRO_CARR_TIME			9000
-#define IR_INTRO_NO_CARR_TIME		4500
+#define IR_HIGH_CARR_TIME          565// in us
+#define IR_HIGH_NO_CARR_TIME       1685
+#define IR_LOW_CARR_TIME           560
+#define IR_LOW_NO_CARR_TIME        565
+#define IR_INTRO_CARR_TIME         9000
+#define IR_INTRO_NO_CARR_TIME      4500
 
-#define IR_SWITCH_CODE              0x0d
-#define IR_ADDR_CODE                0x00
-#define IR_CMD_CODE                 0xbf
+#define IR_SWITCH_CODE             0x0d
+#define IR_ADDR_CODE               0x00
+#define IR_CMD_CODE                0xbf
 
-#define IR_REPEAT_INTERVAL_TIME     40500
-#define IR_REPEAT_NO_CARR_TIME      2250
-#define IR_END_TRANS_TIME			563
+#define IR_REPEAT_INTERVAL_TIME    40500
+#define IR_REPEAT_NO_CARR_TIME     2250
+#define IR_END_TRANS_TIME          563
 
-#define IR_CARRIER_FREQ				38222
-#define IR_CARRIER_DUTY				3
+#define IR_CARRIER_FREQ            38222
+#define IR_CARRIER_DUTY            3
 #else
 
 #endif
@@ -79,7 +79,7 @@ void ir_send_switch(u8 addr, u8 cmd);
 
 
 #ifndef GPIO_IR_LEARN_IN
-#define GPIO_IR_LEARN_IN			GPIO_GP26
+#define GPIO_IR_LEARN_IN            GPIO_GP26
 #endif
 
 
@@ -115,15 +115,16 @@ void ir_set(int hz, int low_duty);
 
 extern void HalIrGenPachemFormat();
 //extern void ir_send_raw_pachem(u16 *raw, u32 rawLen);
-extern void ir_send_raw_pachem(u16 *raw, u32 rawLen, u16	*raw2, u32 rawLen2);
+extern void ir_send_raw_pachem(u16 *raw, u32 rawLen, u16    *raw2, u32 rawLen2);
 
 typedef void (*zrc_ir_dma_callback_t)(void);
 void zrcDMAIrcallback(zrc_ir_dma_callback_t ir_cb);
 void ir_dma_send_serial(u16 *serial, u16 rawLen);
 void rc_ir_irq_prc(void);
 //extern u16 *BitStrem;
-//extern u16	BitRawData[128];
+//extern u16    BitRawData[128];
 //extern u8 t_IrLength;
+
 
 
 

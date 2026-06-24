@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for ev.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -50,7 +50,7 @@ ev_poll_callback_t usb_handle_irq_ptr = NULL;
 static u8 ev_rf4ceStackRun = 1;
 
 void ev_rf4ceStackEnable(u8 en){
-	ev_rf4ceStackRun = en;
+    ev_rf4ceStackRun = en;
 }
 
 #if MEASURE_TASK_TICKS
@@ -86,7 +86,7 @@ static u32 cal_cost_ticks(u32 old_ticks,u32 new_ticks){
 #define CSMA2MAC_TICKS         (0x2580)
 #define MAC2NWK_TICKS          (0x4b00)
 #define NWK2PROFILE_TICKS      (0x2bc0)
-#define PROFILE2NWK_TICKS      (0x30000)   //0xfa00)
+#define PROFILE2NWK_TICKS      (0x30000)//0xfa00)
 #define NWK2MAC_TICKS          (0x20000)//(0x44c0)
 #define MAC2CSMA_TICKS         (0x9000)
 
@@ -96,8 +96,8 @@ typedef struct _lc{
 
 lc_t lc = {0};
 
-#define EV_MAIN_SAFE_MARGIN_US (10000000)
-#define EV_MAIN_SAFE_MARGIN_TICKS ((EV_MAIN_SAFE_MARGIN_US)*(CLOCK_SYS_CLOCK_1US))
+#define EV_MAIN_SAFE_MARGIN_US       (10000000)
+#define EV_MAIN_SAFE_MARGIN_TICKS    ((EV_MAIN_SAFE_MARGIN_US)*(CLOCK_SYS_CLOCK_1US))
 
 #if 0
 int run_next_task(u32 expired_ticks,u32 time_threshold){
@@ -111,16 +111,16 @@ int run_next_task(u32 expired_ticks,u32 time_threshold){
 
 #define CHECK_REMAINING_TICKS(expired_ticks,time_threshold, mode)   \
 do{ \
-	if(mode){ \
-		u32 now = clock_time(); \
-		u32 distance = (u32)(expired_ticks - now); \
-		if(!((distance > time_threshold)&&(distance < EV_MAIN_SAFE_MARGIN_TICKS))) { return; } \
-	}\
+    if(mode){ \
+        u32 now = clock_time(); \
+        u32 distance = (u32)(expired_ticks - now); \
+        if(!((distance > time_threshold)&&(distance < EV_MAIN_SAFE_MARGIN_TICKS))) { return; } \
+    }\
 }while(0)
 
 
 void ev_main(u32 expired_ticks, u8 mode){
-	u32 start_t = clock_time();
+    u32 start_t = clock_time();
     switch(lc.line){
         case 0:
         while(1){
@@ -140,7 +140,7 @@ void ev_main(u32 expired_ticks, u8 mode){
                 }
 
                 #if(MODULE_WATCHDOG_ENABLE)
-	            wd_clear();
+                wd_clear();
                 #endif
 
             lc.line = __LINE__; case __LINE__:
@@ -179,10 +179,10 @@ void ev_main(u32 expired_ticks, u8 mode){
                 process_Mac2CSMA();
 
                 if(mode == 0){
-                	//return;
-                	if(clock_time_exceed(start_t, 20000)){
-                		return;
-                	}
+                    //return;
+                    if(clock_time_exceed(start_t, 20000)){
+                        return;
+                    }
                 }
         }
     }
@@ -197,18 +197,18 @@ u8 nwk2profile_start = 1;
 
 
 typedef  struct{
-	u8 item;
-	void (*itemCb)(u8 *pMsg);
+    u8 item;
+    void (*itemCb)(u8 *pMsg);
 }buf_item_t;
 
 buf_item_t buf_item_cb[] = {
-	{BUF_ITEM_STATE_PHY2MAC,		process_Phy2Mac},
-	{BUF_ITEM_STATE_CSMA2MAC,		process_CSMA2Mac},
-	{BUF_ITEM_STATE_MAC2NWK,		process_Mac2Nwk},
-	{BUF_ITEM_STATE_NWK2PROFILE,	process_Nwk2Profile},
-	{BUF_ITEM_STATE_PROFILE2NWk,	process_Profile2Nwk},
-	{BUF_ITEM_STATE_NWK2MAC,		process_Nwk2Mac},
-	{BUF_ITEM_STATE_MAC2CSMA,		process_Mac2CSMA},
+    {BUF_ITEM_STATE_PHY2MAC,        process_Phy2Mac},
+    {BUF_ITEM_STATE_CSMA2MAC,        process_CSMA2Mac},
+    {BUF_ITEM_STATE_MAC2NWK,        process_Mac2Nwk},
+    {BUF_ITEM_STATE_NWK2PROFILE,    process_Nwk2Profile},
+    {BUF_ITEM_STATE_PROFILE2NWk,    process_Profile2Nwk},
+    {BUF_ITEM_STATE_NWK2MAC,        process_Nwk2Mac},
+    {BUF_ITEM_STATE_MAC2CSMA,        process_Mac2CSMA},
 };
 
 u32 T_rf4ceTaskRun = 0;
@@ -252,55 +252,56 @@ void ev_main(void){
 
     //ev_poll();
 #if(MODULE_WATCHDOG_ENABLE)
-	wd_clear();
+    wd_clear();
 #endif
     //poll_rf4ce_msg();
 
-	u8 *rf4ceTaskData = NULL;
-	if(ev_rf4ceStackRun){
+    u8 *rf4ceTaskData = NULL;
+    if(ev_rf4ceStackRun){
 #if 1
-		u8 rf4ceTask;
-		//while(1)
-		{
-			rf4ceTaskData = buf_message_poll(&rf4ceTask);
-			if(rf4ceTaskData == NULL){
-				//break;
-			}else{
-				for(int i = 0; i < 7; i++){
-					if(buf_item_cb[i].item == rf4ceTask){
-						T_rf4ceTaskRun++;
-						buf_item_cb[i].itemCb(rf4ceTaskData);
-						break;
-					}
-				}
-			}
-		}
+        u8 rf4ceTask;
+        //while(1)
+        {
+            rf4ceTaskData = buf_message_poll(&rf4ceTask);
+            if(rf4ceTaskData == NULL){
+                //break;
+            }else{
+                for(int i = 0; i < 7; i++){
+                    if(buf_item_cb[i].item == rf4ceTask){
+                        T_rf4ceTaskRun++;
+                        buf_item_cb[i].itemCb(rf4ceTaskData);
+                        break;
+                    }
+                }
+            }
+        }
 #else
-		for(int i = 0; i < 7; i++){
-			rf4ceTaskData = buf_message_poll(buf_item_cb[i].item);
-			if(rf4ceTaskData){
-				buf_item_cb[i].itemCb(rf4ceTaskData);
-			}
-		}
+        for(int i = 0; i < 7; i++){
+            rf4ceTaskData = buf_message_poll(buf_item_cb[i].item);
+            if(rf4ceTaskData){
+                buf_item_cb[i].itemCb(rf4ceTaskData);
+            }
+        }
 
 #endif
-	}
+    }
 
-	if(sys_idle_handler_ptr){
-	   sys_idle_handler_ptr();
-	}
+    if(sys_idle_handler_ptr){
+       sys_idle_handler_ptr();
+    }
 
-	if(rf_edDetect_ptr){
-	   rf_edDetect_ptr();
-	}
+    if(rf_edDetect_ptr){
+       rf_edDetect_ptr();
+    }
 
-	#if (MODULE_USB_ENABLE)
-	if(usb_handle_irq_ptr){
-	   usb_handle_irq_ptr();
-	}
-	#endif
+    #if (MODULE_USB_ENABLE)
+    if(usb_handle_irq_ptr){
+       usb_handle_irq_ptr();
+    }
+    #endif
 
 }
 
 #endif
+
 

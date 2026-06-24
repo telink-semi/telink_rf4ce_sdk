@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for profile_attr.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -39,9 +39,9 @@
  * Definition for Attribute Type
  * @{
  */
-#define ATTR_TYPE_U8                              0x00        //!< attribute type for 8 bit 
-#define ATTR_TYPE_U16                             0x01        //!< attribute type for 16 bit 
-#define ATTR_TYPE_ARRAY                           0x02        //!< attribute type for array 
+#define ATTR_TYPE_U8              0x00//!< attribute type for 8 bit 
+#define ATTR_TYPE_U16             0x01//!< attribute type for 16 bit 
+#define ATTR_TYPE_ARRAY           0x02//!< attribute type for array 
 
 /** @} end of group profile_attr_type */
 
@@ -50,12 +50,12 @@
  * Definition for Attribute Access Control Bit Mask
  * @{
  */
-#define ATTR_ACCESS_GET                           0x01        //!< attribute access type for get command 
-#define ATTR_ACCESS_PUSH                          0x02        //!< attribute access type for push command 
-#define ATTR_ACCESS_SET                           0x04        //!< attribute access type for set command 
-#define ATTR_ACCESS_PULL                          0x08        //!< attribute access type for pull command 
-#define ATTR_ACCESS_ALL                           0x0F        //!< attribute access type for all command 
-#define ATTR_ACCESS_NONE                          0x00        //!< attribute access type for none command 
+#define ATTR_ACCESS_GET           0x01//!< attribute access type for get command 
+#define ATTR_ACCESS_PUSH          0x02//!< attribute access type for push command 
+#define ATTR_ACCESS_SET           0x04//!< attribute access type for set command 
+#define ATTR_ACCESS_PULL          0x08//!< attribute access type for pull command 
+#define ATTR_ACCESS_ALL           0x0F//!< attribute access type for all command 
+#define ATTR_ACCESS_NONE          0x00//!< attribute access type for none command 
 
 /** @} end of group profile_attr_access */
 
@@ -66,12 +66,12 @@
  * Definition for Attribute Status Code
  * @{
  */
-#define ATTR_SUCC                                 0x00        //!< Attribute operation success 
-#define ATTR_UNSUPPORTED                          0x01        //!< Not supported attribute 
-#define ATTR_ILLEGAL_REQ                          0x02        //!< Illegal attribute operation 
-#define ATTR_INVALID_INDEX                        0x03        //!< Invalid attribute index 
-#define ATTR_INVALID_PARAMETER                    0x04        //!< Invalid attribute operation parameter 
-#define ATTR_NOT_EXISTED                          0x05        //!< Specified attribute not found 
+#define ATTR_SUCC                 0x00//!< Attribute operation success 
+#define ATTR_UNSUPPORTED          0x01//!< Not supported attribute 
+#define ATTR_ILLEGAL_REQ          0x02//!< Illegal attribute operation 
+#define ATTR_INVALID_INDEX        0x03//!< Invalid attribute index 
+#define ATTR_INVALID_PARAMETER    0x04//!< Invalid attribute operation parameter 
+#define ATTR_NOT_EXISTED          0x05//!< Specified attribute not found 
 
 /** @} end of group profile_attr_status */
 
@@ -86,10 +86,10 @@
  *  @brief  Definition for attribute record format
  */
 typedef struct {
-    u8 id;             /*!< Attribute ID */
-    u8 len;            /*!< Attribute length */
-    u16 accessCtl;      /*!< Attribute access control, Get/Push/Pull/Set - bit field */
-    u8 *val;           /*!< Pointer to data field */
+     u8    id;    /*!< Attribute ID */
+     u8    len;    /*!< Attribute length */
+    u16    accessCtl;    /*!< Attribute access control, Get/Push/Pull/Set - bit field */
+     u8    *val;    /*!< Pointer to data field */
 } attr_t;
 
 /** @} end of group Profile_Type */

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for rc_info.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -22,12 +22,13 @@
  *******************************************************************************************************/
 
 #ifndef RF4CE_VERSION_H
-#define RF4CE_VERSION_H
+#define RF4CE_VERSION_H              
 
-#define SDK_VERSION_ID				v2.4.2.0
+#define SDK_VERSION_ID               v2.4.2.0
 
-#define	SDK_VERSION_(sdk_version)	"$$$rf4ce_sdk_"#sdk_version"$$$"
-#define	SDK_VERSION(sdk_version)	SDK_VERSION_(sdk_version)
+#define SDK_VERSION_(sdk_version)    "$$$rf4ce_sdk_"#sdk_version"$$$"
+#define SDK_VERSION(sdk_version)     SDK_VERSION_(sdk_version)
 
-#endif	/* RF4CE_VERSION_H */
+#endif    /* RF4CE_VERSION_H */
+
 

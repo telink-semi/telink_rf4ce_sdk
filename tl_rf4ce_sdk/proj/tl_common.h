@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for tl_common.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -37,9 +37,15 @@
 #include "os/task_queue.h"
 #include "drivers/drv_timer.h"
 #include "drivers/drv_hw.h"
+#include "drivers/drv_uart.h"
+#include "drivers/drv_pm.h"
+#include "drivers/drv_calibration.h"
 #include "drivers/drv_pwm.h"
 #include "drivers/tl_putchar.h"
 #include "drivers/usb/usb.h"
+#include "drivers/drv_usb.h"
+#include "drivers/drv_flash.h"
+#include "drivers/drv_security.h"
 
 #include "../platform/platform_includes.h"
 #include "drivers/nv.h"
@@ -47,21 +53,22 @@
 #include "../vendor/common/user_config.h"
 #include "../vendor/common/user_trace.h"
 
-#define _CODE_MAC_
-#define _CODE_NWK_
-#define _CODE_PBP_
-#define _CODE_MSO_
-#define _CODE_ZRC_
-#define _CODE_GDP_
-#define _CODE_DRV_
+#define _CODE_MAC_    
+#define _CODE_NWK_    
+#define _CODE_PBP_    
+#define _CODE_MSO_    
+#define _CODE_ZRC_    
+#define _CODE_GDP_    
+#define _CODE_DRV_    
 
 
-//#define _CODE_MAC_		__attribute__((section(".sect_mac")))
-//#define _CODE_NWK_		__attribute__((section(".sect_nwk")))
-//#define _CODE_PBP_		__attribute__((section(".sect_pbp")))
-//#define _CODE_MSO_		__attribute__((section(".sect_mso")))
-//#define _CODE_ZRC_		__attribute__((section(".sect_zrc")))
-//#define _CODE_GDP_		__attribute__((section(".sect_gdp")))
-//#define _CODE_DRV_		__attribute__((section(".sect_drv")))
+//#define _CODE_MAC_        __attribute__((section(".sect_mac")))
+//#define _CODE_NWK_        __attribute__((section(".sect_nwk")))
+//#define _CODE_PBP_        __attribute__((section(".sect_pbp")))
+//#define _CODE_MSO_        __attribute__((section(".sect_mso")))
+//#define _CODE_ZRC_        __attribute__((section(".sect_zrc")))
+//#define _CODE_GDP_        __attribute__((section(".sect_gdp")))
+//#define _CODE_DRV_        __attribute__((section(".sect_drv")))
+
 
 

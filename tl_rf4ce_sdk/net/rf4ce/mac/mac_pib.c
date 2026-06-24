@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for mac_pib.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -41,28 +41,28 @@
 
 
 /* Attribute index constants, based on attribute ID values from spec */
-#define MAC_ATTR_SET1_START       0x40
-#define MAC_ATTR_SET1_END         0x5D
-#define MAC_ATTR_SET1_OFFSET      0
-#define MAC_ATTR_SET2_START       0xE0
-#define MAC_ATTR_SET2_END         0xE5
-#define MAC_ATTR_SET2_OFFSET      (MAC_ATTR_SET1_END - MAC_ATTR_SET1_START + MAC_ATTR_SET1_OFFSET + 1)
+#define MAC_ATTR_SET1_START           0x40
+#define MAC_ATTR_SET1_END             0x5D
+#define MAC_ATTR_SET1_OFFSET          0
+#define MAC_ATTR_SET2_START           0xE0
+#define MAC_ATTR_SET2_END             0xE5
+#define MAC_ATTR_SET2_OFFSET          (MAC_ATTR_SET1_END - MAC_ATTR_SET1_START + MAC_ATTR_SET1_OFFSET + 1)
 
 /* frame response values */
-#define MAC_MAX_FRAME_RESPONSE_MIN  143
-#define MAC_MAX_FRAME_RESPONSE_MAX  25776
+#define MAC_MAX_FRAME_RESPONSE_MIN    143
+#define MAC_MAX_FRAME_RESPONSE_MAX    25776
 
-#define MAC_IEEE_ADDRESS_IN_FLASH         CFG_MAC_ADDRESS
+#define MAC_IEEE_ADDRESS_IN_FLASH     CFG_MAC_ADDRESS
 
-#define MAC_IEEE_ADDRESS_IN_OTP           0x3f00
+#define MAC_IEEE_ADDRESS_IN_OTP       0x3f00
 
 /* PIB access and min/max table type */
 typedef struct
 {
-    u8     offset;
-    u8     len;
-    u8     min;
-    u8     max;
+    u8    offset;
+    u8    len;
+    u8    min;
+    u8    max;
 } mac_pibTbl_t;
 
 const u8 startIEEEAddr[] = {0x38, 0xc1, 0xa4};
@@ -214,7 +214,7 @@ _CODE_MAC_ static u8 mac_pibIndex(u8 pibAttribute)
  *
  * @return  None
  */
-		
+        
 _CODE_MAC_ void mac_pibReset(void)
 {
     /* copy PIB defaults */
@@ -224,34 +224,62 @@ _CODE_MAC_ void mac_pibReset(void)
     macPib.dsn = (u8)rand();
     macPib.bsn = (u8)rand();
 
-	const u8 invalidIEEEAddr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-	
-	u8 extAddr[8] = {0};
-	flash_read_page(MAC_IEEE_ADDRESS_IN_FLASH, 8, extAddr);
-	
-	/* check the ieee address is valid or not */
-	if (memcmp(invalidIEEEAddr, extAddr, 8) == 0 ) {
-		u8 addr[8];
-		drv_generateRandomData(addr, 5);
-		memcpy(addr+5, startIEEEAddr, 3);
-		flash_write(MAC_IEEE_ADDRESS_IN_FLASH, 6, addr + 2);
-		flash_write(MAC_IEEE_ADDRESS_IN_FLASH + 6, 2, addr);
-	}else{
-		/* MAC address format in TLSR serial chips:
-		 * xx xx xx 38 C1 A4 xx xx
-  	  	 * xx xx xx D1 19 C4 xx xx
-  	  	 * xx xx xx CB 0B D8 xx xx
-		 *
-		 * so, it need to do shift
-		 * */
-		if((extAddr[3] == 0x38 && extAddr[4] == 0xC1 && extAddr[5] == 0xA4) ||
-		   (extAddr[3] == 0xD1 && extAddr[4] == 0x19 && extAddr[5] == 0xC4) ||
-		   (extAddr[3] == 0xCB && extAddr[4] == 0x0B && extAddr[5] == 0xD8)){
-			flash_read(CFG_MAC_ADDRESS, 6, extAddr + 2);
-			flash_read(CFG_MAC_ADDRESS + 6, 2, extAddr);
-		}
-	}
-	
+    const u8 invalidIEEEAddr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    const u8 gZeroAddr[] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    u8 extAddr[8] = {0};
+    flash_read_page(MAC_IEEE_ADDRESS_IN_FLASH, 8, extAddr);
+    
+    flash_unlock();
+
+    /* check the ieee address is valid or not */
+    if (!memcmp(invalidIEEEAddr, extAddr, 8) || !memcmp(gZeroAddr, extAddr, 8)) {
+        if (!memcmp(gZeroAddr, extAddr, 8)) {
+            flash_erase(CFG_MAC_ADDRESS);
+        }
+#if defined(MCU_CORE_TL321X)
+        if (!drv_get_primary_ieee_addr(extAddr)) {
+            unsigned int t0 = clock_time();
+            u32 jitter = 0;
+            do {
+                jitter = drv_u32Rand() % 0x0fff;
+            } while(jitter == 0);
+            while(!clock_time_exceed(t0, jitter));
+
+            drv_generateRandomData(extAddr, 5);
+            memcpy(extAddr + 5, startIEEEAddr, 3);
+        }
+#else
+        drv_generateRandomData(extAddr, 5);
+        memcpy(extAddr+5, startIEEEAddr, 3);
+#endif
+
+        flash_write(MAC_IEEE_ADDRESS_IN_FLASH, 6, extAddr + 2);
+        flash_write(MAC_IEEE_ADDRESS_IN_FLASH + 6, 2, extAddr);
+    }else{
+        /* MAC address format in TLSR serial chips:
+         * xx xx xx 38 C1 A4 xx xx
+         * xx xx xx D1 19 C4 xx xx
+         * xx xx xx CB 0B D8 xx xx
+         * xx xx xx 77 5F D8 xx xx
+         * xx xx xx B4 CF 3C xx xx
+         * xx xx xx C7 A3 C0 xx xx
+         * xx xx xx 28 22 38 xx xx
+         *
+         * so, it need to do shift
+         */
+        if ((extAddr[3] == 0x38 && extAddr[4] == 0xC1 && extAddr[5] == 0xA4) || \
+            (extAddr[3] == 0xD1 && extAddr[4] == 0x19 && extAddr[5] == 0xC4) || \
+            (extAddr[3] == 0xCB && extAddr[4] == 0x0B && extAddr[5] == 0xD8) || \
+            (extAddr[3] == 0x77 && extAddr[4] == 0x5F && extAddr[5] == 0xD8) || \
+            (extAddr[3] == 0xB4 && extAddr[4] == 0xCF && extAddr[5] == 0x3C) || \
+            (extAddr[3] == 0xC7 && extAddr[4] == 0xA3 && extAddr[5] == 0xC0) || \
+            (extAddr[3] == 0x28 && extAddr[4] == 0x22 && extAddr[5] == 0x38)) {
+            flash_read(CFG_MAC_ADDRESS, 6, extAddr + 2);
+            flash_read(CFG_MAC_ADDRESS + 6, 2, extAddr);
+        }
+    }
+    flash_lock();
     mac_mlmeSetReq(MAC_EXTENDED_ADDRESS, extAddr);
 }
 
@@ -268,7 +296,7 @@ _CODE_MAC_ void mac_pibReset(void)
 _CODE_MAC_ mac_sts_t mac_mlmeSetReq(u8 pibAttribute, void* pValue)
 {
     u8 i, r;
-	
+    
 #if (HOST_ROLE)
     u8 type;
     u8 dataBuf[100];
@@ -321,7 +349,7 @@ _CODE_MAC_ mac_sts_t mac_mlmeSetReq(u8 pibAttribute, void* pValue)
         break;
 
     case MAC_LOGICAL_CHANNEL:
-		rf_set(RF_ID_CHANNEL, (u8*)&macPib.logicalChannel, 1);
+        rf_set(RF_ID_CHANNEL, (u8*)&macPib.logicalChannel, 1);
         break;
 
     case MAC_EXTENDED_ADDRESS:
@@ -333,11 +361,12 @@ _CODE_MAC_ mac_sts_t mac_mlmeSetReq(u8 pibAttribute, void* pValue)
     case MAC_PHY_TRANSMIT_POWER:
         /* Legacy transmit power attribute */
         macPib.phyTransmitPower = (u8)(-(s8)macPib.phyTransmitPower);
-
+        rf_set(RF_ID_TX_POWER, (u8*)&macPib.phyTransmitPower, 1);
+        break;
 
     case MAC_PHY_TRANSMIT_POWER_SIGNED:
         /* Set the transmit power */
-		rf_set(RF_ID_TX_POWER, (u8*)&macPib.phyTransmitPower, 1);
+        rf_set(RF_ID_TX_POWER, (u8*)&macPib.phyTransmitPower, 1);
         break;
 
     default:
@@ -391,7 +420,7 @@ _CODE_MAC_ mac_sts_t mac_mlmeSetReqWithCnf(mac_setReq_t *pSetReq)
     if (pibAttribute == MAC_BEACON_PAYLOAD) {
         memcpy(macPib.pBeaconPayload, pValue, macPib.beaconPayloadLength);
         mac_setCnf->pibAttribute=pibAttribute;
-      	mac_setCnf->primitive=MAC_MLME_SET_CNF;
+          mac_setCnf->primitive=MAC_MLME_SET_CNF;
         mac_setCnf->status=MAC_SUCCESS;
         mac_sendConfirm((u8*)mac_setCnf);
         return MAC_SUCCESS;
@@ -435,7 +464,7 @@ _CODE_MAC_ mac_sts_t mac_mlmeSetReqWithCnf(mac_setReq_t *pSetReq)
         break;
 
     case MAC_LOGICAL_CHANNEL:
-		rf_set(RF_ID_CHANNEL, (u8*)&macPib.logicalChannel, 1);
+        rf_set(RF_ID_CHANNEL, (u8*)&macPib.logicalChannel, 1);
         break;
 
     case MAC_EXTENDED_ADDRESS:
@@ -446,17 +475,18 @@ _CODE_MAC_ mac_sts_t mac_mlmeSetReqWithCnf(mac_setReq_t *pSetReq)
     case MAC_PHY_TRANSMIT_POWER:
         /* Legacy transmit power attribute */
         macPib.phyTransmitPower = (u8)(-(s8)macPib.phyTransmitPower);
-
+        rf_set(RF_ID_TX_POWER, (u8*)&macPib.phyTransmitPower, 1);
+        break;
 
     case MAC_PHY_TRANSMIT_POWER_SIGNED:
-		rf_set(RF_ID_TX_POWER, (u8*)&macPib.phyTransmitPower, 1);
+        rf_set(RF_ID_TX_POWER, (u8*)&macPib.phyTransmitPower, 1);
         break;
 
     default:
         break;
     }
     mac_setCnf->pibAttribute=pibAttribute;
-	mac_setCnf->primitive=MAC_MLME_SET_CNF;
+    mac_setCnf->primitive=MAC_MLME_SET_CNF;
     mac_setCnf->status=MAC_SUCCESS;
     mac_sendConfirm((u8*)mac_setCnf);
     return MAC_SUCCESS;
@@ -471,18 +501,18 @@ _CODE_MAC_ mac_sts_t mac_mlmeGetReqWithCnf(mac_getReq_t *pGetReq)
 
     pibAttribute=pGetReq->pibAttribute;
     pValue=&(pGetReq->primitive)+3;
-	mac_getCnf_t *mac_getCnf= (mac_getCnf_t *)pGetReq;
-	mac_getCnf->pibAttribute=pibAttribute;
-	mac_getCnf->primitive=MAC_MLME_GET_CNF;
-	//mac_getCnf->pibAttributeValue=(*(u64*)pValue);
+    mac_getCnf_t *mac_getCnf= (mac_getCnf_t *)pGetReq;
+    mac_getCnf->pibAttribute=pibAttribute;
+    mac_getCnf->primitive=MAC_MLME_GET_CNF;
+    //mac_getCnf->pibAttributeValue=(*(u64*)pValue);
     if (pibAttribute == MAC_BEACON_PAYLOAD) {
         memcpy(pValue, macPib.pBeaconPayload, macPib.beaconPayloadLength);
         mac_getCnf->status=MAC_SUCCESS;
-        for(i=8;i<0;i++)
-		{
-        	mac_getCnf->pibAttributeValue<<=8;
-        	mac_getCnf->pibAttributeValue |= (*((u8*)pValue+i));
-		}
+        for(i=0;i<8;i++)
+        {
+            mac_getCnf->pibAttributeValue<<=8;
+            mac_getCnf->pibAttributeValue |= (*((u8*)pValue+i));
+        }
         mac_sendConfirm((u8*)mac_getCnf);
         return MAC_SUCCESS;
     }
@@ -496,11 +526,11 @@ _CODE_MAC_ mac_sts_t mac_mlmeGetReqWithCnf(mac_getReq_t *pGetReq)
     memcpy(pValue, (u8 *) &macPib + macPibTbl[i].offset, macPibTbl[i].len);
     irq_restore(r);
     mac_getCnf->status=MAC_SUCCESS;
-    for(i=8;i<0;i++)
-	{
-		mac_getCnf->pibAttributeValue<<=8;
-		mac_getCnf->pibAttributeValue |= (*((u8*)pValue+i));
-	}
+    for(i=0;i<8;i++)
+    {
+        mac_getCnf->pibAttributeValue<<=8;
+        mac_getCnf->pibAttributeValue |= (*((u8*)pValue+i));
+    }
     mac_sendConfirm((u8*)mac_getCnf);
     return MAC_SUCCESS;
 }
@@ -524,18 +554,19 @@ _CODE_MAC_ u8 mac_getAttrLen(u8 pibAttribute)
 
 
 inline u8 rf_getChannel(void){
-	return	macPib.logicalChannel;
+    return    macPib.logicalChannel;
 }
 
 #if (MODULE_FLASH_ENABLE)
 _CODE_MAC_ nv_sts_t mac_savePibToFlash(void)
 {
-    return nv_write(DS_MAC_PHY_MODULE, MAC_PIB_NV_ID, sizeof(mac_pib_t), (u8*)&macPib);
+    return nv_flashWriteNew(1, DS_MAC_PHY_MODULE, MAC_PIB_NV_ID, sizeof(mac_pib_t), (u8*)&macPib);
 }
 
 nv_sts_t mac_loadPibFromFlash(void)
 {
-	return nv_read(DS_MAC_PHY_MODULE, MAC_PIB_NV_ID, sizeof(mac_pib_t), (u8*)&macPib);
+    return nv_flashReadNew(DS_MAC_PHY_MODULE, MAC_PIB_NV_ID, sizeof(mac_pib_t), (u8*)&macPib);
 }
 
 #endif
+

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for dongle_info.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,8 +29,8 @@
 //    PATCH_VER = 1,
 //    BUILD_VER = 4
 //};
-#define firmwareVersion 	0x01000105
-#define APP_VENDOR_ID_LIST  0x1141
+#define firmwareVersion       0x01000105
+#define APP_VENDOR_ID_LIST    0x1141
 #if (MCU_CORE_8258)
 #define CHIP_ID  0x8258
 #elif (MCU_CORE_826x)
@@ -40,3 +40,4 @@
 #else
 #define CHIP_ID  0x0000
 #endif
+

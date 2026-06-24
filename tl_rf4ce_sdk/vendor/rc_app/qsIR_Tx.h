@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for qsIR_Tx.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -34,17 +34,17 @@
 
 
 typedef struct {
-	u8 		irconfig;
-	u8 		codeLength;
-	u16 	conFlag;
-	u8		numTiming;
-	u8		numPress;
-	u8		numRepeat;
-	u8		numRelease;
-	u8		numToggle;
-	u8		numToggleSequ;
-	u16		carrierPeriod;
-	u8		irData;
+     u8    irconfig;
+     u8    codeLength;
+    u16    conFlag;
+     u8    numTiming;
+     u8    numPress;
+     u8    numRepeat;
+     u8    numRelease;
+     u8    numToggle;
+     u8    numToggleSequ;
+    u16    carrierPeriod;
+     u8    irData;
 }zrcIRDataHead;
 
 //#define MaxSymbol   16
@@ -56,66 +56,66 @@ typedef struct {
 
 
 typedef struct {
-	u32      Size;
-	u16		 Symbol[maxframe];
+    u32    Size;
+    u16    Symbol[maxframe];
 }zrcIRTimeData;
 
 
 
 //typedef struct {
-//	zrcIRTimeData	pressTime;
-//	zrcIRTimeData	repeatTime;
-//	zrcIRTimeData	releaseTime;
+//    zrcIRTimeData    pressTime;
+//    zrcIRTimeData    repeatTime;
+//    zrcIRTimeData    releaseTime;
 //}zrcIRFrame;
 
 typedef struct {
-	u32	carrierFreq;
-	u16	curCnt;
-	u16	totalCnt;
-	u16 *zrcIRdata;
+    u32    carrierFreq;
+    u16    curCnt;
+    u16    totalCnt;
+    u16    *zrcIRdata;
 }zrcIRinfo;
 
 
-#define IRVenSpec  BIT(0)
+#define IRVenSpec     BIT(0)
 
-#define IRCarrier  BIT(1)
+#define IRCarrier     BIT(1)
 
 
-#define MarkSpace  BIT(2)
+#define MarkSpace     BIT(2)
 
-#define IR_8MHZ  8000000
+#define IR_8MHZ       8000000
 
-#define IR_DUTY  30
+#define IR_DUTY       30
 
-#define IRSTART    1
-#define IRREPEAT   2
-#define IRRELEASE  4
+#define IRSTART       1
+#define IRREPEAT      2
+#define IRRELEASE     4
 
 
 
 //symbolunit:4us
-#define 			symbolunit  				4
+#define symbolunit    4
 
-#define 			ZRCIR_HIGH 					0x8000  // Bit15 = 1: bit 15 set to one to
-														// indicate logic high in data
-														// duration
-#define 			ZRCIR_LOW 					0x0000  // Bit15 = 0: bit 15 set to zero to
+#define ZRCIR_HIGH    0x8000// Bit15 = 1: bit 15 set to one to
+                                                        // indicate logic high in data
+                                                        // duration
+#define ZRCIR_LOW     0x0000// Bit15 = 0: bit 15 set to zero to
 
-#if defined(MCU_CORE_B92)
-#define             Toggle_Reg					0x3b
+#if defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+#define Toggle_Reg       0x3b
 #else
-#define             Toggle_Reg					0x35
+#define Toggle_Reg       0x35
 #endif
 
 
 
-#define 			MAX_QS_DURATION_INTERVAL 	600000  // 10 minutes
-#define 			MAX_IRTX_SIZE 				400
+#define MAX_QS_DURATION_INTERVAL    600000// 10 minutes
+#define MAX_IRTX_SIZE               400
 
-#define 			InByPassTimeUs				1500  // 1500us
+#define InByPassTimeUs              1500// 1500us
 
-#define 			NORMAL_XMIT 				0x00
-#define 			MACRO_XMIT 					0x01
+#define NORMAL_XMIT                 0x00
+#define MACRO_XMIT                  0x01
 
 typedef void (*zrcir_callback_t)(void);
 

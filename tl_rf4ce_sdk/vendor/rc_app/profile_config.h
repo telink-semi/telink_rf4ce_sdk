@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for profile_config.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -83,15 +83,15 @@ enum {
 
 
 #if (RF4CE_ZRC2_ENABLE)
-	#define RF4CE_GDP_ENABLE                      1
+    #define RF4CE_GDP_ENABLE                      1
     #define ZRC_REMOTE_CONTROLLER                 1
     #define ZRC_TARGET_DEVICE                     0
 #endif
 
 #if (RF4CE_MSO_ENABLE)
-	#define RF4CE_GDP_ENABLE                      0
-	#define MSO_REMOTE_CONTROLLER                 1
-	#define MSO_TARGET_DEVICE                     0
+    #define RF4CE_GDP_ENABLE                      0
+    #define MSO_REMOTE_CONTROLLER                 1
+    #define MSO_TARGET_DEVICE                     0
 #endif
 
 
@@ -121,12 +121,12 @@ enum {
 
 #if (ZID_HID_ADAPTER)
     #define RF4CE_TARGET                          1
-	#define RF4CE_CONTROLLER                      0
+    #define RF4CE_CONTROLLER                      0
 #endif
 
 #if (ZID_HID_CLASS_DEVICE)
-	#define RF4CE_CONTROLLER                      1
-	#define RF4CE_TARGET                          0
+    #define RF4CE_CONTROLLER                      1
+    #define RF4CE_TARGET                          0
 #endif
 
 #if (ZRC_TARGET_DEVICE)
@@ -152,16 +152,16 @@ enum {
 
 
 enum {
-	ACTION_BANK_HDMI_CEC = 0x0,
+    ACTION_BANK_HDMI_CEC = 0x0,
 };
 
 #if (RF4CE_ZRC2_ENABLE)
-	extern const unsigned char ZRC2_DEFALUT_CLASS_DESP;
-	extern const unsigned char ZRC2_DEFALUT_LQI_THRESHOLD;
-	extern const u8 ZRC2_CLASS_FILTER;
-	extern const u8 ZRC2_MIN_LQI_FILTER;
-	extern const u16 ZRC2_FILTER_VENDOR_ID;	
-//	extern const u16 APP_VENDOR_ID_LIST[];
+    extern const unsigned char ZRC2_DEFALUT_CLASS_DESP;
+    extern const unsigned char ZRC2_DEFALUT_LQI_THRESHOLD;
+    extern const u8 ZRC2_CLASS_FILTER;
+    extern const u8 ZRC2_MIN_LQI_FILTER;
+    extern const u16 ZRC2_FILTER_VENDOR_ID;    
+//    extern const u16 APP_VENDOR_ID_LIST[];
 #endif
 #if (RF4CE_MSO_ENABLE)
 extern const unsigned char MSO_APP_VENDOR_STRING[];

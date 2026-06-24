@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mso_api.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -38,26 +38,26 @@
  * Definition for ZRC command code
  * @{
  */
-#define ZRC_USER_CTRL_PRED              0x01    //!< User control pressed
-#define ZRC_USER_CTRL_REPT              0x02    //!< User control repeated
-#define ZRC_USER_CTRL_RELS              0x03    //!< User control released
-#define ZRC_CMD_DISC_REQ                0x04    //!< Command discovery request
-#define ZRC_CMD_DISC_RESP               0x05    //!< Command discovery response
+#define ZRC_USER_CTRL_PRED               0x01//!< User control pressed
+#define ZRC_USER_CTRL_REPT               0x02//!< User control repeated
+#define ZRC_USER_CTRL_RELS               0x03//!< User control released
+#define ZRC_CMD_DISC_REQ                 0x04//!< Command discovery request
+#define ZRC_CMD_DISC_RESP                0x05//!< Command discovery response
 /** @} end of group zrc_cmd_code */
 
  /** @addtogroup mso_cmd_code MSO Command Code
  * Definition for MSO command code
  * @{
  */
-#define MSO_CMD_USER_CTRL_PRESSED                           0x01       //!< User control pressed 
-#define MSO_CMD_USER_CTRL_REPEATED                          0x02       //!< User control repeated 
-#define MSO_CMD_USER_CTRL_RELEASED                          0x03       //!< User control released
-#define MSO_CMD_CHECK_VALIDATION_REQ                        0x20       //!< Check validation request 
-#define MSO_CMD_CHECK_VALIDATION_RESP                       0x21       //!< Check validation response 
-#define MSO_CMD_SET_ATTRIBUTE_REQ                           0x22       //!< Set attribute request  
-#define MSO_CMD_SET_ATTRIBUTE_RESP                          0x23       //!< Set attribute response  
-#define MSO_CMD_GET_ATTRIBUTE_REQ                           0x24       //!< Get attribute request 
-#define MSO_CMD_GET_ATTRIBUTE_RESP                          0x25       //!< Get attribute response  
+#define MSO_CMD_USER_CTRL_PRESSED        0x01//!< User control pressed 
+#define MSO_CMD_USER_CTRL_REPEATED       0x02//!< User control repeated 
+#define MSO_CMD_USER_CTRL_RELEASED       0x03//!< User control released
+#define MSO_CMD_CHECK_VALIDATION_REQ     0x20//!< Check validation request 
+#define MSO_CMD_CHECK_VALIDATION_RESP    0x21//!< Check validation response 
+#define MSO_CMD_SET_ATTRIBUTE_REQ        0x22//!< Set attribute request  
+#define MSO_CMD_SET_ATTRIBUTE_RESP       0x23//!< Set attribute response  
+#define MSO_CMD_GET_ATTRIBUTE_REQ        0x24//!< Get attribute request 
+#define MSO_CMD_GET_ATTRIBUTE_RESP       0x25//!< Get attribute response  
 
  /**  @} end of group mso_cmd_code */
  
@@ -68,8 +68,8 @@
  */
 typedef enum {
     MSO_SUCC                                      = 0x00,        /**< MSO operation success */
-	MSO_HAS_BOND                                  = 0x02,        /**< The MSO have binds */
-	MSO_PENDING                                   = 0xC0,        /**< MSO time out */
+    MSO_HAS_BOND                                  = 0x02,        /**< The MSO have binds */
+    MSO_PENDING                                   = 0xC0,        /**< MSO time out */
     MSO_TIME_OUT                                  = 0xC1,        /**< MSO time out */
     MSO_COLLISION                                 = 0xC2,        /**< MSO configuration stage failure */
     MSO_FAILURE                                   = 0xC3,        /**< The MSO request is refused by the network layer */
@@ -79,11 +79,11 @@ typedef enum {
     MSO_BUSY                                      = 0x0a,        /**< MSO is under TX mode, and can't send another command before last request finish */
     MSO_INVALID_STATE                             = 0x0b,        /**< MSO is not in the proper state to do the request */
     MSO_NO_RESOURCES                              = 0x0c,        /**< MSO no resource */
-	MSO_WAIT_RSP_TIMEOUT                          = 0x0d,        /**< MSO waiting response time out */	
-	MSO_ATTR_NOT_COMPATIBLE                       = 0x0f,        /**< MSO attribute response is not meet user's requirement */
-	MSO_ATTR_NOT_EXISTED                          = 0x10,        /**< The requested attribute is not existed */
-	MSO_SEND_OUT_ERROR                            = 0x11,        /**< The requested attribute is not existed */
-	MSO_USER_ABORT                                = 0x12,        /**< The requested attribute is not existed */
+    MSO_WAIT_RSP_TIMEOUT                          = 0x0d,        /**< MSO waiting response time out */    
+    MSO_ATTR_NOT_COMPATIBLE                       = 0x0f,        /**< MSO attribute response is not meet user's requirement */
+    MSO_ATTR_NOT_EXISTED                          = 0x10,        /**< The requested attribute is not existed */
+    MSO_SEND_OUT_ERROR                            = 0x11,        /**< The requested attribute is not existed */
+    MSO_USER_ABORT                                = 0x12,        /**< The requested attribute is not existed */
     MSO_INVALID_PARAM                             = 0x13,        /**< ZRC no resource */
     MSO_RESTORE                                   = 0x14,        /**< ZRC no resource */
 } mso_sts_t;
@@ -98,87 +98,87 @@ typedef enum {
  */
  
 typedef struct {
-	addrExt_t ieee;
-	u8 state;
+    addrExt_t    ieee;
+           u8    state;
 } mso_tgtRcTbl_t;
 
 
-typedef	union {
-	struct {
-		u8 rfPredSepc : 1;
-		u8 rfReptSepc : 1;
-		u8 rfRelsSepc : 1;
-		u8 irSepc     : 1;
-		u8 reserved   : 2;
-		u8 userDefault: 1;
-		u8 permanent  : 1;
-	} bf;
-	u8 byte;
+typedef    union {
+    struct {
+        u8    rfPredSepc : 1;
+        u8    rfReptSepc : 1;
+        u8    rfRelsSepc : 1;
+        u8    irSepc : 1;
+        u8    reserved : 2;
+        u8    userDefault : 1;
+        u8    permanent : 1;
+    } bf;
+    u8 byte;
 } irRf_dbFlags_t;
 
 typedef struct {
-	union {
-		struct {
-			u8 minTxNum : 4;
-			u8 keepTx   : 1;
-			u8 shrtRetry: 1;
-			u8 reserved : 2;
-		} bf;
-		u8 byte;
-	} rfConfig;
-	u8 rfTxOpt;
-	u8 payloadLen;
-	u8 payload[1];
+    union {
+        struct {
+    u8    minTxNum : 4;
+    u8    keepTx : 1;
+    u8    shrtRetry : 1;
+    u8    reserved : 2;
+        } bf;
+    u8    byte;
+    } rfConfig;
+    u8    rfTxOpt;
+    u8    payloadLen;
+    u8    payload[1];
 } irRf_dbRfDesp_t;
 
 typedef struct {
-	union {
-		struct {
-			u8 minTxNum : 4;
-			u8 keepTx   : 1;
-			u8 reserved : 1;
-			u8 tweakDb  : 1;
-			u8 reserved2: 1;
-		} bf;
-		u8 byte;
-	} irConfig;
-	u8 irCodeLen;
-	u8 irCode[1];
+    union {
+        struct {
+    u8    minTxNum : 4;
+    u8    keepTx : 1;
+    u8    reserved : 1;
+    u8    tweakDb : 1;
+    u8    reserved2 : 1;
+        } bf;
+    u8    byte;
+    } irConfig;
+    u8    irCodeLen;
+    u8    irCode[1];
 } irRf_dbIrDesp_t;
 
 
 typedef struct {
-	u8 major;
-	u8 minor;
-	u8 revision;
-	u8 patch;
+    u8    major;
+    u8    minor;
+    u8    revision;
+    u8    patch;
 } sw_version_t;
 
 typedef struct {
-	union {
-		struct {
-			u8 model      : 4;
-			u8 manufacture : 4;
-		} bf;
-		u8 byte;
-	} vendor;
-	u8 hwVer;
-	union {
-		struct {
-			u8 lotCodeHigh  : 3;
-			u8 reversed : 5;
-		} bf;
-		u8 byte;
-	} lot;
-	
-	u8 lotCodeLow;	
+    union {
+        struct {
+    u8    model : 4;
+    u8    manufacture : 4;
+        } bf;
+    u8    byte;
+    } vendor;
+    u8    hwVer;
+    union {
+        struct {
+    u8    lotCodeHigh : 3;
+    u8    reversed : 5;
+        } bf;
+    u8    byte;
+    } lot;
+    
+    u8    lotCodeLow;    
 } hw_version_t;
 
 typedef struct {
-	u8 major;
-	u8 minor;
-	u8 revision;
-	u8 patch;
+    u8    major;
+    u8    minor;
+    u8    revision;
+    u8    patch;
 } irdb_version_t;
 
 /**
@@ -187,9 +187,9 @@ typedef struct {
 typedef struct
 {
     u32    aplKeyRepeatWaitTime;
-    u16    aplValidationWaitTime ; 
+    u16    aplValidationWaitTime;    
     u16    aplValidationInitialWatchdogTime;
-    u8     aplUserString[9];
+     u8    aplUserString[9];
 } mso_tgtAttrTbl_t;
 
 
@@ -201,20 +201,20 @@ typedef struct
     u32    aplKeyRepeatInterval;
     u32    aplResponseWaitTime;
     u16    aplLinkLostWaitTime;
-	u16    aplAutoCheckValidationPeriod;
-	u8     aplKeyExchangeTransferCount;
-    u8     aplMaxPairingCandidates; 
-    u8     aplUserString[9];	
+    u16    aplAutoCheckValidationPeriod;
+     u8    aplKeyExchangeTransferCount;
+     u8    aplMaxPairingCandidates;    
+     u8    aplUserString[9];    
 } mso_rcAttrTbl_t;
 
 typedef struct
 {
-	u32    peripheralIDs;
-	u8     rfStatistics[16];
-	u32    versioning[3];
-	u32    shortRfRetryPeriod;
-	u16    validationConfig[2];
-	u8     batteryStatus[11];	
+    u32    peripheralIDs;
+     u8    rfStatistics[16];
+    u32    versioning[3];
+    u32    shortRfRetryPeriod;
+    u16    validationConfig[2];
+     u8    batteryStatus[11];    
 } mso_ribAttr_t;
 
 /** @addtogroup mso_cb_definition MSO User Callback Function Types
@@ -289,16 +289,16 @@ typedef void ( *mso_vendorSpecificDataIndCb_t)(u8 pairingRef, u8 *pData, u8 len)
  *  @brief  Structure Definition for MSO user callback functions, NULL for not use the callback
  */
 typedef struct {
-	mso_ckValidResp_cbFunc_t       pMsockValidRespFn;     //!< Function pointer to the MSO check validation resp command
-	mso_ckValidReq_cbFunc_t        pMsockValidReqFn;      //!< Function pointer to the MSO check validation req command
-	mso_setAttrResp_cbFunc_t       pMsoSetAttrRespFn;     //!< Function pointer to the received MSO set attribute resp command 
-	mso_setAttrInd_cbFunc_t        pMsoSetAttrIndFn;      //!< Function pointer to the received MSO set attribute indication command 
-	mso_getAttrResp_cbFunc_t       pMsoGetAttrRespFn;     //!< Function pointer to the received MSO get attribute response command
-	mso_bindCnf_cbFunc_t           pMsoBindCnfFn;         //!< Function pointer to the received MSO bind confirm command
-	mso_cmdRecv_cbFunc_t           pMsoCmdRecvFn;         //!< Function pointer to handle the received MSO command. Equal to command request indication.
-	mso_cmdSend_cbFunc_t           pMsoCmdSendCb;         //!< Function pointer to the received MSO data sent confirm command
-	mso_validationRecv_cbFunc_t    pMsoValidationKeyCb;   //!< Function pointer to the received MSO validation key command
-	mso_vendorSpecificDataIndCb_t  pMsoVendSpecDataIndCb; //!< Function pointer to the received vendor specific data
+         mso_ckValidResp_cbFunc_t    pMsockValidRespFn;    //!< Function pointer to the MSO check validation resp command
+          mso_ckValidReq_cbFunc_t    pMsockValidReqFn;    //!< Function pointer to the MSO check validation req command
+         mso_setAttrResp_cbFunc_t    pMsoSetAttrRespFn;    //!< Function pointer to the received MSO set attribute resp command 
+          mso_setAttrInd_cbFunc_t    pMsoSetAttrIndFn;    //!< Function pointer to the received MSO set attribute indication command 
+         mso_getAttrResp_cbFunc_t    pMsoGetAttrRespFn;    //!< Function pointer to the received MSO get attribute response command
+             mso_bindCnf_cbFunc_t    pMsoBindCnfFn;    //!< Function pointer to the received MSO bind confirm command
+             mso_cmdRecv_cbFunc_t    pMsoCmdRecvFn;    //!< Function pointer to handle the received MSO command. Equal to command request indication.
+             mso_cmdSend_cbFunc_t    pMsoCmdSendCb;    //!< Function pointer to the received MSO data sent confirm command
+      mso_validationRecv_cbFunc_t    pMsoValidationKeyCb;    //!< Function pointer to the received MSO validation key command
+    mso_vendorSpecificDataIndCb_t    pMsoVendSpecDataIndCb;    //!< Function pointer to the received vendor specific data
 } mso_userCbFunc_t;
 
  /**  @} end of group MSO_Type */
@@ -330,7 +330,7 @@ void mso_registerUserCb(mso_userCbFunc_t* pMsoCb);
   */
 
 mso_sts_t mso_rcSendValidCodeReq(u8 pairingRef, u8 txOptions, u8 rcCommand);
-	
+    
 /**
   * @brief       Call this function to transmit a MSO command to a paired device
   *
@@ -577,3 +577,4 @@ nv_sts_t mso_getGeneralPurposeEntry(u8 pairingRef, u8 index, u8 *val);
 /**  @} end of group Profile_MSO */
 
 /**  @} end of group TELINK_RF4CE_STACK */
+

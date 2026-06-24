@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for app_data.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -23,16 +23,11 @@
 
 #pragma once
 
-enum{
-	ZRC_APPID_OTA = 0x01,
-	ZRC_APPID_AUDIO = 0x02,
-}userAppDataId_e;
-
 typedef struct{
-	u8 	option;   //!< option byte, 08: means more data, others(must 0)
-	u8 	sqeNo;    //!< sequence number
-	u8	appId;	  //!< used to identify the specific features
-	u8	opCode;	  //!< used to identify the specific operations within an appID
+    u8    option;    //!< option byte, 08: means more data, others(must 0)
+    u8    sqeNo;    //!< sequence number
+    u8    appId;    //!< used to identify the specific features
+    u8    opCode;    //!< used to identify the specific operations within an appID
 }user_appDataFrmHdr_t;
 
 
@@ -53,3 +48,4 @@ void app_sendDtvIrCmd(u8 keyCode, u8 repeat);
 //u8 app_cmdQPush(cmdQ_t *q, u8 item);
 //u8 app_cmdQGetSize(cmdQ_t *q);
 //u8 app_cmdQPop(cmdQ_t *q);
+

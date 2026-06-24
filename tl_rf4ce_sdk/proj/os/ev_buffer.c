@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for ev_buffer.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -116,7 +116,7 @@ buf_sts_t ev_buf_free(u8* pBuf)
 u8 buf_message_post(u8 *ptr,msg_ctrl_row_t state)
 {
         u8 r;
-		ev_bufItem_t *buffer_item_ptr;
+        ev_bufItem_t *buffer_item_ptr;
         u32 i;
 
         r = irq_disable();
@@ -158,16 +158,16 @@ u8 *buf_message_poll(msg_ctrl_row_t state)
 
 
 typedef struct _ev_pool_t{
-	ev_bufItem_t *head;
-	ev_bufItem_t *tail;
-	u8 num;
+    ev_bufItem_t    *head;
+    ev_bufItem_t    *tail;
+              u8    num;
 }ev_pool_t;
 
 ev_pool_t ev_pool;
 
 void ev_pool_init(void){
-	ev_pool.head = ev_pool.tail = NULL;
-	ev_pool.num = 0;
+    ev_pool.head = ev_pool.tail = NULL;
+    ev_pool.num = 0;
 }
 /*********************************************************************
  * @fn      ev_buf_reset
@@ -247,6 +247,9 @@ u8* __ev_buf_allocate__()
 {
     int i;
     u8 r;
+#if __DEBUG_BUFFER__
+    int k, j;
+#endif
 
     r = irq_disable();
 
@@ -301,9 +304,10 @@ buf_sts_t __ev_buf_free__(u8* pBuf)
 {
     u8 r;
     ev_bufItem_t *pDelBuf;
-
-    
-    if (!pBuf) {
+#if __DEBUG_BUFFER__
+    int k, j;
+#endif
+    if (!is_ev_buf(pBuf)) {
         return BUFFER_INVALID_PARAMETER;
         //while(1){;}
     }
@@ -349,32 +353,47 @@ u8 ev_isTaskDone(void){
     return 1;
 #endif
 }
+
+bool is_ev_buf(void *p)
+{
+    if (((u32)p >= (u32)(ev_bufItem[0].data)) &&
+        ((u32)p < (u32)((ev_bufItem[BUFFER_NUM - 1].data) + BUFFER_SIZE))) {
+        return 1;
+    }
+    return 0;
+}
+
 u8 buf_message_post(u8 *ptr,buf_item_state_t state)
 {
-	u8 r;
-	ev_bufItem_t *buffer_item_ptr;
+    u8 r;
+    ev_bufItem_t *buffer_item_ptr;
 
-	r = irq_disable();
+    if (!is_ev_buf(ptr)) {
+        //while(1);
+        return BUFFER_INVALID_PARAMETER;
+    }
 
-	buffer_item_ptr = (ev_bufItem_t*)ev_buf_getHead(ptr);
-	buffer_item_ptr->buf_item_state_tbl[state] = 1;
-	buffer_item_ptr->next = NULL;
+    r = irq_disable();
 
-	if(ev_pool.head == NULL){
-		ev_pool.head = ev_pool.tail = buffer_item_ptr;
-	}else{
-		ev_pool.tail->next = buffer_item_ptr;
-		ev_pool.tail = ev_pool.tail->next;
-	}
-	ev_pool.num++;
+    buffer_item_ptr = (ev_bufItem_t*)ev_buf_getHead(ptr);
+    buffer_item_ptr->buf_item_state_tbl[state] = 1;
+    buffer_item_ptr->next = NULL;
 
-	irq_restore(r);
-	return 0;
+    if(ev_pool.head == NULL){
+        ev_pool.head = ev_pool.tail = buffer_item_ptr;
+    }else{
+        ev_pool.tail->next = buffer_item_ptr;
+        ev_pool.tail = ev_pool.tail->next;
+    }
+    ev_pool.num++;
+
+    irq_restore(r);
+    return 0;
 }
 
 u8 *buf_message_poll(buf_item_state_t *state)
 {
-	int i;
+    int i;
     u8 r;
     u8 *pBuf = NULL;
 
@@ -382,19 +401,19 @@ u8 *buf_message_poll(buf_item_state_t *state)
 
     *state = 0xff;
     if(ev_pool.head){
-    	for(i = BUF_ITEM_STATE_PHY2MAC; i <= BUF_ITEM_STATE_MAC2CSMA; i++){
-    		if(ev_pool.head->buf_item_state_tbl[i] == 1){
-				 ev_pool.head->buf_item_state_tbl[i] = 0;
-				 *state = i;
-				 pBuf = ev_pool.head->data;
+        for(i = BUF_ITEM_STATE_PHY2MAC; i <= BUF_ITEM_STATE_MAC2CSMA; i++){
+            if(ev_pool.head->buf_item_state_tbl[i] == 1){
+                 ev_pool.head->buf_item_state_tbl[i] = 0;
+                 *state = i;
+                 pBuf = ev_pool.head->data;
 
-				 ev_bufItem_t *p = ev_pool.head;
-				 ev_pool.head = ev_pool.head->next;
-				 p->next = NULL;
-				 ev_pool.num--;
-				 break;
-			 }
-    	}
+                 ev_bufItem_t *p = ev_pool.head;
+                 ev_pool.head = ev_pool.head->next;
+                 p->next = NULL;
+                 ev_pool.num--;
+                 break;
+             }
+        }
     }
     irq_restore(r);
     return pBuf;
@@ -432,7 +451,7 @@ ev_bufItem_t* ev_buf_getHead(u8* pd)
  */
 u8* ev_buf_getTail(u8* pd, int offsetToTail)
 {
-	return (u8*)(pd - RF_RX_BUFFER_OFFSET + BUFFER_SIZE - offsetToTail);
+    return (u8*)(pd - RF_RX_BUFFER_OFFSET + BUFFER_SIZE - offsetToTail);
 }
 
 
@@ -440,12 +459,13 @@ u8* ev_buf_getTail(u8* pd, int offsetToTail)
 
 _attribute_ram_code_ u16 ev_buf_getfreeSize(void)
 {
-	u16 size = 0;
+    u16 size = 0;
 
     for(u16 i=0;i<LengthOfArray(ev_bufItem);i++){
         if(ev_bufItem[i].buf_item_state_tbl[BUF_ITEM_STATE_BUSY] == 0){
-        	size++;
+            size++;
         }
     }
-	return size;
+    return size;
 }
+

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for mac_phy.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 
 #ifndef  __MAC_PHY_H__
-#define  __MAC_PHY_H__
+#define __MAC_PHY_H__          
 
 
 /*********************************************************************
@@ -32,7 +32,7 @@
 /**
  * Default RF Channel when power up
  */
-#define RF_PKT_BUFF_LEN		144//(128+32) //(128+16)
+#define RF_PKT_BUFF_LEN        144//(128+32) //(128+16)
 
 
 /*
@@ -41,21 +41,21 @@
     /**
      *  @brief  Definition for TX power level
      */
-#define PHY_TX_POWER_MAX           0
-#define PHY_TX_POWER_5DB           1
-#define PHY_TX_POWER_0DB           2
-#define PHY_TX_POWER_N_5DB         3
-#define PHY_TX_POWER_N_10DB        4
-#define PHY_TX_POWER_N_13DB        5
-#define PHY_TX_POWER_N_18DB        6
-#define PHY_TX_POWER_N_23DB        7
-#define PHY_TX_POWER_N_27DB        8
-#define PHY_TX_POWER_N_30DB        9
-#define PHY_TX_POWER_N_37DB        10
-#define PHY_TX_POWER_MIN           100
+#define PHY_TX_POWER_MAX       0
+#define PHY_TX_POWER_5DB       1
+#define PHY_TX_POWER_0DB       2
+#define PHY_TX_POWER_N_5DB     3
+#define PHY_TX_POWER_N_10DB    4
+#define PHY_TX_POWER_N_13DB    5
+#define PHY_TX_POWER_N_18DB    6
+#define PHY_TX_POWER_N_23DB    7
+#define PHY_TX_POWER_N_27DB    8
+#define PHY_TX_POWER_N_30DB    9
+#define PHY_TX_POWER_N_37DB    10
+#define PHY_TX_POWER_MIN       100
 
-#define CCA_THRESHOLD       		-60
-#define RSSI_PASS_THRESHOLD			-30
+#define CCA_THRESHOLD          -60
+#define RSSI_PASS_THRESHOLD    -30
 
 
 #if 0
@@ -93,7 +93,7 @@ enum {
  * Definition for RF Setting identifier.
  */
 enum {
-	SUCC,
+    SUCC,
     RF_BLACK_LIST_FULL,
     RF_BLACK_LIST_NO_MEMBER,
 };
@@ -124,8 +124,8 @@ enum {
 #endif
 
 typedef enum{
-	RF_GAIN_MODE_AUTO,
-	RF_GAIN_MODE_MANU_MAX,
+    RF_GAIN_MODE_AUTO,
+    RF_GAIN_MODE_MANU_MAX,
 }rf_rxGainMode_t;
 
 /*********************************************************************
@@ -185,7 +185,7 @@ enum {
  * Definition for RF Setting identifier.
  */
 enum {
-	SUCC,
+    SUCC,
     RF_BLACK_LIST_FULL,
     RF_BLACK_LIST_NO_MEMBER,
 };
@@ -236,11 +236,11 @@ typedef void ( *rf_protocolSpecificSet_t) (u8 id, u8 *pValue, u8 len);
  *  @brief  Definition for Telink RX packet format
  */
 typedef struct {
-    u32 dmaLen;
-    u8  rssi;
-    u8  rseverd[7];
-    u8  payloadLen;
-    u8  payload[1];
+    u32    dmaLen;
+     u8    rssi;
+     u8    rseverd[7];
+     u8    payloadLen;
+     u8    payload[1];
 } rf_recvPkt_t;
 
 
@@ -249,12 +249,12 @@ typedef struct {
  * Definition for RF Rx buffer format
  */
 typedef struct {
-    u8* rxBuf;
-    u8  len;
-    u8  fPending;
-    u8  rssi;
-    u8  reserved;
-    u32 timestamp;
+     u8    *rxBuf;
+     u8    len;
+     u8    fPending;
+     u8    rssi;
+     u8    reserved;
+    u32    timestamp;
 } rx_buf_t;
 
 
@@ -262,9 +262,9 @@ typedef struct {
  * Definition for Protocol Specific RF functions
  */
 typedef struct {
-    rf_protocolSpecificInit_t initFunc;
-    rf_protocolSpecificReset_t resetFunc;
-    rf_protocolSpecificSet_t setFunc;
+     rf_protocolSpecificInit_t    initFunc;
+    rf_protocolSpecificReset_t    resetFunc;
+      rf_protocolSpecificSet_t    setFunc;
 } rf_specificFunc_t;
 
 
@@ -416,7 +416,7 @@ u8 rf_getED(void);
 void rf_startED(void);
 u8 rf_stopED(void);
 
-
+void rf_pm_restore(void);
 
 
 /*********************************************************************
@@ -519,11 +519,11 @@ typedef void ( *rf_protocolSpecificSet_t) (u8 id, u8 *pValue, u8 len);
  *  @brief  Definition for Telink RX packet format
  */
 typedef struct {
-    u32 dmaLen;
-    u8  rssi;
-    u8  rseverd[7];
-    u8  payloadLen;
-    u8  payload[1];
+    u32    dmaLen;
+     u8    rssi;
+     u8    rseverd[7];
+     u8    payloadLen;
+     u8    payload[1];
 } rf_recvPkt_t;
 
 
@@ -531,9 +531,9 @@ typedef struct {
  *  @brief  Definition for Telink TX packet format
  */
 typedef struct {
-    u32 dmaLen;
-    u8  rfLen;
-    u8  payload[1];
+    u32    dmaLen;
+     u8    rfLen;
+     u8    payload[1];
 } rf_sendPkt_t;
 
 
@@ -541,18 +541,18 @@ typedef struct {
  * Definition for RF Rx buffer format
  */
 typedef struct {
-    u8	*psdu;
-    u32 timeStamp;
-    s8  rssi;
-    u8  psduLen;
+     u8    *psdu;
+    u32    timeStamp;
+     s8    rssi;
+     u8    psduLen;
 } rx_buf_t;
 
 /*
  * Definition for Protocol Specific RF functions
  */
 typedef struct {
-    rf_protocolSpecificInit_t initFunc;
-    rf_protocolSpecificReset_t resetFunc;
+     rf_protocolSpecificInit_t    initFunc;
+    rf_protocolSpecificReset_t    resetFunc;
 } rf_specificFunc_t;
 
 
@@ -817,8 +817,8 @@ void rf802154_tx_ready(u8* buf, u8 len);
 void mac_phyReconfig(void);
 
 
-extern u8	g_zb_txPowerSet;
-#define RF_TX_POWER_DEFAULT_SET(v)		g_zb_txPowerSet = v
+extern u8    g_zb_txPowerSet;
+#define RF_TX_POWER_DEFAULT_SET(v)        g_zb_txPowerSet = v
 #endif
 
 /*
@@ -827,25 +827,27 @@ extern u8	g_zb_txPowerSet;
  *
  * */
 #if defined (MCU_CORE_826x)
-	#include "./phy_radio_826x.h"
+    #include "./phy_radio_826x.h"
 #endif
 
 #if defined (MCU_CORE_HAWK)
-	#include "./phy_radio_hawk.h"
+    #include "./phy_radio_hawk.h"
 #endif
 
 #if defined (MCU_CORE_8258)
-	#include "./phy_radio_8258.h"
+    #include "./phy_radio_8258.h"
 #endif
 
 #if defined (MCU_CORE_8278)
-	#include "./phy_radio_8278.h"
+    #include "./phy_radio_8278.h"
 #endif
 
 #if defined (MCU_CORE_B92)
-	#include "phy_radio_b92.h"
+    #include "phy_radio_b92.h"
 #endif
 
-
-
+#if defined (MCU_CORE_TL321X)
+    #include "phy_radio_tl321x.h"
+#endif
 #endif  /* __RF_H__ */
+

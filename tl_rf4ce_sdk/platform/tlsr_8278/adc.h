@@ -29,6 +29,7 @@
 #include "register.h"
 #include "gpio.h"
 
+#define ADC_OLD_TEMP_TEST  0
 
 /**
  *  Some notice for ADC
@@ -38,14 +39,9 @@
  *  4:input mode,just has differential
  */
 
-//ADC reference voltage cfg
-typedef struct {
-	unsigned short adc_vref;     //default: 1175 mV,this value just for Vref=1.2V & Prescal=1/8,For Vulture this data has not been analyzed yet.
-	unsigned short adc_calib_en;
-}adc_vref_ctr_t;
 
-extern adc_vref_ctr_t adc_vref_cfg;
-
+extern GPIO_PinTypeDef ADC_GPIO_tab[10];
+extern unsigned char   adc_vbat_divider;
 /**
  *  ADC reference voltage
  */
@@ -66,8 +62,6 @@ typedef enum{
 	 */
 }ADC_VbatDivTypeDef;
 
-extern unsigned char adc_vbat_divider;
-
 /**
  *	ADC analog input negative channel
  */
@@ -85,8 +79,8 @@ typedef enum {
 	C5N,
 	PGA0N,
 	PGA1N,
-	TEMSENSORN,
-	TEMSENSORN_EE,
+	TEMPERATURE_SENSOR_N,
+	TEMPERATURE_SENSOR_N_EE,
 	GND,
 }ADC_InputNchTypeDef;
 
@@ -107,8 +101,8 @@ typedef enum {
 	C5P,
 	PGA0P,
 	PGA1P,
-	TEMSENSORP,
-	TEMSENSORP_EE,
+	TEMPERATURE_SENSOR_P,
+	TEMPERATURE_SENSOR_P_EE,
 	VBAT,
 }ADC_InputPchTypeDef;
 
@@ -176,22 +170,14 @@ typedef enum{
 
 
 
-/**
- * @brief       This function enable adc reference voltage calibration
- * @param[in] en - 1 enable  0 disable
- * @return     none.
- */
-static inline void adc_calib_vref_enable(unsigned char en)
-{
-	adc_vref_cfg.adc_calib_en = en;
-}
+
 
 /**
  * @brief      This function reset adc module
  * @param[in]  none.
  * @return     none.
  */
-static inline void adc_reset_adc_module(void)
+static inline void	adc_reset_adc_module (void)
 {
 	reg_rst1 = FLD_RST1_ADC;
 	reg_rst1 = 0;
@@ -202,18 +188,17 @@ static inline void adc_reset_adc_module(void)
  * @param[in]  en - variable of source clock state 1: enable;  0: disable.
  * @return     none.
  */
-static inline void adc_enable_clk_24m_to_sar_adc(unsigned int en)
+static inline void adc_enable_clk_24m_to_sar_adc (unsigned int en)
 {
 	if(en)
 	{
-		analog_write(areg_clk_setting, analog_read(areg_clk_setting) | FLD_CLK_24M_TO_SAR_EN);
+		analog_write(areg_clk_setting	, analog_read(areg_clk_setting	) | FLD_CLK_24M_TO_SAR_EN);
 	}
 	else
 	{
-		analog_write(areg_clk_setting, analog_read(areg_clk_setting) & ~FLD_CLK_24M_TO_SAR_EN);
+		analog_write(areg_clk_setting	, analog_read(areg_clk_setting	) & ~FLD_CLK_24M_TO_SAR_EN);
 	}
 }
-
 /**************************************************************************************
 afe_0xF4
     BIT<2:0>  adc_clk_div
@@ -234,7 +219,7 @@ enum{
 static inline void adc_set_sample_clk(unsigned char div)
 {
 	//afe_0xF4<7:3> is reserved, so no need to care its value
-	analog_write(areg_adc_sampling_clk_div, div & 0x07 );
+	analog_write(areg_adc_sampling_clk_div,  div & 0x07 );
 }
 
 /**************************************************************************************
@@ -607,30 +592,38 @@ void adc_set_ain_pre_scaler(ADC_PreScalingTypeDef v_scl);
  * @param[in]   none
  * @return none
  */
-void adc_init(void);
+void adc_init(void );
 
 /**
- * @brief This function is used to calib ADC 1.2V vref.
- * @param[in] none
+ * @brief This function is used to calib ADC 1.2V vref for GPIO.
+ * @param[in] data - GPIO sampling calibration value.
  * @return none
  */
-/********************************************************************************************
-	There have two kind of calibration value of ADC 1.2V vref in flash,and one calibration value in Efuse.
-	The priority of calibration value is Flash > Efuse > Default(1175mV).
-	Two kind of ADC calibration value in flash are adc_gpio_calib_vref(used for internal voltage sample)
-	and adc_vbat_calib_vref(used for gpio voltage sample).
-********************************************************************************************/
-void adc_update_1p2_vref_calib_value(void);
+void adc_set_gpio_calib_vref(unsigned short data);
+/**
+ * @brief This function is used to calib ADC 1.2V vref offset for GPIO two-point.
+ * @param[in] offset - GPIO sampling two-point calibration value offset.
+ * @return none
+ */
+void adc_set_gpio_two_point_calib_offset(signed char offset);
+/**
+ * @brief This function is used to calib ADC 1.2V vref for VBAT.
+ * @param[in] data - VBAT sampling calibration value
+ * @return none
+ */
+void adc_set_vbat_calib_vref(unsigned short data);
 
 /**
  * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
+ *        This interface can be used to switch sampling IO without reinitializing the ADC.
  * @param[in]  pin - GPIO_PinTypeDef
  * @return none
  */
 void adc_base_pin_init(GPIO_PinTypeDef pin);
 
 /**
- * @brief This function is used for IO port configuration of ADC supply voltage sampling.
+ * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
+ *        This interface can be used to switch sampling IO without reinitializing the ADC.
  * @param[in]  pin - GPIO_PinTypeDef
  * @return none
  */
@@ -642,6 +635,13 @@ void adc_vbat_pin_init(GPIO_PinTypeDef pin);
  * @return none
  */
 void adc_base_init(GPIO_PinTypeDef pin);
+
+/**
+ * @brief This function servers to test ADC temp.
+ * @param[in]  none.
+ * @return     none.
+ */
+void adc_old_temp_init(void);
 
 /**
  * @brief This function servers to test ADC temp.

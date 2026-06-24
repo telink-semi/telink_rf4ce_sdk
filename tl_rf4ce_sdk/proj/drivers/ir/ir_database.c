@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for ir_database.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,8 +24,8 @@
 #include "ir_database.h"
 #include "ir.h"
 
-#define MAX_IR_TABLE_NUM             500
-#define MAX_IR_SPECIAL_TABLE_NUM     300
+#define MAX_IR_TABLE_NUM            500
+#define MAX_IR_SPECIAL_TABLE_NUM    300
 
 #if 1
 const ir_generaldb_t ir_code_tbl[MAX_IR_TABLE_NUM] =
@@ -49,7 +49,7 @@ const ir_generaldb_t ir_code_tbl[MAX_IR_TABLE_NUM] =
     { 3161,        IR_TYPE_MITSUBISHI,     0x02,        {0x0E, 0x03, 0x04, 0x09},    ir_send_mitsubishi },
     { 4421,        IR_TYPE_MITSUBISHI,     0x15,        {0x15, 0x3A, 0x3E, 0x32},    ir_send_mitsubishi },
     { 4741,        IR_TYPE_MITSUBISHI,     0x15,        {0x15, 0x13, 0x14, 0x12},    ir_send_mitsubishi },
-	{ 5011,        IR_TYPE_MITSUBISHI,     0x03,        {0x00, 0x0B, 0x0F, 0x0A},    ir_send_mitsubishi },
+    { 5011,        IR_TYPE_MITSUBISHI,     0x03,        {0x00, 0x0B, 0x0F, 0x0A},    ir_send_mitsubishi },
     { 5691,        IR_TYPE_MITSUBISHI,     0xD8,        {0x0B, 0x14, 0x15, 0x0F},    ir_send_mitsubishi },
     { 6131,        IR_TYPE_MITSUBISHI,     0x04,        {0x22, 0x27, 0x2B, 0x2F},    ir_send_mitsubishi },
     { 6161,        IR_TYPE_MITSUBISHI,     0x14,        {0x15, 0x13, 0x14, 0x12},    ir_send_mitsubishi },
@@ -157,8 +157,8 @@ const ir_generaldb_t ir_code_tbl[MAX_IR_TABLE_NUM] =
     { 5661,        IR_TYPE_TC9012,             0x07,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
     { 6271,        IR_TYPE_TC9012,             0x07,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
     { 6331,        IR_TYPE_TC9012,             0x07,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
-	
-	{ 3661,        IR_TYPE_TC9012,             0x07,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
+    
+    { 3661,        IR_TYPE_TC9012,             0x07,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
     { 3771,        IR_TYPE_TC9012,             0x07,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
     { 3811,        IR_TYPE_TC9012,             0x05,        {0x02, 0x07, 0x0B, 0x0F},    ir_send_tc9012 },
     { 4721,        IR_TYPE_TC9012,             0x00,        {0x0F, 0x0C, 0x0D, 0x0E},    ir_send_tc9012 },
@@ -252,8 +252,8 @@ const ir_generaldb_t ir_code_tbl[MAX_IR_TABLE_NUM] =
     { 5941,        IR_TYPE_RC5,               0x00,        {0x0C, 0x12, 0x11, 0x0D},    ir_send_rc5 },
     { 6241,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
     { 6291,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
-	
-	{ 2131,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
+    
+    { 2131,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
     { 2261,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
     { 2721,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
     { 2811,        IR_TYPE_RC5,               0x00,        {0x0C, 0x10, 0x11, 0x0D},    ir_send_rc5 },
@@ -298,7 +298,7 @@ const ir_bit16db_t ir_code_stbl[MAX_IR_SPECIAL_TABLE_NUM] =
     { 5801,        IR_TYPE_LC7461,         0x011C,        {0x1C, 0x16, 0x17, 0x15},    ir_send_lc7461 },
     { 5811,        IR_TYPE_LC7461,         0x011A,        {0x0A, 0x04, 0x1D, 0x0D},    ir_send_lc7461 },
     { 5891,        IR_TYPE_LC7461,         0x011C,        {0x12, 0x10, 0x14, 0x16},    ir_send_lc7461 },
-	{  981,        IR_TYPE_LC7461,         0x007B,        {0x00, 0x18, 0x19, 0x4A},    ir_send_lc7461 },
+    {  981,        IR_TYPE_LC7461,         0x007B,        {0x00, 0x18, 0x19, 0x4A},    ir_send_lc7461 },
 #endif
 
     {   41,        IR_TYPE_NEC,            0x44AF,        {0x12ED, 0x1AE5, 0x1EE1, 0x10EF},    ir_send_upd6121g },
@@ -522,15 +522,15 @@ const ir_bit16db_t ir_code_stbl[MAX_IR_SPECIAL_TABLE_NUM] =
     { 6611,        IR_TYPE_NEC,            0x15EA,        {0x12ED, 0x16E9, 0x17E8, 0x15EA},    ir_send_upd6121g },
     { 6621,        IR_TYPE_NEC,            0xAA55,        {0xA758, 0x04FB, 0x08F7, 0x10EF},    ir_send_upd6121g },
     { 6641,        IR_TYPE_NEC,            0x38C7,        {0x12ED, 0x0EF1, 0x0FF0, 0x18E7},    ir_send_upd6121g },
-	
-	
-	{  291,        IR_TYPE_NEC,            0x01FE,        {0x10EF, 0x0EF1, 0x0FF0, 0x11EE},    ir_send_upd6121g },
-	{ 4551,        IR_TYPE_NEC,            0x53AC,        {0x17E8, 0x12ED, 0x15EA, 0x1BE4},    ir_send_upd6121g },
+    
+    
+    {  291,        IR_TYPE_NEC,            0x01FE,        {0x10EF, 0x0EF1, 0x0FF0, 0x11EE},    ir_send_upd6121g },
+    { 4551,        IR_TYPE_NEC,            0x53AC,        {0x17E8, 0x12ED, 0x15EA, 0x1BE4},    ir_send_upd6121g },
     { 4561,        IR_TYPE_NEC,            0x837C,        {0x08F7, 0x02FD, 0x03FC, 0x09F6},    ir_send_upd6121g },
     { 4821,        IR_TYPE_NEC,            0x8722,        {0x41BE, 0xF00F, 0xF10E, 0xF30C},    ir_send_upd6121g },
-	{ 4861,        IR_TYPE_NEC,            0x837C,        {0x08F7, 0x02FD, 0x03FC, 0x09F6},    ir_send_upd6121g },
-	{ 5951,        IR_TYPE_NEC,            0x837C,        {0x08F7, 0x02FD, 0x03FC, 0x09F6},    ir_send_upd6121g },
-	{ 6057,        IR_TYPE_NEC,            0x84E0,        {0x20DF, 0x609F, 0x619E, 0x649B},    ir_send_upd6121g },
+    { 4861,        IR_TYPE_NEC,            0x837C,        {0x08F7, 0x02FD, 0x03FC, 0x09F6},    ir_send_upd6121g },
+    { 5951,        IR_TYPE_NEC,            0x837C,        {0x08F7, 0x02FD, 0x03FC, 0x09F6},    ir_send_upd6121g },
+    { 6057,        IR_TYPE_NEC,            0x84E0,        {0x20DF, 0x609F, 0x619E, 0x649B},    ir_send_upd6121g },
 
 
 
@@ -558,14 +558,14 @@ const ir_bit16db_t ir_code_stbl[MAX_IR_SPECIAL_TABLE_NUM] =
     { 6501,        IR_TYPE_NEC,            0x8605,        {0x0FF0, 0x0CF3, 0x0DF2, 0x0EF1},    ir_send_upd6121f },
     { 6511,        IR_TYPE_NEC,            0x8068,        {0x49B6, 0x0CF3, 0x0DF2, 0x40BF},    ir_send_upd6121f },
     { 3931,        IR_TYPE_NEC,            0x718E,        {0x4AB5, 0x59A6, 0x58A7, 0x6A95},    ir_send_upd6121f },
-	
-	{  501,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
-	{ 1161,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
-	{ 1841,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
-	{ 3521,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
-	{ 3561,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
-	{ 3761,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
-	{ 5821,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    
+    {  501,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    { 1161,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    { 1841,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    { 3521,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    { 3561,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    { 3761,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
+    { 5821,        IR_TYPE_LC7464M,        0x2002,        {0x3D, 0x20, 0x21, 0x32},    ir_send_lc7464m },
 #endif
 };
 
@@ -574,13 +574,13 @@ const ir_bit16db_t ir_code_stbl[MAX_IR_SPECIAL_TABLE_NUM] =
 
 ir_generaldb_t* irdb_getEntry(u16 tvcode)
 {
-	int i;
-	for (i = 0; i < MAX_IR_TABLE_NUM; i++) {
-		if (ir_code_tbl[i].tvcode == tvcode) {
-			return (ir_generaldb_t *)&ir_code_tbl[i];
-		}
-	}
-	return NULL;
+    int i;
+    for (i = 0; i < MAX_IR_TABLE_NUM; i++) {
+        if (ir_code_tbl[i].tvcode == tvcode) {
+            return (ir_generaldb_t *)&ir_code_tbl[i];
+        }
+    }
+    return NULL;
 }
 
 
@@ -589,13 +589,14 @@ ir_bit16db_t* irdb16_getEntry(u16 tvcode)
     int i;
     /* Not Found, search 16 bit IR table */
     for (i = 0; i < MAX_IR_SPECIAL_TABLE_NUM; i++) {
-		if (ir_code_stbl[i].tvcode == tvcode) {
-			return (ir_bit16db_t *)&ir_code_stbl[i];
-		}
-	}
-	return NULL;
+        if (ir_code_stbl[i].tvcode == tvcode) {
+            return (ir_bit16db_t *)&ir_code_stbl[i];
+        }
+    }
+    return NULL;
 }
 #endif
+
 
 
 

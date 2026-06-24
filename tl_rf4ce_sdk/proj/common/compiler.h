@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for compiler.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -24,47 +24,61 @@
 #pragma once
 
 
-#define _attribute_packed_		__attribute__((packed))
-#define _attribute_aligned_(s)	__attribute__((aligned(s)))
-#define _attribute_session_(s)	__attribute__((section(s)))
-#define _attribute_ram_code_  	_attribute_session_(".ram_code")
-#define _attribute_custom_code_  	_attribute_session_(".custom") volatile
-#define _attribute_no_inline_   __attribute__((noinline)) 
-#define _attribute_ram_code_sec_      			__attribute__((section(".ram_code")))
-#define _attribute_ram_code_sec_noinline_      	__attribute__((section(".ram_code"))) __attribute__((noinline))
+#define _attribute_packed_                   __attribute__((packed))
+#define _attribute_aligned_(s)               __attribute__((aligned(s)))
+#define _attribute_session_(s)               __attribute__((section(s)))
+#define _attribute_ram_code_                 _attribute_session_(".ram_code")
+#define _attribute_custom_code_              _attribute_session_(".custom") volatile
+#define _attribute_no_inline_                __attribute__((noinline)) 
+#define _attribute_ram_code_sec_             __attribute__((section(".ram_code")))
+#define _attribute_ram_code_sec_noinline_    __attribute__((section(".ram_code"))) __attribute__((noinline))
 
-#define _inline_ 				inline				//   C99 meaning
+#define _inline_                             inline//   C99 meaning
 
 
-#ifndef	BLC_PM_DEEP_RETENTION_MODE_EN
-#define	BLC_PM_DEEP_RETENTION_MODE_EN					0
+#ifndef BLC_PM_DEEP_RETENTION_MODE_EN
+#define BLC_PM_DEEP_RETENTION_MODE_EN                    0
 #endif
 
 #if (BLC_PM_DEEP_RETENTION_MODE_EN)
-	#define _attribute_data_retention_   __attribute__((section(".retention_data")))
+    #define _attribute_data_retention_   __attribute__((section(".retention_data")))
 #else
-	#define _attribute_data_retention_
+    #define _attribute_data_retention_
 #endif
 
+#define _attribute_text_sec_                 __attribute__((section(".text"))) __attribute__((noinline))//Inlining happens when __attribute__((noinline)) is not added.
 
+#define _attribute_aes_data_sec_             __attribute__((section(".aes_data")))
 
-#define _attribute_ram_code_sec_      			__attribute__((section(".ram_code")))
+#define _attribute_data_retention_sec_       __attribute__((section(".retention_data")))
 
-#define _attribute_ram_code_sec_noinline_      	__attribute__((section(".ram_code"))) __attribute__((noinline))
+#define _attribute_aligned_(s)               __attribute__((aligned(s)))
 
-#define _attribute_text_sec_   					__attribute__((section(".text"))) __attribute__((noinline))//Inlining happens when __attribute__((noinline)) is not added.
+#define _always_inline                       inline __attribute__((always_inline))
 
-#define _attribute_aes_data_sec_      			__attribute__((section(".aes_data")))
+#ifndef STD_GCC //standard open source risc-V GCC
+#define _attribute_flash_code_sec_noinline_             __attribute__((section(".flash_code"))) __attribute__((optimize("O2"))) __attribute__((noinline)) __attribute__((no_execit))
+#else
+#define _attribute_flash_code_sec_noinline_             __attribute__((section(".flash_code"))) __attribute__((noinline))
+#endif
 
-#define _attribute_data_retention_sec_   		__attribute__((section(".retention_data")))
+/**
+ * No_execit must be added here for the following reasons: When compiling at the optimization level of -Os, link may use exec.it for functions compiled at -O2. To disable this behavior,
+ * add -mno-exit to the linking phase (see Andes Programming Guide), or add _attribute_((no_execit)) to functions that don't want to use exec.it.
+ */
+#ifndef STD_GCC //standard open source risc-V GCC
+    #define _attribute_ram_code_sec_optimize_o2_             __attribute__((section(".ram_code"))) __attribute__((optimize("O2"))) __attribute__((no_execit))
+    #define _attribute_ram_code_sec_optimize_o2_noinline_    __attribute__((noinline)) __attribute__((section(".ram_code"))) __attribute__((optimize("O2"))) __attribute__((no_execit))
+#else
+    #define _attribute_ram_code_sec_optimize_o2_             __attribute__((section(".ram_code"))) __attribute__((optimize("O2")))
+    #define _attribute_ram_code_sec_optimize_o2_noinline_    __attribute__((noinline)) __attribute__((section(".ram_code"))) __attribute__((optimize("O2")))
 
-#define _attribute_aligned_(s)					__attribute__((aligned(s)))
-
-#define _always_inline                          inline __attribute__((always_inline))
+#endif
 
 /// Pack a structure field
-#define __PACKED __attribute__ ((__packed__))
+#define __PACKED    __attribute__ ((__packed__))
 
 
-#define _inline_ 				inline				//   C99 meaning
+#define _inline_    inline//   C99 meaning
+
 

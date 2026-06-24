@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	drv_timer.h
+ * @file    drv_timer.h
  *
- * @brief	This is the header file for drv_timer
+ * @brief    This is the header file for drv_timer
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee GROUP
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -45,62 +45,63 @@
  *******************************************************************************************************/
 #pragma once
 
-
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define S_TIMER_CLOCK_1US				sysTimerPerUs
-	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
-#elif defined(MCU_CORE_B92)
-	#define S_TIMER_CLOCK_1US				sysTimerPerUs
-	#define H_TIMER_CLOCK_1US				(sys_clk.pclk)
+    #define S_TIMER_CLOCK_1US    sysTimerPerUs
+    #define S_TIMER_CLOCK_1MS    sysTimerPerUs*1000
+    #define H_TIMER_CLOCK_1US    (CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+    #define S_TIMER_CLOCK_1US    SYSTEM_TIMER_TICK_1US
+    #define S_TIMER_CLOCK_1MS    SYSTEM_TIMER_TICK_1MS
+    #define H_TIMER_CLOCK_1US    (sys_clk.pclk)
 
-//	#define clock_time()					stimer_get_tick()
-	#define WaitUs(us)						delay_us(us)
-	#define WaitMs(ms)						delay_ms(ms)
+//    #define clock_time()                    stimer_get_tick()
+    #define WaitUs(us)           delay_us(us)
+    #define WaitMs(ms)           delay_ms(ms)
 #endif
 
-#define TIMER_TICK_1US_GET(idx)				((idx < TIMER_IDX_3) ? H_TIMER_CLOCK_1US : S_TIMER_CLOCK_1US)
+#define TIMER_TICK_1US_GET(idx)    ((idx < TIMER_IDX_3) ? H_TIMER_CLOCK_1US : S_TIMER_CLOCK_1US)
  
 /**
  * hardware_timer_index Hardware Timer Index
  */
-#define TIMER_IDX_0             			0 //!< Timer0
-#define TIMER_IDX_1             			1 //!< Timer1
-#define TIMER_IDX_2             			2 //!< Timer2, for Watch dog.
-#define TIMER_IDX_3							3 //!< SYS Timer, for MAC-CSMA.
-#define TIMER_NUM               			4 //!< Total number of timer
+#define TIMER_IDX_0                0//!< Timer0
+#define TIMER_IDX_1                1//!< Timer1
+#define TIMER_IDX_2                2//!< Timer2, for Watch dog.
+#define TIMER_IDX_3                3//!< SYS Timer, for MAC-CSMA.
+#define TIMER_NUM                  4//!< Total number of timer
 
 
 /**
  * hardware_timer_mode Hardware Timer Mode
  */
-#define TIMER_MODE_SCLK         			0 //!< Timer running in the system clock mode, it will free run from 0 to 0xffffffff
-#define TIMER_MODE_GPIO         			1
-#define TIMER_MODE_WIDTH_GPIO   			2
-#define TIMER_MODE_TICK_MODE    			3
+#define TIMER_MODE_SCLK            0//!< Timer running in the system clock mode, it will free run from 0 to 0xffffffff
+#define TIMER_MODE_GPIO            1
+#define TIMER_MODE_WIDTH_GPIO      2
+#define TIMER_MODE_TICK_MODE       3
 
 /**
  * hardware_timer_state Hardware Timer State
  */
-#define TIMER_IDLE              			0 //!< Indicating the timer is not running
-#define TIMER_WOF               			1 //!< Waiting for overflow
-#define TIMER_WTO               			2 //!< Waiting for time out
+#define TIMER_IDLE                 0//!< Indicating the timer is not running
+#define TIMER_WOF                  1//!< Waiting for overflow
+#define TIMER_WTO                  2//!< Waiting for time out
 
 
 /**
  *  @brief  Definition for 64 bit timer unit
  */
 typedef struct{
-    u32 low;
-    u32 high;
+    u32    low;
+    u32    high;
 }ext_clk_t;
 
 /**
  *  @brief  Status of Hardware Timer
  */
 typedef enum hw_timer_sts_e{
-	HW_TIMER_SUCC 		= 0,
+    HW_TIMER_SUCC         = 0,
     HW_TIMER_IS_RUNNING = 1,
-	HW_TIMER_INVALID,
+    HW_TIMER_INVALID,
 }hw_timer_sts_t;
 
 /**
@@ -152,4 +153,14 @@ void drv_timer_irq1_handler(void);
 void drv_timer_irq3_handler(void);
 void drv_timer_irq2_handler(void);
 
+/*
+ * @brief     This function refer to clear timer irq status.
+ * @param[in] status - variable of enumeration to select the timer interrupt source.
+ * @return    none
+ */
+_attribute_ram_code_ void drv_timer_clear_irq(u8 tmrIdx);
+
+void hwTimerStart(u8 tmrIdx);
+
+void hwTimerInfoReset(u8 tmrIdx);
 

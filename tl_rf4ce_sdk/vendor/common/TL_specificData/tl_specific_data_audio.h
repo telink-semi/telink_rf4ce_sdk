@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for tl_specific_data_audio.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -28,32 +28,32 @@
  * audio command
  * */
 typedef enum{
-	TL_CMD_AUDIO_START_REQ 		= 0x01,
-	TL_CMD_AUDIO_STOP_REQ 		= 0x02,
-	TL_CMD_AUDIO_DATA_NOTIFY 	= 0x03,
-	TL_CMD_AUDIO_START_RSP 		= 0x81,
-	TL_CMD_AUDIO_STOP_RSP 		= 0x82,
-	TL_CMD_AUDIO_DATA_RSP 		= 0x83,
+    TL_CMD_AUDIO_START_REQ         = 0x01,
+    TL_CMD_AUDIO_STOP_REQ          = 0x02,
+    TL_CMD_AUDIO_DATA_NOTIFY       = 0x03,
+    TL_CMD_AUDIO_START_RSP         = 0x81,
+    TL_CMD_AUDIO_STOP_RSP          = 0x82,
+    TL_CMD_AUDIO_DATA_RSP          = 0x83,
 }tl_audioCmdId_e;
 
 enum{
-	TL_AUDIO_SAMPLE_RATE_8K = 0x01,
-	TL_AUDIO_SAMPLE_RATE_16K = 0x02,
+    TL_AUDIO_SAMPLE_RATE_8K  = 0x01,
+    TL_AUDIO_SAMPLE_RATE_16K = 0x02,
 };
 
 enum{
-	TL_AUDIO_CODEC_TYPE_ADPCM = 0x01,
+    TL_AUDIO_CODEC_TYPE_ADPCM = 0x01,
 };
 
 enum{
-	AUDIO_ED_SCAN_STA_IDLE,
-	AUDIO_ED_SCAN_STA_DOING,
-	AUDIO_ED_SCAN_STA_DONE
+    AUDIO_ED_SCAN_STA_IDLE,
+    AUDIO_ED_SCAN_STA_DOING,
+    AUDIO_ED_SCAN_STA_DONE
 };
 enum{
-	TL_AUDIO_STA_START = 0x90, 		//!< audio start
-	TL_AUDIO_STA_TIMEOUT = 0x91, 		//!< audio start timeout
-	TL_AUDIO_STA_STOP = 0x92, 		//!< audio stop
+    TL_AUDIO_STA_START   = 0x90,         //!< audio start
+    TL_AUDIO_STA_TIMEOUT = 0x91,         //!< audio start timeout
+    TL_AUDIO_STA_STOP    = 0x92,         //!< audio stop
 };
 
 
@@ -61,31 +61,31 @@ enum{
 
 
 typedef struct{
-	u16 sampleRate;
-	u8 	resoutionBits;
-	u8 	micChlNum;
-	u8 	codecType;
-	u8 	pktSize;
-	u8 	interval;
+    u16    sampleRate;
+     u8    resoutionBits;
+     u8    micChlNum;
+     u8    codecType;
+     u8    pktSize;
+     u8    interval;
 }tl_audioRecInfo_t;
 
 typedef struct{
-	u16 sampleRate;
-	u8 resoutionBits;
-	u8 micChlNum;
-	u8 codecType;
-	u8 pktSize;
-	u8 interval;
-	u8 channelNum;
-	u8 duration;
+    u16    sampleRate;
+     u8    resoutionBits;
+     u8    micChlNum;
+     u8    codecType;
+     u8    pktSize;
+     u8    interval;
+     u8    channelNum;
+     u8    duration;
 }tl_audioStartReq_t;
 
 typedef struct{
-	u8 bestChannel;
+    u8 bestChannel;
 }tl_audioStartRsp_t;
 
 typedef struct{
-	u8 state;
+    u8 state;
 }tl_audioStopRsp_t;
 
 typedef void (*audioUserCb)(u8 state, u8 status);
@@ -93,13 +93,13 @@ typedef void (*audioUserCb)(u8 state, u8 status);
  *  @brief  Define the structure for audio various
  */
 typedef struct{
-	ev_time_event_t *dataReqTimeoutCb;  //!< time out callback for data request
-	audioUserCb audioCb; //!< audio call back for application
-	u8  channelNum;
-	u8  scanDuration;
-	u8  scanSta;
-	u8	pairingRef;
-	u8	dataReqRetries;
+    ev_time_event_t    *dataReqTimeoutCb;    //!< time out callback for data request
+        audioUserCb    audioCb;    //!< audio call back for application
+                 u8    channelNum;
+                 u8    scanDuration;
+                 u8    scanSta;
+                 u8    pairingRef;
+                 u8    dataReqRetries;
 }audioVars_t;
 
 
@@ -122,3 +122,4 @@ u8 app_audioStart(u8 channelNum, u8 duration, audioUserCb cb);
 //u8 tl_audioDataSendCnfHandler(u8 handler, u8 *cnf);
 
 #endif /* TL_AUDIO_H_ */
+

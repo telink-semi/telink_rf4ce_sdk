@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for rf4ce_config.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -88,7 +88,7 @@ zid_proxy_entry_t zid_proxyTable[RF4CE_MAX_PAIR_ENTRY_NUM];
 #endif
 
 #if (RF4CE_MSO_ENABLE)
-#define RF4CE_OP_CHAN_NUM	3
+#define RF4CE_OP_CHAN_NUM    3
 
 u8 rf4ce_opChanNum  = RF4CE_OP_CHAN_NUM;
 u8 rf4ce_opChanList[RF4CE_OP_CHAN_NUM] = {15, 20, 25};
@@ -96,7 +96,7 @@ u8 rf4ce_opChanList[RF4CE_OP_CHAN_NUM] = {15, 20, 25};
 
 
 #if (RF4CE_ZRC2_ENABLE)
-#define RF4CE_OP_CHAN_NUM	3
+#define RF4CE_OP_CHAN_NUM    3
 
 u8 rf4ce_opChanNum  = RF4CE_OP_CHAN_NUM;
 u8 rf4ce_opChanList[RF4CE_OP_CHAN_NUM] = {15, 20, 25};
@@ -104,40 +104,40 @@ u8 rf4ce_opChanList[RF4CE_OP_CHAN_NUM] = {15, 20, 25};
 
 
 u8 RF4CE_Channel2Idx(u8 chn){
-	for(u32 i = 0; i < RF4CE_OP_CHAN_NUM; i++){
-		if(chn == rf4ce_opChanList[i]){
-			return i;
-		}
-	}
-	return 0;
+    for(u32 i = 0; i < RF4CE_OP_CHAN_NUM; i++){
+        if(chn == rf4ce_opChanList[i]){
+            return i;
+        }
+    }
+    return 0;
 }
 
 u8 RF4CE_Idx2Channel(u8 idx){
-	return rf4ce_opChanList[idx];
+    return rf4ce_opChanList[idx];
 }
 
 u8 RF4CENextChannel(u8 ch) {
-	for(u32 i = 0; i < RF4CE_OP_CHAN_NUM; i++){
-		if(ch == rf4ce_opChanList[i]){
-			if(i == RF4CE_OP_CHAN_NUM-1){
-				return rf4ce_opChanList[0];
-			}
-			return rf4ce_opChanList[i+1];
-		}
-	}
-	return rf4ce_opChanList[0];
+    for(u32 i = 0; i < RF4CE_OP_CHAN_NUM; i++){
+        if(ch == rf4ce_opChanList[i]){
+            if(i == RF4CE_OP_CHAN_NUM-1){
+                return rf4ce_opChanList[0];
+            }
+            return rf4ce_opChanList[i+1];
+        }
+    }
+    return rf4ce_opChanList[0];
 }
 
 u8 RF4CEPreviousChannel(u8 ch){
-	for(u32 i = 0; i < RF4CE_OP_CHAN_NUM; i++){
-		if(ch == rf4ce_opChanList[i]){
-			if(i == 0){
-				return rf4ce_opChanList[RF4CE_OP_CHAN_NUM-1];
-			}
-			return rf4ce_opChanList[i-1];
-		}
-	}
-	return rf4ce_opChanList[0];
+    for(u32 i = 0; i < RF4CE_OP_CHAN_NUM; i++){
+        if(ch == rf4ce_opChanList[i]){
+            if(i == 0){
+                return rf4ce_opChanList[RF4CE_OP_CHAN_NUM-1];
+            }
+            return rf4ce_opChanList[i-1];
+        }
+    }
+    return rf4ce_opChanList[0];
 }
 
 
@@ -148,15 +148,15 @@ u8 RF4CEPreviousChannel(u8 ch){
     #if RF4CE_CONTROLLER
         const u8 ZRC2_CLASS_FILTER = 0xe0;
         const u8 ZRC2_MIN_LQI_FILTER = 0x00;
-		const u16 ZRC2_FILTER_VENDOR_ID = 0xffff;//0x1234;
+        const u16 ZRC2_FILTER_VENDOR_ID = 0xffff;//0x1234;
         zrc2_tgtPib_t  zrc2_tgtRibAttrTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
-		gdp_tgtAttr_t gdp_tgtAttrValTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
-	#else
+        gdp_tgtAttr_t gdp_tgtAttrValTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
+    #else
         const u8 ZRC2_DEFALUT_CLASS_DESP = 0x22;
         const u8 ZRC2_DEFALUT_LQI_THRESHOLD = 0x00;
         //const u16 ZRC_VENDOR_ID = 0x1234;
-	    zrc2_rcPib_t zrc2_rcRibAttrTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
-		gdp_rcAttr_t gdp_rcAttrValTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
+        zrc2_rcPib_t zrc2_rcRibAttrTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
+        gdp_rcAttr_t gdp_rcAttrValTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
     #endif
     const u8 ZRC2_APP_VENDOR_STRING[] = {'T', 'L', 0x20, 0x20, 0x20, 0x20}; //{'T', 'L', 0x20, 0x20, 0x20};  //{'U', 'E', 'I', 0x20, 0x20}; //{'U', 'E', 'I', 0x20, 0x20};//{'T', 'E', 'L', 'I', 'N', 'K', 0x20};
     const u8 ZRC2_APP_USER_STRING[] = {'S', 'R', '-', '0', '0', '1', '-', 'U', 0, 0,0,0,0,0,0}; // {'H', 'D', 'u', 'D', 'T', 'A', 0, 0, 0, 0, 0}; //"SR-002-U";//{'T', 'E', 'L', 'I', 'N', 'K', 0, 0, 0};//{'G', 'P', 'R', 'E', 'F', 0, 0, '9', 0};//{'T', 'e', 'l', 'i', 'n', 'k', 0, 0, 0};
@@ -169,7 +169,7 @@ mso_ribAttr_t mso_ribAttrTbl[RF4CE_MAX_PAIR_ENTRY_NUM];
 const u8 mso_maxGeneralPurposeCnt = MSO_MAX_GENERAL_PURPOSE_CNT;
 
 
-#define APP_VENDOR_ID_SUPPPORT_MAX	3
+#define APP_VENDOR_ID_SUPPPORT_MAX    3
 //const u16 APP_VENDOR_ID_LIST[] = {0x1141};   //{0x10D0, 0x10bc,0x10cb};
 //u16 *MSO_APP_VENDOR_ID_LIST = &APP_VENDOR_ID_LIST[0];
 //const u8 MSO_APP_VENDOR_STRING[] = {'T', 'L', 0, 0, 0, 0, 0};

@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for drv_i2c.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -27,10 +27,10 @@
 #include "../common/compiler.h"
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define I2C_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
-#elif defined(MCU_CORE_B92)
-	/* PCLK provides clock source for I2C module. */
-	#define I2C_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
+    #define I2C_CLOCK_SOURCE            CLOCK_SYS_CLOCK_HZ
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
+    /* PCLK provides clock source for I2C module. */
+    #define I2C_CLOCK_SOURCE            (sys_clk.pclk * 1000 * 1000)
 #endif
 
 
@@ -43,10 +43,10 @@
 void drv_i2c_master_init(u8 SlaveID, u32 i2cClock);
 
 /**
- *	@brief      the function config the ID of slave and mode of slave.
- *	@param[in]  deviceID - it contains write or read bit,the lsb is write or read bit.
- *			    ID|0x01 indicate read. ID&0xfe indicate write.
- *	@return     none
+ *    @brief      the function config the ID of slave and mode of slave.
+ *    @param[in]  deviceID - it contains write or read bit,the lsb is write or read bit.
+ *                ID|0x01 indicate read. ID&0xfe indicate write.
+ *    @return     none
  */
 void drv_i2c_slave_init(u8 deviceID);
 
@@ -98,10 +98,12 @@ void drv_i2c_read_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dat
  * @param[in]  Pin Group or Pins
  * @return     none
  */
-#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 void drv_i2c_gpio_set(I2C_GPIO_GroupTypeDef i2c_pin_group);
 #elif defined(MCU_CORE_8278)
 void drv_i2c_gpio_set(I2C_GPIO_SdaTypeDef sda_pin, I2C_GPIO_SclTypeDef scl_pin);
 #elif defined(MCU_CORE_B92)
+void drv_i2c_gpio_set(gpio_func_pin_e sda_pin, gpio_func_pin_e scl_pin);
+#elif defined(MCU_CORE_TL321X)
 void drv_i2c_gpio_set(gpio_func_pin_e sda_pin, gpio_func_pin_e scl_pin);
 #endif

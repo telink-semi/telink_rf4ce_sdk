@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for usb.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -32,25 +32,25 @@ extern "C" {
 
 enum {
     //  3000 ms
-	USB_TIME_BEFORE_ALLOW_SUSPEND = (3000*1000),
+    USB_TIME_BEFORE_ALLOW_SUSPEND = (3000*1000),
 };
 
 enum {
-	USB_IRQ_SETUP_REQ = 0,
-	USB_IRQ_DATA_REQ,
+    USB_IRQ_SETUP_REQ = 0,
+    USB_IRQ_DATA_REQ,
 };
 
 
 // telink usb report ctrl command. used mixed with USB_AUD_PLAY_PAUSE...
 enum{
-	USB_REPORT_NO_EVENT		= 0xf0,
-	USB_REPORT_RELEASE 		= 0xff,
+    USB_REPORT_NO_EVENT        = 0xf0,
+    USB_REPORT_RELEASE         = 0xff,
 };
 
 #if (USB_MIC_ENABLE)
 extern u8 usb_alt_intf[USB_INTF_MAX];
 static inline int usb_mic_is_enable(){
-	return usb_alt_intf[USB_INTF_MIC];
+    return usb_alt_intf[USB_INTF_MIC];
 }
 #endif
 
@@ -62,17 +62,18 @@ void usb_init();
 void usb_handle_irq(void);
 
 
-#ifndef		USB_SOFTWARE_CRC_CHECK
-#define		USB_SOFTWARE_CRC_CHECK		0
+#ifndef        USB_SOFTWARE_CRC_CHECK
+#define        USB_SOFTWARE_CRC_CHECK        0
 #endif
 
-#define MS_VENDORCODE            'T'    //This must match the char after the "MSFT100"
-#define STRING_MSFT              L"MSFT100T"
+#define MS_VENDORCODE              'T'//This must match the char after the "MSFT100"
+#define STRING_MSFT                L"MSFT100T"
 
-#define MS_OS_DESCRIPTOR_ENABLE        0
+#define MS_OS_DESCRIPTOR_ENABLE    0
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 }
 #endif
+
 

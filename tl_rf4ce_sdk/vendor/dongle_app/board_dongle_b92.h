@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for board_dongle_8278.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -26,12 +26,12 @@
 
 
 //#if (MODULE_USB_ENABLE)
-//#define	PA5_FUNC				AS_USB
-//#define	PA6_FUNC				AS_USB
-//#define PA5_INPUT_ENABLE		1
-//#define PA6_INPUT_ENABLE		1
+//#define    PA5_FUNC                AS_USB
+//#define    PA6_FUNC                AS_USB
+//#define PA5_INPUT_ENABLE        1
+//#define PA6_INPUT_ENABLE        1
 //#endif
-#define FLASH_CAP_SIZE_1M			1
+#define FLASH_CAP_SIZE_1M            1
 
 
 /*
@@ -40,14 +40,15 @@
  *
  * */
 #if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN	    GPIO_PA4
+#define    DEBUG_INFO_TX_PIN        GPIO_PA4
 #endif
 
 
 
-#define	PA3_FUNC				AS_GPIO
-#define PA3_INPUT_ENABLE		0
-#define PA3_OUTPUT_ENABLE		1
+#define PA3_FUNC             AS_GPIO
+#define PA3_INPUT_ENABLE     0
+#define PA3_OUTPUT_ENABLE    1
+
 
 
 

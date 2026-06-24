@@ -41,6 +41,7 @@
 #include "pwm.h"
 #include "audio.h"
 #include "flash.h"
+#include "flash/flash_type.h"
 #include "i2c.h"
 #include "spi.h"
 #include "uart.h"

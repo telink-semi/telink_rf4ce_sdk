@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for main.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,23 +29,23 @@
 #endif
 #include "../../proj/os/sys.h"
 #include "../../proj/drivers/drv_pm.h"
-
+#include "app_common.h"
 
 volatile u32 tick_usb_enum=0;
 
 
 int main (void) {
-	u8 isDeepBack = drv_platform_init();
+    drv_platform_init();
 
-	sysIdleTaskInit();
+    sysIdleTaskInit();
 
-	ev_buf_init();
+    ev_buf_init();
 
-	task_sched_init();
+    task_sched_init();
 
-    user_init ();
+    user_init();
 
-    tick_usb_enum = clock_time ();
+    tick_usb_enum = clock_time();
 
     irq_enable();
 
@@ -64,9 +64,9 @@ int main (void) {
         ev_main();
 
 #if (MODULE_AUDIO_ENABLE)
-		if (audio_recTaskStatusGet() == AUDIO_OPENED) {
-			audio_recTaskRun();
-		}
+        if (audio_recTaskStatusGet() == AUDIO_OPENED) {
+            audio_recTaskRun();
+        }
 #endif
     }
 }

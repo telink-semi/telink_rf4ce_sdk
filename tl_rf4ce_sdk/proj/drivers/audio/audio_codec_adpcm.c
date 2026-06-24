@@ -3,7 +3,7 @@
  *
  * @brief   This is the source file for audio_codec_adpcm.c
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -23,8 +23,8 @@
 
 #include "drv_audio.h"
 
-#ifndef		TL_MIC_32K_FIR_16K
-#define		TL_MIC_32K_FIR_16K		0
+#ifndef        TL_MIC_32K_FIR_16K
+#define        TL_MIC_32K_FIR_16K        0
 #endif
 
 int md_long =0;
@@ -46,218 +46,218 @@ static const unsigned short steptbl[] = {
     15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767   };
 
 //////////////////////////////////////////////////////////
-//	for 8266: input 128-word, output 80-byte
+//    for 8266: input 128-word, output 80-byte
 //////////////////////////////////////////////////////////
 void pcm_to_adpcm (signed short *ps, int len, signed short *pd)
 {
-	int i, j;
-	unsigned short code=0;
-	unsigned short code16=0;
-	int predict_idx = 1;
-	code = 0;
+    int i, j;
+    unsigned short code=0;
+    unsigned short code16=0;
+    int predict_idx = 1;
+    code = 0;
 
-	for (i=0; i<8; i++) {
-		*pd++ = ps[i];   //copy first 8 samples
-	}
-	int predict = ps[0];
-	for (i=1; i<len; i++) {
+    for (i=0; i<8; i++) {
+        *pd++ = ps[i];   //copy first 8 samples
+    }
+    int predict = ps[0];
+    for (i=1; i<len; i++) {
 
-		s16 di = ps[i];
-		int step = steptbl[predict_idx];
-		int diff = di - predict;
+        s16 di = ps[i];
+        int step = steptbl[predict_idx];
+        int diff = di - predict;
 
-		if (diff >=0 ) {
-			code = 0;
-		}
-		else {
-			diff = -diff;
-			code = 8;
-		}
+        if (diff >=0 ) {
+            code = 0;
+        }
+        else {
+            diff = -diff;
+            code = 8;
+        }
 
-		int diffq = step >> 3;
+        int diffq = step >> 3;
 
-		for (j=4; j>0; j=j>>1) {
-			if( diff >= step) {
-				diff = diff - step;
-				diffq = diffq + step;
-				code = code + j;
-			}
-			step = step >> 1;
-		}
+        for (j=4; j>0; j=j>>1) {
+            if( diff >= step) {
+                diff = diff - step;
+                diffq = diffq + step;
+                code = code + j;
+            }
+            step = step >> 1;
+        }
 
-		code16 = (code16 >> 4) | (code << 12);
-		if ( (i&3) == 3) {
-			*pd++ = code16;
-		}
+        code16 = (code16 >> 4) | (code << 12);
+        if ( (i&3) == 3) {
+            *pd++ = code16;
+        }
 
-		if(code >= 8) {
-			predict = predict - diffq;
-		}
-		else {
-			predict = predict + diffq;
-		}
+        if(code >= 8) {
+            predict = predict - diffq;
+        }
+        else {
+            predict = predict + diffq;
+        }
 
-		if (predict > 32767) {
-			predict = 32767;
-		}
-		else if (predict < -32767) {
-			predict = -32767;
-		}
+        if (predict > 32767) {
+            predict = 32767;
+        }
+        else if (predict < -32767) {
+            predict = -32767;
+        }
 
-		predict_idx = predict_idx + idxtbl[code];
-		if(predict_idx < 0) {
-			predict_idx = 0;
-		}
-		else if(predict_idx > 88) {
-			predict_idx = 88;
-		}
-	}
+        predict_idx = predict_idx + idxtbl[code];
+        if(predict_idx < 0) {
+            predict_idx = 0;
+        }
+        else if(predict_idx > 88) {
+            predict_idx = 88;
+        }
+    }
 }
 
-#define				NUM_OF_ORIG_SAMPLE				2
+#define                NUM_OF_ORIG_SAMPLE                2
 void mic_to_adpcm (signed short *ps, int len, signed short *pd)
 {
-	int i, j;
-	unsigned short code=0;
-	unsigned short code16=0;
-	int predict_idx = 1;
-	code = 0;
+    int i, j;
+    unsigned short code=0;
+    unsigned short code16=0;
+    int predict_idx = 1;
+    code = 0;
 
-	for (i=0; i<NUM_OF_ORIG_SAMPLE; i++) {
-		*pd++ = ps[i];   //copy first 5 samples
-	}
-	int predict = ps[0];
-	for (i=1; i<len; i++) {
+    for (i=0; i<NUM_OF_ORIG_SAMPLE; i++) {
+        *pd++ = ps[i];   //copy first 5 samples
+    }
+    int predict = ps[0];
+    for (i=1; i<len; i++) {
 
-		s16 di = ps[i];
-		int step = steptbl[predict_idx];
-		int diff = di - predict;
+        s16 di = ps[i];
+        int step = steptbl[predict_idx];
+        int diff = di - predict;
 
-		if (diff >=0 ) {
-			code = 0;
-		}
-		else {
-			diff = -diff;
-			code = 8;
-		}
+        if (diff >=0 ) {
+            code = 0;
+        }
+        else {
+            diff = -diff;
+            code = 8;
+        }
 
-		int diffq = step >> 3;
+        int diffq = step >> 3;
 
-		for (j=4; j>0; j=j>>1) {
-			if( diff >= step) {
-				diff = diff - step;
-				diffq = diffq + step;
-				code = code + j;
-			}
-			step = step >> 1;
-		}
+        for (j=4; j>0; j=j>>1) {
+            if( diff >= step) {
+                diff = diff - step;
+                diffq = diffq + step;
+                code = code + j;
+            }
+            step = step >> 1;
+        }
 
-		code16 = (code16 >> 4) | (code << 12);
-		if ( (i&3) == 3) {
-			*pd++ = code16;
-		}
+        code16 = (code16 >> 4) | (code << 12);
+        if ( (i&3) == 3) {
+            *pd++ = code16;
+        }
 
-		if(code >= 8) {
-			predict = predict - diffq;
-		}
-		else {
-			predict = predict + diffq;
-		}
+        if(code >= 8) {
+            predict = predict - diffq;
+        }
+        else {
+            predict = predict + diffq;
+        }
 
-		if (predict > 32767) {
-			predict = 32767;
-		}
-		else if (predict < -32767) {
-			predict = -32767;
-		}
+        if (predict > 32767) {
+            predict = 32767;
+        }
+        else if (predict < -32767) {
+            predict = -32767;
+        }
 
-		predict_idx = predict_idx + idxtbl[code];
-		if(predict_idx < 0) {
-			predict_idx = 0;
-		}
-		else if(predict_idx > 88) {
-			predict_idx = 88;
-		}
-	}
+        predict_idx = predict_idx + idxtbl[code];
+        if(predict_idx < 0) {
+            predict_idx = 0;
+        }
+        else if(predict_idx > 88) {
+            predict_idx = 88;
+        }
+    }
 }
 
 #if TL_MIC_BUFFER_SIZE
 /////////////////////////////////////////////////////////////////////////////////
-//	256-samples split into 2
+//    256-samples split into 2
 /////////////////////////////////////////////////////////////////////////////////
 void mic_to_adpcm_split (signed short *ps, int len, signed short *pds, int start)
 {
-	int i, j;
-	unsigned short code=0;
-	unsigned short code16=0;
-	static int predict_idx = 1;
-	code = 0;
-	static signed short *pd;
-	static int predict;
+    int i, j;
+    unsigned short code=0;
+    unsigned short code16=0;
+    static int predict_idx = 1;
+    code = 0;
+    static signed short *pd;
+    static int predict;
 
-	//byte2,byte1: predict;  byte3: predict_idx; byte4:adpcm data len
-	if (start)
-	{
-		pd = pds;
-		*pd++ = predict;
-		* (((signed char *)pds) + 2)= predict_idx;
-		* (((unsigned char *)pds) + 3)= (ADPCM_PACKET_LEN - 4);
-		pd++;
-	}
+    //byte2,byte1: predict;  byte3: predict_idx; byte4:adpcm data len
+    if (start)
+    {
+        pd = pds;
+        *pd++ = predict;
+        * (((signed char *)pds) + 2)= predict_idx;
+        * (((unsigned char *)pds) + 3)= (ADPCM_PACKET_LEN - 4);
+        pd++;
+    }
 
-	//byte5- byte128: 124 byte(62 sample) adpcm data
-	for (i=0; i<len; i++) {
+    //byte5- byte128: 124 byte(62 sample) adpcm data
+    for (i=0; i<len; i++) {
 
-		s16 di = ps[TL_MIC_32K_FIR_16K ? i * 2 : i];
-		int step = steptbl[predict_idx];
-		int diff = di - predict;
+        s16 di = ps[TL_MIC_32K_FIR_16K ? i * 2 : i];
+        int step = steptbl[predict_idx];
+        int diff = di - predict;
 
-		if (diff >=0 ) {
-			code = 0;
-		}
-		else {
-			diff = -diff;
-			code = 8;
-		}
+        if (diff >=0 ) {
+            code = 0;
+        }
+        else {
+            diff = -diff;
+            code = 8;
+        }
 
-		int diffq = step >> 3;
+        int diffq = step >> 3;
 
-		for (j=4; j>0; j=j>>1) {
-			if( diff >= step) {
-				diff = diff - step;
-				diffq = diffq + step;
-				code = code + j;
-			}
-			step = step >> 1;
-		}
+        for (j=4; j>0; j=j>>1) {
+            if( diff >= step) {
+                diff = diff - step;
+                diffq = diffq + step;
+                code = code + j;
+            }
+            step = step >> 1;
+        }
 
-		code16 = (code16 >> 4) | (code << 12);
-		if ( (i&3) == 3) {
-			*pd++ = code16;
-		}
+        code16 = (code16 >> 4) | (code << 12);
+        if ( (i&3) == 3) {
+            *pd++ = code16;
+        }
 
-		if(code >= 8) {
-			predict = predict - diffq;
-		}
-		else {
-			predict = predict + diffq;
-		}
+        if(code >= 8) {
+            predict = predict - diffq;
+        }
+        else {
+            predict = predict + diffq;
+        }
 
-		if (predict > 32767) {
-			predict = 32767;
-		}
-		else if (predict < -32767) {
-			predict = -32767;
-		}
+        if (predict > 32767) {
+            predict = 32767;
+        }
+        else if (predict < -32767) {
+            predict = -32767;
+        }
 
-		predict_idx = predict_idx + idxtbl[code];
-		if(predict_idx < 0) {
-			predict_idx = 0;
-		}
-		else if(predict_idx > 88) {
-			predict_idx = 88;
-		}
-	}
+        predict_idx = predict_idx + idxtbl[code];
+        if(predict_idx < 0) {
+            predict_idx = 0;
+        }
+        else if(predict_idx > 88) {
+            predict_idx = 88;
+        }
+    }
 }
 #endif
 
@@ -268,75 +268,75 @@ void mic_to_adpcm_split (signed short *ps, int len, signed short *pds, int start
     int len          -> decorded size
 */
 void adpcm_to_pcm (signed short *ps, signed short *pd, int len){
-	int i;
+    int i;
 
-	//byte2,byte1: predict;  byte3: predict_idx; byte4:adpcm data len
-	int predict = ps[0];
-	int predict_idx = ps[1] & 0xff;
+    //byte2,byte1: predict;  byte3: predict_idx; byte4:adpcm data len
+    int predict = ps[0];
+    int predict_idx = ps[1] & 0xff;
 
-	unsigned char *pcode = (unsigned char *) (ps + NUM_OF_ORIG_SAMPLE);
+    unsigned char *pcode = (unsigned char *) (ps + NUM_OF_ORIG_SAMPLE);
 
-	unsigned char code;
-	code = *pcode ++;
+    unsigned char code;
+    code = *pcode ++;
 
-	//byte5- byte128: 124 byte(62 sample) adpcm data
-	for (i=0; i<len; i++) {
+    //byte5- byte128: 124 byte(62 sample) adpcm data
+    for (i=0; i<len; i++) {
 
-		if (1) {
-			int step = steptbl[predict_idx];
+        if (1) {
+            int step = steptbl[predict_idx];
 
-			int diffq = step >> 3;
+            int diffq = step >> 3;
 
-			if (code & 4) {
-				diffq = diffq + step;
-			}
-			step = step >> 1;
-			if (code & 2) {
-				diffq = diffq + step;
-			}
-			step = step >> 1;
-			if (code & 1) {
-				diffq = diffq + step;
-			}
+            if (code & 4) {
+                diffq = diffq + step;
+            }
+            step = step >> 1;
+            if (code & 2) {
+                diffq = diffq + step;
+            }
+            step = step >> 1;
+            if (code & 1) {
+                diffq = diffq + step;
+            }
 
-			if (code & 8) {
-				predict = predict - diffq;
-			}
-			else {
-				predict = predict + diffq;
-			}
+            if (code & 8) {
+                predict = predict - diffq;
+            }
+            else {
+                predict = predict + diffq;
+            }
 
-			if (predict > 32767) {
-				predict = 32767;
-			}
-			else if (predict < -32767) {
-				predict = -32767;
-			}
+            if (predict > 32767) {
+                predict = 32767;
+            }
+            else if (predict < -32767) {
+                predict = -32767;
+            }
 
-			predict_idx = predict_idx + idxtbl[code & 15];
+            predict_idx = predict_idx + idxtbl[code & 15];
 
-			if(predict_idx < 0) {
-				predict_idx = 0;
-			}
-			else if(predict_idx > 88) {
-				predict_idx = 88;
-			}
+            if(predict_idx < 0) {
+                predict_idx = 0;
+            }
+            else if(predict_idx > 88) {
+                predict_idx = 88;
+            }
 
-			if (i&1) {
-				code = *pcode ++;
-			}
-			else {
-				code = code >> 4;
-			}
-		}
+            if (i&1) {
+                code = *pcode ++;
+            }
+            else {
+                code = code >> 4;
+            }
+        }
 
-		if (0 && i < NUM_OF_ORIG_SAMPLE) {
-			*pd++ = ps[i];
-		}
-		else {
-			*pd++ = predict;
-		}
-	}
+        if (0 && i < NUM_OF_ORIG_SAMPLE) {
+            *pd++ = ps[i];
+        }
+        else {
+            *pd++ = predict;
+        }
+    }
 }
 
 

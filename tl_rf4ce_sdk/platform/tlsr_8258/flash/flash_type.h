@@ -20,9 +20,8 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#ifndef __FLASH_COMPATIBLE_H__
-#define __FLASH_COMPATIBLE_H__
+#ifndef __FLASH_TYPE_H__
+#define __FLASH_TYPE_H__
 
 #include "../flash.h"
 #include "flash_mid13325e.h"	// ZB25WD40B

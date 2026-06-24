@@ -3,7 +3,7 @@
  *
  * @brief   This is the header file for rc_info.h
  *
- * @author	Zigbee GROUP
+ * @author  Zigbee GROUP
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -29,8 +29,8 @@
 //    PATCH_VER = 1,
 //    BUILD_VER = 4
 //};
-#define firmwareVersion 	0x01000106
-#define APP_VENDOR_ID_LIST  0x1141
+#define firmwareVersion       0x01000106
+#define APP_VENDOR_ID_LIST    0x1141
 
 #if (MCU_CORE_8258)
 #define CHIP_ID  0x8258
@@ -40,6 +40,8 @@
 #define CHIP_ID  0x8278
 #elif (MCU_CORE_B92)
 #define CHIP_ID  0x9528
+#elif (MCU_CORE_TL321X)
+#define CHIP_ID  0x321
 #else
 #define CHIP_ID  0x0000
 #endif
