@@ -111,6 +111,8 @@ unsigned short drv_ir_dma_plus_config(unsigned short plus_num,unsigned char carr
     return pwm_config_dma_fifo_waveform(carrien,PWM0_PULSE_NORMAL,plus_num);
 #elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
     return pwm_cal_pwm0_ir_fifo_cfg_data(plus_num,0,carrien);
+#else
+    return 0;
 #endif
 }
 

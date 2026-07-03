@@ -294,10 +294,12 @@ void drv_adc_battery_detect_init(void){
 #elif  defined(MCU_CORE_8258)
     drv_adc_mode_pin_set(Drv_ADC_VBAT_MODE, GPIO_PB7);
     drv_adc_enable(1);
+    extern void flash_safe_voltage_set(unsigned short vol);
     flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
 #elif  defined(MCU_CORE_8278)
     adc_vbat_init(GPIO_PB7);
     drv_adc_enable(1);
+    extern void flash_safe_voltage_set(unsigned short vol);
     flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
 #elif  defined(MCU_CORE_B92)
 

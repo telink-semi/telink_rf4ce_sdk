@@ -51,13 +51,6 @@ enum{
 
 tl_taskq_user_t taskQ_user = {{0},0,0};
 
-
-static u8 buf_type_get(void *arg){
-    u8 ret = BUF_TYPE_NORMAL;
-
-    return ret;
-}
-
 _attribute_ram_code_ u8 tl_taskQPush(u8 idx, tl_zb_task_t *task){
     tl_zb_task_t *nTask = NULL;
 
