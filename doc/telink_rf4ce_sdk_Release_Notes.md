@@ -1,3 +1,96 @@
+
+## V2.4.3.0
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR952x(B92)/TL321x A4
+* Hardware Version
+  - B92: C1T289A5_V1_0/C1T266A3V1_1
+  - TL321x: C1T345A5_V2_2/C1T335A3_V1_0  
+* Driver Version
+  - tl_platform_sdk V3.11.3(B92/TL321x)
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - B92: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+### Features
+* Support TL321x platform. 
+* Update driver to V3.11.3 for B92 and TL321x.
+* Add ZRC2 RCU demo for TL321x, support IR,IR learn and Audio function.
+* Add ZRC2 dongle demo for TL321x.
+* Add Flash protection processing.
+### Bug Fixes
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+  * tl_rf4ce_sdk/build/tlsr_tc32/zrc2_rc_8258
+    - Flash:93k
+    - RAM:19k
+  * tl_rf4ce_sdk/build/tlsr_tc32/zrc2_dongle_8258
+    - Flash:77k
+    - RAM:16k
+  * tl_rf4ce_sdk/build/tlsr_riscv_b92/zrc2_rc_b92
+    - Flash:110k
+    - RAM:25k
+  * tl_rf4ce_sdk/build/tlsr_riscv_b92/zrc2_dongle_b92
+    - Flash:90k
+    - RAM:18k
+  * tl_rf4ce_sdk/build/tl_riscv_tl321x/zrc2_rc_tl321x
+    - Flash:123k
+    - RAM:26k
+  * tl_rf4ce_sdk/build/tl_riscv_tl321x/zrc2_dongle_tl321x
+    - Flash:101k
+    - RAM:19k
+	
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR952x(B92)/TL321x A4
+* 硬件版本
+  - B92: C1T289A5_V1_0/C1T266A3V1_1
+  - TL321x: C1T345A5_V2_2/C1T335A3_V1_0  
+* 驱动版本
+  - tl_platform_sdk V3.11.3(B92/TL321x)
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - B92: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+### Features
+* 支持TL321x平台. 
+* 更新B92和TL321x的驱动版本到V3.11.3.
+* 在TL321x上添加ZRC2 RCU示例，支持红外发射，红外学习和Audio功能.
+* 在TL321x上添加ZRC2 Dongle示例.
+* 添加flash锁功能，全片保护.
+### Bug Fixes
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+  * tl_rf4ce_sdk/build/tlsr_tc32/zrc2_rc_8258
+    - Flash:93k
+    - RAM:19k
+  * tl_rf4ce_sdk/build/tlsr_tc32/zrc2_dongle_8258
+    - Flash:77k
+    - RAM:16k
+  * tl_rf4ce_sdk/build/tlsr_riscv_b92/zrc2_rc_b92
+    - Flash:110k
+    - RAM:25k
+  * tl_rf4ce_sdk/build/tlsr_riscv_b92/zrc2_dongle_b92
+    - Flash:90k
+    - RAM:18k
+  * tl_rf4ce_sdk/build/tl_riscv_tl321x/zrc2_rc_tl321x
+    - Flash:123k
+    - RAM:26k
+  * tl_rf4ce_sdk/build/tl_riscv_tl321x/zrc2_dongle_tl321x
+    - Flash:101k
+    - RAM:19k
+
 ## V2.4.2.0
 
 ### Features
