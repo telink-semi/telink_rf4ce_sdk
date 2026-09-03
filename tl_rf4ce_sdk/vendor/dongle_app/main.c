@@ -37,7 +37,7 @@ volatile u32 tick_usb_enum=0;
 
 int main (void) {
 
-    u8 isDeepBack = drv_platform_init();
+    drv_platform_init();
 
     sysIdleTaskInit();
 
@@ -45,6 +45,7 @@ int main (void) {
 
     task_sched_init();
 
+    extern void user_init(void);
     user_init();
 
 #if (MODULE_WATCHDOG_ENABLE)

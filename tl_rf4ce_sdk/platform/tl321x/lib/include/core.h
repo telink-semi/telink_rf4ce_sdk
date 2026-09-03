@@ -379,7 +379,7 @@ static _always_inline bool core_cclk_time_exceed(unsigned long long ref, unsigne
 _attribute_ram_code_sec_noinline_ void core_cclk_delay_tick(unsigned long long core_cclk_tick);
 
 typedef bool (*condition_fp)(void);
-typedef bool (*condition_fp_with_param)(unsigned int);
+typedef bool (*condition_fp_with_param)(unsigned char);
 typedef void (*timeout_handler_fp)(unsigned int err_code);
 
 /**

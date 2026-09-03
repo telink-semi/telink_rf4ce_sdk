@@ -231,7 +231,7 @@ static void proc_mic_encoder_b92 (void)
                         (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1))), 1);
 
 
-        u8 *ptr = (u8 *)(buffer_mic_enc + (ADPCM_PACKET_LEN>>2) * (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1)));
+//        u8 *ptr = (u8 *)(buffer_mic_enc + (ADPCM_PACKET_LEN>>2) * (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1)));
 
         buffer_mic_rptr = buffer_mic_rptr ? 0 : (TL_MIC_BUFFER_SIZE>>1);
         buffer_mic_pkt_wptr++;
@@ -320,7 +320,7 @@ static void proc_mic_encoder_tl321x(void)
                         (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1))), 1);
 
 
-        u8 *ptr = (u8 *)(buffer_mic_enc + (ADPCM_PACKET_LEN>>2) * (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1)));
+//        u8 *ptr = (u8 *)(buffer_mic_enc + (ADPCM_PACKET_LEN>>2) * (buffer_mic_pkt_wptr & (TL_MIC_PACKET_BUFFER_NUM - 1)));
 
         buffer_mic_rptr = buffer_mic_rptr ? 0 : (TL_MIC_BUFFER_SIZE>>3);
         buffer_mic_pkt_wptr++;

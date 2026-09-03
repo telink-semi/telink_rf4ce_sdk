@@ -40,7 +40,7 @@
 static speaker_setting_t speaker_setting;
 static mic_setting_t mic_setting;
 void usbaud_set_audio_mode(int iso_en, int mono_en) {
-    assert(USB_EDP_MIC < 8);
+//    assert(USB_EDP_MIC < 8);
     SET_FLD(reg_usb_ep_ctrl(USB_EDP_MIC), FLD_USB_EP_EOF_ISO | FLD_USB_EP_MONO);
 }
 

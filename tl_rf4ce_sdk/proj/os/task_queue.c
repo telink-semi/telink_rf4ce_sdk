@@ -49,7 +49,7 @@ enum{
     BUF_TYPE_NORMAL
 };
 
-tl_taskq_user_t taskQ_user = {{0},0,0};
+tl_taskq_user_t taskQ_user = {{{0}}};
 
 _attribute_ram_code_ u8 tl_taskQPush(u8 idx, tl_zb_task_t *task){
     tl_zb_task_t *nTask = NULL;
@@ -75,9 +75,6 @@ _attribute_ram_code_ u8 tl_taskQPush(u8 idx, tl_zb_task_t *task){
     irq_restore(r);
     return ZB_RET_OK;
 }
-
-
-
 
 
 volatile u8 T_DBG_taskQPop_idx = 0;
@@ -146,9 +143,3 @@ u8 tl_taskPost(tl_task_callback_t func, void *arg){
 
     return ret;
 }
-
-
-
-
-
-

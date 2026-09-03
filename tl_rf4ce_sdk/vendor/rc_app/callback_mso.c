@@ -48,13 +48,13 @@
 /**********************************************************************
  * LOCAL CONSTANTS
  */
-static const u16 CABLE_DEFAULT_BRAND[] = {
-    1,
-    2,
-    3,
-};
-
-static const u16 TV_DEFAULT_BRAND = 258;
+//static const u16 CABLE_DEFAULT_BRAND[] = {
+//    1,
+//    2,
+//    3,
+//};
+//
+//static const u16 TV_DEFAULT_BRAND = 258;
 
 const appVendInfo_t app_vendor_info_list[APP_VID_SUPPPORT_MAX] = {
     /* Telink */

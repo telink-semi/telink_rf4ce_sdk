@@ -622,7 +622,8 @@ void rf_rx_irq_handler(void)
     int fAck = 0;
     int len;
     u8 fDrop = 0;
-    u8 fcf1, fcf2;
+    u8 fcf1;
+//    u8 fcf2;
     ZB_RADIO_RX_DONE_CLR;
 
     if(RF_DMA_BUSY()){
@@ -662,7 +663,7 @@ void rf_rx_irq_handler(void)
     len = (u8)ZB_RADIO_ACTUAL_PAYLOAD_LEN(p);
     u8 *macPld = p + ZB_RADIO_RX_HDR_LEN;
     fcf1 = macPld[0];    // frame control byte 1
-    fcf2 = macPld[1];    // frame control byte 2
+//    fcf2 = macPld[1];    // frame control byte 2
 
 //    u8 *pSrcAddr = zb_macDataFilter(macPld, len, &fDrop, &fAck);
     zb_macDataFilter(macPld, len, (u8 *)&fDrop, (u8 *)&fAck);

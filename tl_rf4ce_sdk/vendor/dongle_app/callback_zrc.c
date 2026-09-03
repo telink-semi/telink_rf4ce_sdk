@@ -552,7 +552,7 @@ void zrcApp_initPib(void)
 }
 
 volatile u8 uart_recv_flag = 0;
-volatile u8 aaa_uart_buf[64] = {0};
+u8 aaa_uart_buf[64] = {0};
 volatile int aaa_uart_recv_num = 0;
 s32 zrcApp_uartRecvCb(u8 *pdata){
     memcpy(aaa_uart_buf, pdata, 64);
@@ -562,7 +562,7 @@ s32 zrcApp_uartRecvCb(u8 *pdata){
     aaa_uart_recv_num++;
 
 #if 1
-    u32 *p_sent = (u32 *)aaa_uart_buf;
+//    u32 *p_sent = (u32 *)aaa_uart_buf;
     usbcdc_txBuf_t* p = (usbcdc_txBuf_t *)ev_buf_allocate(LARGE_BUFFER);
     memcpy(p->data, aaa_uart_buf, 64);
     p->len = 66;

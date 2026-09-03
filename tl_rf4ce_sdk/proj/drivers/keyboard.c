@@ -258,15 +258,15 @@ int        matrix_wptr, matrix_rptr;
 
 u32 kb_scan_key (int numlock_status, int read_key) {
     u32 gpio[2];
-    static u32 tick_kb_scan;
-    u32 t = clock_time ();
+//    static u32 tick_kb_scan;
+//    u32 t = clock_time ();
 
-    static u32 last_check_time = 0;
+//    static u32 last_check_time = 0;
 
     scan_pin_need = kb_key_pressed (gpio);
 
     if(scan_pin_need){
-        last_check_time = clock_time();
+//        last_check_time = clock_time();
 
         kb_event.cnt = 0;
         kb_event.ctrl_key = 0;
@@ -335,7 +335,7 @@ u32 kb_scan_key (int numlock_status, int read_key) {
 #endif
         return 1;
     }
-    tick_kb_scan = clock_time () - t;
+//    tick_kb_scan = clock_time () - t;
     return 0;
 }
 

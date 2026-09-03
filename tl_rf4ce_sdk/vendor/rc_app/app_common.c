@@ -849,8 +849,8 @@ void enter_deepsleep_exit_bind(void){
  */
 void keyScan_keyReleasedCB(u8 keyCode);
 void press_key_handler(u8 keyCode, u8 validKey){
-    pmFlag_t pmInfo;
-    pmInfo.byte = analog_read(reg_mac_channel);
+//    pmFlag_t pmInfo;
+//    pmInfo.byte = analog_read(reg_mac_channel);
 
     if((keyCode == 0xff) || (keyCode != validKey)){
         app_stopSendRepeateDataTimer();

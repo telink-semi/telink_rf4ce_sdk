@@ -40,7 +40,8 @@ void drv_i2c_master_init(u8 SlaveID, u32 i2cClock)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_master_init(SlaveID,divClock);
 #elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
-    u8 id = SlaveID;
+//    u8 id = SlaveID;
+    (void)SlaveID;
     i2c_master_init();
     i2c_set_master_clk(divClock);
 #endif

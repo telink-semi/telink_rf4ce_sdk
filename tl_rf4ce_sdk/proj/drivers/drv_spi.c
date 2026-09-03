@@ -68,7 +68,7 @@ void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode)
     u8 divClock = (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
     spi_master_init(divClock, mode);
 #elif defined(MCU_CORE_B92)
-    drv_spi_mode_type_def m =  mode;
+//    drv_spi_mode_type_def m =  mode;
     spi_master_init(SPI_MODULE_SEL, (u16)(SPI_CLOCK_SOURCE/SPI_CLK), SPI_MODE0);
     spi_master_config(SPI_MODULE_SEL, SPI_SINGLE_MODE);
 #endif
@@ -86,7 +86,7 @@ void drv_spi_slave_init(drv_spi_mode_type_def mode)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     spi_slave_init(0, mode);
 #elif defined(MCU_CORE_B92)
-    drv_spi_mode_type_def m =  mode;
+//    drv_spi_mode_type_def m =  mode;
     spi_slave_init(SPI_MODULE_SEL, SPI_MODE0);
     spi_tx_irq_trig_cnt(SPI_MODULE_SEL,4);
     spi_set_dummy_cnt(SPI_MODULE_SEL, 32);
@@ -116,7 +116,7 @@ void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef
 #elif defined(MCU_CORE_B92)
 void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
 {
-    lspi_pin_config_t gspi_pin_config;
+	gspi_pin_config_t gspi_pin_config;
 
     gspi_pin_config.spi_clk_pin            = sclk_pin;
     gspi_pin_config.spi_csn_pin         = cs_pin;
@@ -152,7 +152,7 @@ void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef 
 #elif defined(MCU_CORE_B92)
 void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
 {
-    lspi_pin_config_t gspi_pin_config;
+	gspi_pin_config_t gspi_pin_config;
 
     gspi_pin_config.spi_clk_pin            = sclk_pin;
     gspi_pin_config.spi_csn_pin         = cs_pin;
@@ -185,7 +185,7 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 #elif defined(MCU_CORE_B92)
     u8 *pBuf = (u8 *)ev_buf_allocate(cmdLen + dataLen);
     if(pBuf){
-        u32 pin = csPin;
+//        u32 pin = csPin;
 
         u8 *pData = pBuf;
 
@@ -220,7 +220,7 @@ void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     spi_read(cmd, cmdLen, data, dataLen, csPin);
 #elif defined(MCU_CORE_B92)
-    u32 pin = csPin;
+//    u32 pin = csPin;
     spi_master_write_read(SPI_MODULE_SEL, cmd, cmdLen, data, dataLen);
 #endif
 }

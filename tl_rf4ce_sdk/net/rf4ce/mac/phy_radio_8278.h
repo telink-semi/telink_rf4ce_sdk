@@ -70,7 +70,7 @@
 #define ZB_RADIO_TRX_STA_GET()            rf_trx_state_get()
 
 /* Rx buffer configure */
-#define ZB_RADIO_RX_BUF_SET(addr)         rf_rx_buffer_reconfig(addr)
+#define ZB_RADIO_RX_BUF_SET(addr)         rf_rx_buffer_reconfig((u16)(u32)addr)
 
 /* Rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)          

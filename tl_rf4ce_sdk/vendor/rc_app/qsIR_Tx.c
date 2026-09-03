@@ -125,9 +125,9 @@ s8 zrcIrInit(u8 *database)
 
     }
 
-    u8 *frameptr;
+//    u8 *frameptr;
 
-    frameptr = &zrcIRptr->irData;
+//    frameptr = &zrcIRptr->irData;
 
      if(zrcIRptr->conFlag&0x1)
     {
