@@ -26,7 +26,7 @@
 //#include "../usbhw.h"
 //#include "../usbhw_i.h"
 #include "../usb.h"
-#include "../usbstd/audioClassCommon.h"
+#include "../usbstd/AudioClassCommon.h"
 
 /*************************************************
  * g_audio_hid_chg:

@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    rc_version.c
+ * @file    rf4ce_version.c
  *
- * @brief   This is the source file for rc_version
+ * @brief   This is the source file for rf4ce_version
  *
  * @author  Zigbee Group
  * @date    2021

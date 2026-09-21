@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    rc_info.h
+ * @file    rf4ce_version.h
  *
- * @brief   This is the header file for rc_info.h
+ * @brief   This is the header file for rf4ce_version.h
  *
  * @author  Zigbee GROUP
  * @date    2021

@@ -1,13 +1,12 @@
 /********************************************************************************************************
  * @file    drv_security.h
  *
- * @brief   This is the header file for drv_security
+ * @brief   This is the header file for drv_security.h
  *
- * @author  Zigbee Group
- * @date    2023
+ * @author  Zigbee GROUP
+ * @date    2021
  *
- * @par     Copyright (c) 2023, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -20,8 +19,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
- *
  *******************************************************************************************************/
+
 #pragma once
 
 void drv_aes_encrypt(u8 *key, u8 *plain, u8 *result);

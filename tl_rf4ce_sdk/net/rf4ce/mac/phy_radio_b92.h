@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    phy_radio_8278.h
+ * @file    phy_radio_b92.h
  *
- * @brief   This is the header file for phy_radio_8278.h
+ * @brief   This is the header file for phy_radio_b92
  *
  * @author  Zigbee GROUP
  * @date    2021

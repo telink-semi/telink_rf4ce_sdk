@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    board_dongle_b92.h
+ * @file    board_dongle_tl321x.h
  *
- * @brief   This is the header file for board_dongle_8278.h
+ * @brief   This is the header file for board_dongle_tl321x
  *
  * @author  Zigbee GROUP
  * @date    2021

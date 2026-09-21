@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file    flash_boot.link
+ * @file    boot_tl321x.link
  *
  * @brief   This is the link file for TL321X
  *

@@ -610,10 +610,10 @@ _attribute_ram_code_ u8 tl_audioDataSendCnfHandler(u8 sta);
  * @return  none
  */
 volatile u8 T_rf_rx_irq_handlerCnt[6] = {0};//debug
-#if defined (MCU_CORE_TL321X)
-_attribute_ram_code_
-#else
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 _attribute_ram_code_ __attribute__((optimize("-Os")))
+#else
+_attribute_ram_code_
 #endif
 void rf_rx_irq_handler(void)
 {

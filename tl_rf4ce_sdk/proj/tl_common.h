@@ -25,6 +25,7 @@
 
 #include "common/types.h"
 #include "common/bit.h"
+#include "common/list.h"
 #include "common/utility.h"
 #include "common/static_assert.h"
 #include "common/assert.h"
@@ -46,6 +47,7 @@
 #include "drivers/drv_usb.h"
 #include "drivers/drv_flash.h"
 #include "drivers/drv_security.h"
+#include "drivers/drv_gpio.h"
 
 #include "../platform/platform_includes.h"
 #include "drivers/nv.h"

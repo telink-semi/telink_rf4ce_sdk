@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    drv_nv.c
+ * @file    nv.c
  *
- * @brief   This is the source file for drv_nv
+ * @brief   This is the source file for nv
  *
  * @author  Zigbee Group
  * @date    2021

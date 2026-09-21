@@ -1,12 +1,12 @@
 /********************************************************************************************************
  * @file    plic_isr.c
  *
- * @brief   This is the source file for tl321x
+ * @brief   This is the source file for b92
  *
- * @author  Driver Group
- * @date    2024
+ * @author  Zigbee GROUP
+ * @date    2021
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
- *
  *******************************************************************************************************/
+
 /*
  * All interrupt entry functions and weak definitions of related processing functions are defined here.
  * If you do not use the relevant interrupt function, you can delete it to save ram_code space.

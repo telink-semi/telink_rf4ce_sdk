@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    board_telink_rc_8278.h
+ * @file    board_telink_rc_tl321x.h
  *
- * @brief   This is the header file for board_telink_rc_8278.h
+ * @brief   This is the header file for board_telink_rc_tl321x
  *
  * @author  Zigbee GROUP
  * @date    2021

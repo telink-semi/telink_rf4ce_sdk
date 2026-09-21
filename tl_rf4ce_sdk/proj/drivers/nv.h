@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    drv_nv.h
+ * @file    nv.h
  *
- * @brief   This is the header file for drv_nv
+ * @brief   This is the header file for nv
  *
  * @author  Zigbee Group
  * @date    2021

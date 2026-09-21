@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file    cstartup_flash.S
+ * @file    cstartup_tl321x.S
  *
  * @brief   This is the boot file for TL321X
  *

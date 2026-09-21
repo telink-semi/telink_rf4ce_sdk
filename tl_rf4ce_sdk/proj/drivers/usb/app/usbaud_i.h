@@ -30,7 +30,7 @@
 
 //#include "../usbhw.h"
 //#include "../usbhw_i.h"
-#include "../usbstd/audioClassCommon.h"
+#include "../usbstd/AudioClassCommon.h"
 
 #if 0
 static const USB_Descriptor_HIDReport_Datatype_t usbaud_report_desc[] = {
