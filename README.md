@@ -1,5 +1,7 @@
 # telink_rf4ce_sdk README
 
+* [中文版](./README_CN.md)
+
 ## SDK introduction
 
 telink_rf4ce_sdk is an RF4CE software development platform based on Telink TLSR825x, TLSR827x, TLSR952x, and TL321x series SoCs. It supports RF4CE application layer protocols such as ZRC2 and MSO, and provides IR transmission, IR learning, audio, and OTA (over-the-air) features, helping you efficiently build RF remote control products.
