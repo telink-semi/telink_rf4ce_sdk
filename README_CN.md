@@ -1,5 +1,7 @@
 # telink_rf4ce_sdk README
 
+* [English](./README.md)
+
 ## SDK 介绍
 
 telink_rf4ce_sdk 是一款基于泰凌微电子 TLSR825x、TLSR827x、TLSR952x、TL321x 等系列 SoC 的 RF4CE 软件开发平台，支持 ZRC2、MSO 等 RF4CE 应用层协议标准，支持红外发射、红外学习、音频以及 OTA 功能，帮助您高效构建射频遥控器产品。
