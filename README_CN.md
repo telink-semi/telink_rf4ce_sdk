@@ -38,7 +38,7 @@ RF4CE 是专为消费电子产品设计的射频遥控协议标准，具有非�
 
 | 文档 | 说明 |
 | --- | --- |
-| [快速入门指南](https://doc.telink-semi.cn/doc/zh/software/res/sdk/rf4ce/get_started/telink_rf4ce_sdk_get_started_cn/) | 开发环境配置、SDK 获取及快速上手方法 |
+| [快速入门指南](https://doc.telink-semi.cn/doc/zh/software/res/sdk/rf4ce/get_started/telink_rf4ce_sdk_getting_started_cn/) | 开发环境配置、SDK 获取及快速上手方法 |
 | [Release Notes](./doc/telink_rf4ce_sdk_Release_Note.md) | 支持平台、版本说明与详细变化 |
 
 **社区与资源**

@@ -38,7 +38,7 @@ For complete and accurate details on chip series, corresponding development boar
 
 | Document | Description |
 | --- | --- |
-| [Getting Started](https://doc.telink-semi.cn/doc/en/software/res/sdk/rf4ce/get_started/telink_rf4ce_sdk_get_started_en/) | Development environment setup, SDK acquisition, and quick start instructions |
+| [Getting Started](https://doc.telink-semi.cn/doc/en/software/res/sdk/rf4ce/get_started/telink_rf4ce_sdk_getting_started_en/) | Development environment setup, SDK acquisition, and quick start instructions |
 | [Release Notes](./doc/telink_rf4ce_sdk_Release_Note.md) | Supported platforms, version notes, and detailed changes |
 
 **Community and resources**
