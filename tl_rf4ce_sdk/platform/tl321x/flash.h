@@ -4,9 +4,9 @@
  * @brief   This is the header file for TL321X
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2026
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2026, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ typedef enum
     FLASH_WRITE_STATUS_CMD_LOWBYTE     = 0x01001080,
     FLASH_WRITE_STATUS_CMD_HIGHBYTE    = 0x31001080, // Flash Type = P25Q16SU/P25Q32SU for write status register-1;
     FLASH_WRITE_CONFIGURE_CMD_1        = 0x31001080, // Flash Type = P25Q80U  for write configure register;
-    FLASH_WRITE_CONFIGURE_CMD_2        = 0x11001080, // Flash Type = P25Q16SU/P25Q32SU  for write configure register;
+    FLASH_WRITE_CONFIGURE_CMD_2        = 0x11001080, // Flash Type = P25Q16SU/P25Q32SU/P25D24U  for write configure register;
     // other command called by flash_send_cmd() function
     FLASH_WRITE_DISABLE_CMD = 0x04007080,
     FLASH_WRITE_ENABLE_CMD  = 0x06007080,
@@ -152,6 +152,9 @@ typedef enum
     MID156085 = 0x156085, //P25Q16SU
     MID1560C8 = 0x1560c8, //GD25LE16E
     MID166085 = 0x166085, //P25Q32SU
+    MID1151CD = 0x1151cd, //TH25D10UB
+    MID1271CD = 0x1271cd, //TH25D20UB
+    MID124585 = 0x124585, //P25D24U
 } flash_mid_e;
 
 typedef struct
@@ -448,23 +451,6 @@ _attribute_text_sec_ void flash_page_program_encrypt(unsigned long addr, unsigne
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 _attribute_text_sec_ void flash_quad_page_program_encrypt(unsigned long addr, unsigned long len, unsigned char *buf);
-
-/**
- * @brief       This function serves to read MID of flash(MAC id). Before reading UID of flash,
- *              you must read MID of flash. and then you can look up the related table to select
- *              the idcmd and read UID of flash.
- * @return      MID of the flash.
- * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
- *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
- *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
- *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
- *              to the specific application and hardware circuit.
- *
- *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
- *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
- *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
- */
-_attribute_text_sec_ unsigned int flash_read_mid(void);
 
 /**
  * @brief       This function serves to read UID of flash.Before reading UID of flash, you must read MID of flash.

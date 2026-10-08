@@ -73,3 +73,4 @@
 #include "cache.h"
 #include "compatibility_pack/cmpt.h"
 #include "pem.h"
+#include "rz.h"

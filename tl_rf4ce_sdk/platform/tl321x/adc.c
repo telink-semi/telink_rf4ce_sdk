@@ -628,7 +628,7 @@ void adc_set_vbat_calib_vref(unsigned short vref, signed char offset)
 void adc_set_dma_config(dma_chn_e chn)
 {
     adc_dma_chn     = chn;
-    reg_adc_config2 = FLD_RX_DMA_ENABLE;
+    reg_adc_config2 |= FLD_RX_DMA_ENABLE;
     dma_config(chn, &adc_rx_dma_config);
     reg_dma_llp(adc_dma_chn) = 0;
     /*
